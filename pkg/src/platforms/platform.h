@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 
 /*!
  * @brief     Hardware Abstraction Layer header file.
@@ -45,3 +47,5 @@ int32_t get_platform_id(uint32_t *platform_id);
 }
 #endif
 #endif /*__HAL_H__*/
+
+#endif /* defined(__linux__) */

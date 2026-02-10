@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 
 /*!
  * @brief     Hardware Abstraction Layer.
@@ -139,3 +141,5 @@ end:
 
 
 
+
+#endif /* defined(__linux__) */
