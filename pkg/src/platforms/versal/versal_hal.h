@@ -28,6 +28,15 @@
 #define APOLLO_SPI1_NAME    "APOLLO_SPI1"
 #define HMC7044_SPI_NAME    "HMC7044_SPI"
 
+/*============= T Y P E D E F S ============*/
+
+/*!
+ * @brief   SPI SDO enable function pointer type.
+ *          On ADS10 this controlled FMCB level shifters; on Versal it is unused
+ *          but kept for API compatibility with ex_common function signatures.
+ */
+typedef int32_t (*hal_spi_sdo_en)(void* user_data, uint32_t target, uint8_t enable);
+
 /*============= S T R U C T S ==============*/
 
 /*!

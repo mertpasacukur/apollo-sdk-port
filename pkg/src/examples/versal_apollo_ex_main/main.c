@@ -34,10 +34,10 @@
 #include "versal_apollo_ex.h"
 
 /* Clock device APIs */
-#include "adi_ads10_apollo_ex_clk.h"
-#include "adi_ads10_apollo_ex_hmc7044.h"
-#include "adi_ads10_apollo_ex_adf4382.h"
-#include "adi_ads10_apollo_ex_adf4030.h"
+#include "versal_apollo_ex_clk.h"
+#include "versal_apollo_ex_hmc7044.h"
+#include "versal_apollo_ex_adf4382.h"
+#include "versal_apollo_ex_adf4030.h"
 
 /* Example functions */
 #include "apollo_examples.h"
