@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     FW image provider header for ADS10
  *
@@ -18,7 +16,9 @@
  #define __ADS10_FW_PROVIDER__
  
 #ifdef __KERNEL__
+#if defined(__linux__)
 #include <linux/kernel.h>
+#endif
 #else
 #include <stdint.h>
 #endif
@@ -83,4 +83,3 @@ int32_t ads10_fw_provider_get(adi_apollo_fw_provider_t *fw_provider, adi_apollo_
  }
  #endif
  #endif /*__ADS10_FW_PROVIDER__*/
-#endif /* defined(__linux__) */

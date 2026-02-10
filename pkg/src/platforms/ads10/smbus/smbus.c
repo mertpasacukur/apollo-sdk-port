@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*
     smbus.c - SMBus level access helper functions
 
@@ -16,10 +14,12 @@
 #include <errno.h>
 #include <stddef.h>
 #include "smbus.h"
+#if defined(__linux__)
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#endif
 
 /* Compatibility defines */
 #ifndef I2C_SMBUS_I2C_BLOCK_BROKEN
@@ -214,5 +214,3 @@ __s32 i2c_smbus_block_process_call(int file, __u8 command, __u8 length,
 		values[i-1] = data.block[i];
 	return data.block[0];
 }
-
-#endif /* defined(__linux__) */

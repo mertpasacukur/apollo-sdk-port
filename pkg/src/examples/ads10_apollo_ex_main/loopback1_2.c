@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Loopback1 and 2 example
  *
@@ -45,7 +43,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include "adi_apollo.h"
 #include "adi_apollo_utils.h"
 #include "adi_ads10_apollo_ex.h"
@@ -194,5 +194,3 @@ int32_t tx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* defined(__linux__) */

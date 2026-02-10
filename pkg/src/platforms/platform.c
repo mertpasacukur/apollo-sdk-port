@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 
 /*!
  * @brief     Hardware Abstraction Layer.
@@ -17,13 +15,17 @@
 
 /*============= I N C L U D E S ============*/
 #include <errno.h>
+#if defined(__linux__)
 #include <fcntl.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#if defined(__linux__)
 #include <unistd.h>
 #include <sys/mman.h>
+#endif
 #include "platform.h"
 #include "adi_cms_api_common.h"
 
@@ -141,5 +143,3 @@ end:
 
 
 
-
-#endif /* defined(__linux__) */

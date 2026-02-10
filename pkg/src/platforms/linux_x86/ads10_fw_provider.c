@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     Source file implementing FW image provider for ADS10
  *
@@ -172,4 +170,3 @@ end:
 
 
 /*! @} */
-#endif /* defined(__linux__) */

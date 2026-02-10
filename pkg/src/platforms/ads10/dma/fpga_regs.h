@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     FPGA REGS Header File
  *
@@ -2150,5 +2148,3 @@
 #endif	/* end ifndef _DEF_FPGA_REGS_H */
 
 /*! @} */
-
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     SW VERSION Header File
  *
@@ -37,5 +35,3 @@
 #endif
 
 /*! @} */
-
-#endif /* defined(__linux__) */

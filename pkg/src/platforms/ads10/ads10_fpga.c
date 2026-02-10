@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief    ADS10/FPGA API
  *
@@ -16,9 +14,11 @@
 #include "adi_fpga_apollo_gpio_types.h"
 #include <string.h>
 #include <errno.h>
+#if defined(__linux__)
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#endif
 #ifdef ADS10
 #include "cdmaapi.h"
 #endif /* ADS10 */
@@ -222,5 +222,3 @@ end_unmap:
 end:
 	return err;
 }
-
-#endif /* defined(__linux__) */

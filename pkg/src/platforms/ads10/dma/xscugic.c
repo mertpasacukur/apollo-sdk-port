@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -951,5 +949,3 @@ u32 XScuGic_GetCpuID(void)
 	return CpuId;
 }
 /** @} */
-
-#endif /* defined(__linux__) */

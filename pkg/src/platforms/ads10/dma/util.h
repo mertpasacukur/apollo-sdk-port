@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     UTIL Header File
  *
@@ -61,5 +59,3 @@ extern "C" {
 #endif
 
 /*! @} */
-
-#endif /* defined(__linux__) */

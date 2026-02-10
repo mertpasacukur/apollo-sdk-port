@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     MZ REG Header File
  *
@@ -211,5 +209,3 @@
 #endif	/* end ifndef _DEF_MZ_REG_H */
 
 /*! @} */
-
-#endif /* defined(__linux__) */

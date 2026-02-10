@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Fullchip PFILT example code
  *
@@ -77,7 +75,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_gpio.h"
@@ -558,4 +558,3 @@ static int32_t tx_dp_reset(adi_apollo_device_t *device, bool do_oneshot_sync)
     
     return err;
 }
-#endif /* defined(__linux__) */

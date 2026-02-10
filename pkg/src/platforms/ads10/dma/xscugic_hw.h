@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
@@ -642,5 +640,3 @@ void XScuGic_GetPriTrigTypeByDistAddr(u32 DistBaseAddress, u32 Int_Id,
 
 #endif            /* end of protection macro */
 /** @} */
-
-#endif /* defined(__linux__) */

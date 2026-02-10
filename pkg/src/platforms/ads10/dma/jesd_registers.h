@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 
 /*!
  * @brief     JESD registers definition file.
@@ -162,5 +160,3 @@
 /*============= E X P O R T S ==============*/
 
 #endif /*__JESD_REGISTERS__*/
-
-#endif /* defined(__linux__) */

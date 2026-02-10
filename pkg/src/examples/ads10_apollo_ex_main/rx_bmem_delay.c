@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo BMEM delay test
  * 
@@ -22,7 +20,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_loopback.h"
@@ -63,5 +63,3 @@ int32_t rx_bmem_delay(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
 
     return err;
 }
-
-#endif /* defined(__linux__) */

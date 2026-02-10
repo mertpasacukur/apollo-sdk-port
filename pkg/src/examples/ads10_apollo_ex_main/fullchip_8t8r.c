@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo fullchip 8T8R loopback
  *
@@ -24,7 +22,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -163,4 +163,3 @@ static int32_t tx_dp_reset(adi_apollo_device_t* device)
     err |= adi_apollo_txmisc_dp_reset(device, ADI_APOLLO_SIDE_ALL, 0);
     return err;
 }
-#endif /* defined(__linux__) */

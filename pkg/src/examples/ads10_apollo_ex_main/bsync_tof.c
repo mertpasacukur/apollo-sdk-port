@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief       Measure the time-of-flight (tof) of BSYNC signal (like SYSREF Clock)
                 from its source, ADF4030, to the Apollo and FPGA SYSREF pin.
@@ -66,7 +64,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_utils.h"
@@ -329,4 +329,3 @@ static __maybe_unused void print_link_phase(adi_apollo_device_t* device) {
     adi_apollo_jrx_phase_diff_get(device, ADI_APOLLO_LINK_B0, &jrx_phase_diff1);
     printf("jrx_phase_diff0/jrx_phase_diff1 = %d %d\n", jrx_phase_diff0, jrx_phase_diff1);
 }
-#endif /* defined(__linux__) */

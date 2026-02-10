@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 
 /*******************************************************************
 *
@@ -57,5 +55,3 @@ XScuGic_Config XScuGic_ConfigTable[XPAR_XSCUGIC_NUM_INSTANCES] =
 };
 
 
-
-#endif /* defined(__linux__) */

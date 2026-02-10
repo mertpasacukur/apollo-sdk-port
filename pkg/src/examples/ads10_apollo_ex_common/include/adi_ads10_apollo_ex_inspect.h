@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo examples common inspect functions
  *
@@ -12,7 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 
 #include "adi_apollo.h"
 #include "ads10_hal.h"
@@ -119,4 +119,3 @@ int32_t adi_ads10_apollo_ex_inspect_tx_freq_get(adi_apollo_device_t *device, adi
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_COMMON_EX_INSPECT_H__ */
-#endif /* defined(__linux__) */

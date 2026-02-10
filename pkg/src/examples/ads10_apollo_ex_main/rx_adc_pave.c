@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx PFILT ADC averaging
  * 
@@ -71,7 +69,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 
 static int32_t rx_mux1_config(adi_apollo_device_t *device);
 static double coherent_freq(double target, double fdata, uint32_t n_samples);
@@ -224,5 +224,3 @@ static int32_t rx_mux1_config(adi_apollo_device_t *device)
 
     return (err == API_CMS_ERROR_OK ? API_CMS_ERROR_OK : API_CMS_ERROR_ERROR);
 }
-
-#endif /* defined(__linux__) */

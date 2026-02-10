@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2015 Xilinx, Inc. All rights reserved.
@@ -154,7 +152,9 @@ typedef unsigned long ULONG;
 #define ULONG64_LO_MASK	~ULONG64_HI_MASK
 
 #else
+#if defined(__linux__)
 #include <linux/types.h>
+#endif
 #endif
 
 /** @{ */
@@ -209,5 +209,3 @@ typedef void (*XExceptionHandler) (void *InstancePtr);
 /**
 * @} End of "addtogroup common_types".
 */
-
-#endif /* defined(__linux__) */

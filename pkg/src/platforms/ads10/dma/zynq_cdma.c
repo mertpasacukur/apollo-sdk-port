@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     ZYNQ DMA Source File
  *
@@ -135,5 +133,3 @@ void DisableIntrSystem(XScuGic *IntcInstancePtr, u32 IntrId)
 }
 
 /*! @} */
-
-#endif /* defined(__linux__) */

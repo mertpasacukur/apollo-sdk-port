@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2014 - 2016 Xilinx, Inc. All rights reserved.
@@ -339,5 +337,3 @@ static INLINE void Xil_Out32BE(UINTPTR Addr, u32 Value)
 /**
 * @} End of "addtogroup common_io_interfacing_apis".
 */
-
-#endif /* defined(__linux__) */

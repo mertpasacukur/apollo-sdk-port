@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     JESD204 CFG SETTINGS Header File
  *
@@ -94,5 +92,3 @@
 #endif
 
 /*! @} */
-
-#endif /* defined(__linux__) */

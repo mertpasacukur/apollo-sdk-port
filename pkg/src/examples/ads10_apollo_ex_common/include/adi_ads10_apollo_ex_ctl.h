@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo examples console control functions
  *
@@ -93,4 +91,3 @@ extern "C" {
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EXCTL_H__ */
-#endif /* defined(__linux__) */

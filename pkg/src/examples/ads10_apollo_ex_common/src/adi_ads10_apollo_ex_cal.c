@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo examples calibration function implementations
  *
@@ -11,7 +9,9 @@
 
 /*============= I N C L U D E S ============*/
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include "adi_ads10_apollo_ex_cal.h"
 #include "adi_apollo_linux_utilities.h"
 #include "adi_ads10_apollo_ex.h"
@@ -318,4 +318,3 @@ static uint32_t Crc32(const uint8_t buf[], uint32_t bufLen)
 
   return a;
 }
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo examples common types
  *
@@ -130,5 +128,3 @@ typedef struct {
     uint16_t base_xdrc;             /* Original total drc */
 } adi_ads10_apollo_sr_dr_cfg_t;
 #endif /* __ADI_ADS10_APOLLO_COMMON_EX_TYPES_H__ */
-
-#endif /* defined(__linux__) */

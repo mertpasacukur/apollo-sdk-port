@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -168,5 +166,3 @@ void XAxiCdma_DumpBd(XAxiCdma_Bd* BdPtr);
 
 #endif    /* prevent circular inclusions */
 /** @} */
-
-#endif /* defined(__linux__) */

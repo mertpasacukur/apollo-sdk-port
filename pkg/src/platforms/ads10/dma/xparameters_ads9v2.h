@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 #ifndef XPARAMETERS_ADS9V2_H   /* prevent circular inclusions */
 #define XPARAMETERS_ADS9V2_H   /* by using protection macros */
 
@@ -804,5 +802,3 @@
 /******************************************************************/
 
 #endif  /* end of protection macro */
-
-#endif /* defined(__linux__) */

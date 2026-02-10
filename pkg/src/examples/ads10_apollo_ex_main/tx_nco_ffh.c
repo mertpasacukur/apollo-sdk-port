@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Tx data path Fast-Frequency Hopping
  *  
@@ -18,7 +16,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_gpio.h"
@@ -251,5 +251,3 @@ static int32_t apollo_cnco_auto_hop(adi_apollo_device_t *device, adi_apollo_coar
 
     return err;
 }
-
-#endif /* defined(__linux__) */

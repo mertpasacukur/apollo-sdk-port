@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Loopback0 test
  *            The example demonstrates Apollo's Loopback 0 feature where the DSP blocks are bypassed
@@ -13,7 +11,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_loopback.h"
@@ -173,5 +173,3 @@ static int32_t loopback0_cleanup(adi_apollo_device_t *device) {
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2002 - 2015 Xilinx, Inc. All rights reserved.
@@ -535,5 +533,3 @@ typedef s32 XStatus;
 /**
 * @} End of "addtogroup common_status_codes".
 */
-
-#endif /* defined(__linux__) */

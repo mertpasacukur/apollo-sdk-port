@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Fullchip Hopping example code
  *
@@ -110,7 +108,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_gpio.h"
@@ -2194,4 +2194,3 @@ static int32_t gpio_hop_custom_configure(adi_apollo_device_t* device, adi_apollo
 
     return err;
 }
-#endif /* defined(__linux__) */

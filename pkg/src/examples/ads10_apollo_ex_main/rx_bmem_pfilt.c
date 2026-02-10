@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx PFILT data path test using BMEM-AWG as input source
  *
@@ -26,7 +24,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -196,4 +196,3 @@ static double coherent_freq(double target, double fdata, uint32_t n_samples)
     }
     return ((m_cycles * fdata) / n_samples);
 }
-#endif /* defined(__linux__) */

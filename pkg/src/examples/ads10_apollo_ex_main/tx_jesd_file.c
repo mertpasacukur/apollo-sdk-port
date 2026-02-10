@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo load vector from file example
  *
@@ -11,7 +9,9 @@
  #include <stdio.h>
  #include <string.h>
  #include <stdlib.h>
+#if defined(__linux__)
  #include <unistd.h>
+#endif
  #include <math.h>
  #include "adi_apollo.h"
  #include "adi_utils.h"
@@ -137,4 +137,3 @@
  
      return err;
  }
-#endif /* defined(__linux__) */

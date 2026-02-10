@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo examples common ADF4382 functions
  *
@@ -199,4 +197,3 @@ int32_t adi_ads10_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, u
 
     return API_CMS_ERROR_OK;
 }
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx Nyquist zone test using ADC inputs and BMEM capture
  *
@@ -11,7 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -129,5 +129,3 @@ int32_t rx_adc_nz(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* defined(__linux__) */

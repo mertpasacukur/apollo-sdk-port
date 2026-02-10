@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     SIMPLE DMA Header File
  *
@@ -67,5 +65,3 @@ uint8_t simple_dma_check_done(simple_dma_inst * inst, uint8_t is_write);
 #endif
 
 /*! @} */
-
-#endif /* defined(__linux__) */

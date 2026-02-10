@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2015 - 2016 Xilinx, Inc.  All rights reserved.
@@ -256,4 +254,3 @@ extern void Xil_UndefinedExceptionHandler(void *CallBackRef);
 /**
 * @} End of "addtogroup arm_exception_apis".
 */
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     ADS10 Apollo Standalone App Extras Header File
  *            This file contains all the publicly exposed methods and data
@@ -22,7 +20,9 @@
 /*============= I N C L U D E S ============*/
 #include <stdio.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
@@ -176,4 +176,3 @@ int32_t adi_ads10_apollo_extras_arr1d_double_delta_get(double data[], uint32_t l
 int32_t adi_ads10_apollo_extras_arr1d_double_max_abs_get(double data[], uint32_t len, double *max_abs_val);
 
 #endif
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2014 - 2016 Xilinx, Inc. All rights reserved.
@@ -249,5 +247,3 @@ extern "C" {
 #endif /* __cplusplus */
 
 #endif /* XPSEUDO_ASM_GCC_H */
-
-#endif /* defined(__linux__) */

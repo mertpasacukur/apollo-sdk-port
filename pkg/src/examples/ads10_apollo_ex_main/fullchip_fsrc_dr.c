@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx/Tx FSRC Dynamic Reconfig (DR) using manual (SPI) trigger.
  *
@@ -31,7 +29,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -670,4 +670,3 @@ static bool is_valid_rate_change(adi_ads10_apollo_dp_info_t *rx_dp_info, adi_ads
         return true;
     }
 }
-#endif /* defined(__linux__) */

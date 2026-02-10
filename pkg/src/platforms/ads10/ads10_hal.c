@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     ADS10 platform configuration and control source file.
  *
@@ -19,15 +17,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <fcntl.h>
+#endif
 #include <time.h>
 #include <errno.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <setjmp.h>
+#if defined(__linux__)
 #include <signal.h>
+#endif
 
+#if defined(__linux__)
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#endif
 #include <byteswap.h>
 #include "ads10_hal.h"
 #include "platform.h"
@@ -2375,5 +2381,3 @@ static int32_t fmcb_level_shifter_disable_all(void *sdo_en_context, hal_spi_sdo_
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* defined(__linux__) */

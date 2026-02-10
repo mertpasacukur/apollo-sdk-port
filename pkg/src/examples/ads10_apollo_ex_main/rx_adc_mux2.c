@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx Mux2 Reconfig
  * 
@@ -82,7 +80,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 
 #define NUM_MUX_POS 2
 #define DFT_LEN 512
@@ -625,5 +625,3 @@ int32_t calc_net_result(phase_info_struct_t ph_delta_mtx[][MAX_CAP_SETS][MAX_VCS
 
     return err;
 }
-
-#endif /* defined(__linux__) */

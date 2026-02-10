@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -88,5 +86,3 @@ XAxiCdma_Config *XAxiCdma_LookupConfig(u32 DeviceId)
 	return CfgPtr;
 }
 /** @} */
-
-#endif /* defined(__linux__) */

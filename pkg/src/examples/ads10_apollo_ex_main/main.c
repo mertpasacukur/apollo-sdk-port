@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo example program main
  *
@@ -11,7 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -581,5 +581,3 @@ void print_usage()
     emb_test_usage_print();
 #endif /*ADI_EMB_TESTS*/
 }
-
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 
 /*******************************************************************
 *
@@ -60,5 +58,3 @@ XAxiCdma_Config XAxiCdma_ConfigTable[XPAR_XAXICDMA_NUM_INSTANCES] =
 };
 
 
-
-#endif /* defined(__linux__) */

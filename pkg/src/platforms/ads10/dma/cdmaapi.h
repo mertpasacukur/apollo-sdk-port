@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * @brief     CDMA API Header File
  *
@@ -53,5 +51,3 @@ int CdmaTransfer(uint32_t src_addr,
 
 /*! @} */
 
-
-#endif /* defined(__linux__) */

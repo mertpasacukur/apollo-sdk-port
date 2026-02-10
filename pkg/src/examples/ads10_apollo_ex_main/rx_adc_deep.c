@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx deep capture example
  *
@@ -11,7 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -173,5 +173,3 @@ end:
 
     return err;
 }
-
-#endif /* defined(__linux__) */

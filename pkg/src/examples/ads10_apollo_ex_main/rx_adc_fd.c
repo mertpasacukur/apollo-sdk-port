@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo Rx ADC Fast detect
  *
@@ -17,7 +15,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -91,5 +91,3 @@ static uint32_t calculate_fd_threshold_magnitude(double dbfs) {
     return (int)(pow(10.0, (dbfs / 20)) * (1 << 11));
 }
 
-
-#endif /* defined(__linux__) */

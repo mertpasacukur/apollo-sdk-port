@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     Basic FPGA ADS10 config functions
  *
@@ -15,13 +13,17 @@
 
 /*============= I N C L U D E S ============*/
 #include <errno.h>
+#if defined(__linux__)
 #include <fcntl.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
+#if defined(__linux__)
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#endif
 
 #include "ads10_fpga_config.h"
 #include "adi_cms_api_common.h"
@@ -574,4 +576,3 @@ end_fd:
     close(fd);
     return -1;
 }
-#endif /* defined(__linux__) */

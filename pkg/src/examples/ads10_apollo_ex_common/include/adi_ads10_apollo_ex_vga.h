@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo FMCB Variable Gain Amplifiers config functions
  *
@@ -142,5 +140,3 @@ int32_t adi_ads10_apollo_ex_adl6332_startup(adi_adl6332_device_t *adl6332,
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_COMMON_VGA_H__ */
-
-#endif /* defined(__linux__) */

@@ -1,5 +1,3 @@
-#if defined(__linux__)
-
 /*!
  * \brief     ADS10 Apollo JRx data path with CFIR
  *
@@ -11,7 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined(__linux__)
 #include <unistd.h>
+#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -160,5 +160,3 @@ int32_t tx_jesd_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
 
     return err;
 }
-
-#endif /* defined(__linux__) */
