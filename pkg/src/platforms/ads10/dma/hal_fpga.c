@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     HAL FPGA Source File
  *
@@ -137,3 +139,5 @@ unsigned int Hal_FpgaDeinit(void)
 }
 
 /*! @} */
+
+#endif /* defined(__linux__) */

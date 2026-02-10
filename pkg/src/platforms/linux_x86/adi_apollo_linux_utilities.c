@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     APIs for CPU FW file LOAD
  *
@@ -291,3 +293,5 @@ end:
     return err;
 }
 
+
+#endif /* defined(__linux__) */

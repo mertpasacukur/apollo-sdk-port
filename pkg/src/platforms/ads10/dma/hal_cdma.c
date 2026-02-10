@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     Hal CDMA Source File
  *
@@ -93,3 +95,5 @@ unsigned int Hal_CdmaDeinit(void)
 }
 
 /*! @} */
+
+#endif /* defined(__linux__) */

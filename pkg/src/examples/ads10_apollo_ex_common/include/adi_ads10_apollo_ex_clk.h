@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo examples common clocking functions
  *
@@ -87,3 +89,5 @@ int32_t adi_ads10_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_CLK_H__ */
+
+#endif /* defined(__linux__) */

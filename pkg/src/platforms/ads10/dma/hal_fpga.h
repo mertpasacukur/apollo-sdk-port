@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     HAL FPGA Header File
  *
@@ -51,3 +53,5 @@ unsigned int Hal_FpgaDeinit(void);
 #endif /* end of protection macro */
 
 /*! @} */
+
+#endif /* defined(__linux__) */

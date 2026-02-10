@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -257,3 +259,5 @@ void XAxiCdma_IntrHandler(void *HandlerRef)
 	return;
 }
 /** @} */
+
+#endif /* defined(__linux__) */

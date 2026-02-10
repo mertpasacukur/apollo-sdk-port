@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 
 
 /******************************************************************************
@@ -130,3 +132,5 @@ void DisableIntrSystem(XScuGic *IntcInstancePtr, u32 IntrId);
 
 
 #endif /* __ZYNQ_CDMA_H_ */
+
+#endif /* defined(__linux__) */

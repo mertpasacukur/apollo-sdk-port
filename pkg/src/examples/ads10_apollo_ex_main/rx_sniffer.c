@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo FFT Sniffer test
  *
@@ -272,3 +274,5 @@ static int32_t rx_sniffer_bin_frequencies_get(adi_apollo_device_t *device, int b
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     HAL CDMA Header File
  *
@@ -47,3 +49,5 @@ unsigned int Hal_CdmaDeinit(void);
 #endif /* end of protection macro */
 
 /*! @} */
+
+#endif /* defined(__linux__) */

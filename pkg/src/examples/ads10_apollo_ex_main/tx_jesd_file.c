@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo load vector from file example
  *
@@ -135,3 +137,4 @@
  
      return err;
  }
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo Jesd Loopback
  *
@@ -86,3 +88,5 @@ int32_t jesd_loopback(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
 
     return err;
 }
+
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     Analog Devices DMA API Source File
  *
@@ -516,3 +518,5 @@ static void axi_dmac_dbg_reg(void)
 }
 
 /*! @} */
+
+#endif /* defined(__linux__) */

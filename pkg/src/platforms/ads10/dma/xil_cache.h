@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
@@ -119,3 +121,5 @@ void Xil_ICacheInvalidateRange(INTPTR adr, u32 len);
 /**
 * @} End of "addtogroup a9_cache_apis".
 */
+
+#endif /* defined(__linux__) */

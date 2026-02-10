@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo fullchip Rx/Tx subclass 1 with deterministic latency
  *            using internal clocking scheme and multi-chip sync.
@@ -509,3 +511,5 @@ static uint16_t jrx_phase_adj_const_get(adi_apollo_top_t *profile)
         return 33;
     }
 }
+
+#endif /* defined(__linux__) */

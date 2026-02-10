@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     ADS10 platform configuration header file.
  *
@@ -571,3 +573,5 @@ int32_t ads10_i2c_write(void *user_data, uint32_t device_addr, uint8_t reg_addr,
 }
 #endif
 #endif /*__ADS10_HAL__*/
+
+#endif /* defined(__linux__) */

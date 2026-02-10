@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo example program main
  *
@@ -579,3 +581,5 @@ void print_usage()
     emb_test_usage_print();
 #endif /*ADI_EMB_TESTS*/
 }
+
+#endif /* defined(__linux__) */

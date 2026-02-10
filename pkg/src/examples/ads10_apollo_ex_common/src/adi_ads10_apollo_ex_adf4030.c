@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo examples common ADF4030 functions
  *
@@ -248,3 +250,5 @@ int32_t adi_ads10_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf403
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -364,3 +366,5 @@ s32  XScuGic_SelfTest(XScuGic *InstancePtr);
 
 #endif            /* end of protection macro */
 /** @} */
+
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2015 Xilinx, Inc. All rights reserved.
@@ -207,3 +209,5 @@ typedef void (*XExceptionHandler) (void *InstancePtr);
 /**
 * @} End of "addtogroup common_types".
 */
+
+#endif /* defined(__linux__) */

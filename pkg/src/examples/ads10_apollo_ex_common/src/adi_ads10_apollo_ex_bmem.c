@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo examples common BMEM related functions
  *
@@ -158,3 +160,5 @@ end:
     ADI_CMS_MEM_ALLOC_FREE(bmem_cap32);
     return err;
 }
+
+#endif /* defined(__linux__) */

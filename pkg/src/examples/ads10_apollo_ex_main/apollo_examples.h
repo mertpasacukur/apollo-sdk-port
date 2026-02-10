@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     Apollo code examples
  *
@@ -60,3 +62,4 @@ int32_t bsync_tof(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
 int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 
 #endif /* __APOLLO_EXAMPLES_H__ */
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     YODA UTIL Header File
  *
@@ -36,3 +38,5 @@
 #endif
 
 /*! @} */
+
+#endif /* defined(__linux__) */

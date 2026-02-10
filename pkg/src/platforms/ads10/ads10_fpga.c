@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief    ADS10/FPGA API
  *
@@ -220,3 +222,5 @@ end_unmap:
 end:
 	return err;
 }
+
+#endif /* defined(__linux__) */

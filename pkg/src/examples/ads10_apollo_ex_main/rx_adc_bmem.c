@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo Rx raw ADC BMEM capture
  *
@@ -159,3 +161,4 @@ static int32_t rx_mux1_config(adi_apollo_device_t *device)
     
     return err;
 }
+#endif /* defined(__linux__) */

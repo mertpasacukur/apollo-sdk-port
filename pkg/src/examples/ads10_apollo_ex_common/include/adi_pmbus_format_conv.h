@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     PMBus Numeric Data Format Conversion header file.
  *
@@ -118,3 +120,4 @@ int32_t adi_pmbus_format_conv_l11_to_float(uint16_t l11_input[], float float_val
 }
 #endif
 #endif /*__ADI_PMBUS_FORMAT_CONV_H__*/
+#endif /* defined(__linux__) */

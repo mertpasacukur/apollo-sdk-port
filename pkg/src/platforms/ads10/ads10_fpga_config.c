@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     Basic FPGA ADS10 config functions
  *
@@ -572,3 +574,4 @@ end_fd:
     close(fd);
     return -1;
 }
+#endif /* defined(__linux__) */

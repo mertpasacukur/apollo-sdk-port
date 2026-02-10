@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     COMMON Header File
  *
@@ -42,3 +44,5 @@ void system_close(void);
 #endif
 
 /*! @} */
+
+#endif /* defined(__linux__) */

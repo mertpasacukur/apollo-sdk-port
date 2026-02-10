@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     PLATFORM CONFIG Header File
  *
@@ -35,3 +37,5 @@
 #endif
 
 /*! @} */
+
+#endif /* defined(__linux__) */

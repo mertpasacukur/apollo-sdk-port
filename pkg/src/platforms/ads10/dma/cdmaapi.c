@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     CDMA API Source File
  *
@@ -445,3 +447,5 @@ static void XAxiCdma_AresetPulseGenerate(void)
 }
 
 /*! @} */
+
+#endif /* defined(__linux__) */

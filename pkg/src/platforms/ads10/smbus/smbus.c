@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*
     smbus.c - SMBus level access helper functions
 
@@ -212,3 +214,5 @@ __s32 i2c_smbus_block_process_call(int file, __u8 command, __u8 length,
 		values[i-1] = data.block[i];
 	return data.block[0];
 }
+
+#endif /* defined(__linux__) */

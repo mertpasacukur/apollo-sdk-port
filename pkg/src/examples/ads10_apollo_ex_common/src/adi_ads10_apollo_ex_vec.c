@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo examples common vector related functions
  *
@@ -273,3 +275,4 @@ static int32_t file_line_count(char *file, uint32_t max_samples, uint32_t *num_s
     fclose(fp);
     return API_CMS_ERROR_OK;
 }
+#endif /* defined(__linux__) */

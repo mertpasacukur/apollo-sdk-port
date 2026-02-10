@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     Configure and run Multi Chip Sync Calibration on Apollo B0
  *
@@ -336,3 +338,4 @@ static __maybe_unused void print_link_phase(adi_apollo_device_t* device) {
     adi_apollo_jrx_phase_diff_get(device, ADI_APOLLO_LINK_B0, &jrx_phase_diff1);
     printf("jrx_phase_diff0/jrx_phase_diff1 = %d %d\n", jrx_phase_diff0, jrx_phase_diff1);
 }
+#endif /* defined(__linux__) */

@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * @brief     ADS10 platform configuration and control source file.
  *
@@ -2373,3 +2375,5 @@ static int32_t fmcb_level_shifter_disable_all(void *sdo_en_context, hal_spi_sdo_
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* defined(__linux__) */

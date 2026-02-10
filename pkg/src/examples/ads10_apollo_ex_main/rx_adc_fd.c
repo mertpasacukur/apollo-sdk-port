@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     ADS10 Apollo Rx ADC Fast detect
  *
@@ -89,3 +91,5 @@ static uint32_t calculate_fd_threshold_magnitude(double dbfs) {
     return (int)(pow(10.0, (dbfs / 20)) * (1 << 11));
 }
 
+
+#endif /* defined(__linux__) */

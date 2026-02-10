@@ -1,3 +1,5 @@
+#if defined(__linux__)
+
 /*!
  * \brief     Apollo Serdes JRx Horizontal and Vertical Eye Sweep Example
  *
@@ -164,3 +166,5 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* defined(__linux__) */
