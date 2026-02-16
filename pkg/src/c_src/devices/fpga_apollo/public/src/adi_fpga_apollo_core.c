@@ -35,6 +35,12 @@
     static uint8_t jtx_lane_map[] = {19, 5, 18, 6, 16, 4, 17, 7, 13, 14, 12, 15, 23, 0, 22, 3, 20, 8, 21, 1, 9, 10, 2, 11}; /* Apollo Rx to FPGA Tx */
 #endif /* VCU128 */
 
+#ifdef VERSAL_PLATFORM
+    /* TODO: Versal phy to FPGA phy mapping — update lane maps per Vivado address map */
+    static uint8_t jrx_lane_map[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}; /* Apollo Tx to FPGA Rx */
+    static uint8_t jtx_lane_map[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}; /* Apollo Rx to FPGA Tx */
+#endif /* VERSAL_PLATFORM */
+
 /*============= C O D E ====================*/
 static uint32_t jrx_fpga_to_device_phy(uint32_t fpga_prbs_lock);
 

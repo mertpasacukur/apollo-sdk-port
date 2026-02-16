@@ -1,0 +1,102 @@
+# Makefile.versal — Test build for Versal platform (cross-compile check)
+# Usage: make -f Makefile.versal all
+
+CC = arm-none-eabi-gcc
+CFLAGS = -DVERSAL_PLATFORM -Wall -std=c99 -ffreestanding \
+         -I/opt/homebrew/Cellar/arm-none-eabi-gcc/15.2.0/arm-none-eabi/include
+
+# Include paths
+INC = -I. \
+      -Iadi_inc \
+      -Iadi_utils/inc \
+      -Iplatforms \
+      -Iplatforms/versal \
+      -Iplatforms/ads10 \
+      -Iplatforms/ads10/smbus \
+      -Iplatforms/ads10/dma \
+      -Iapollo_api/public/inc \
+      -Iapollo_api/private/inc \
+      -Iapollo_api/private/inc/bitfields/b0 \
+      -Ic_src/devices/hmc7044/public/include \
+      -Ic_src/devices/hmc7044/private/include \
+      -Ic_src/devices/adf4382/public/include \
+      -Ic_src/devices/adf4382/private/include \
+      -Ic_src/devices/adf4382/private/include/regmap \
+      -Ic_src/devices/adf4030/public/include \
+      -Ic_src/devices/adf4030/private/include \
+      -Ic_src/devices/adf4030/private/include/regmap \
+      -Ic_src/devices/fpga_apollo/public/include \
+      -Ic_src/devices/fpga_apollo/private/include \
+      -Ic_src/devices/image_loader/public/include \
+      -Ic_src/devices/adl6331/public/include \
+      -Ic_src/devices/adl6331/private/include \
+      -Ic_src/devices/adl6332/public/include \
+      -Ic_src/devices/adl6332/private/include \
+      -Ic_src/devices/ltc2977/public/include \
+      -Ic_src/devices/ltm4681/public/include \
+      -Ic_src/devices/ltc2980/public/include \
+      -Ic_src/protocol/pmbus/include \
+      -Ic_src/protocol/smbus/include \
+      -Ic_src/math/vector/inc \
+      -Iexamples/ads10_apollo_ex_common/include \
+      -Iexamples/versal_apollo_ex_common/include \
+      -Iexamples/profiles/include
+
+OBJDIR = build_versal
+
+# Platform-independent sources (should compile for Versal)
+SRCS_UTILS = adi_utils/src/adi_utils.c
+
+SRCS_APOLLO_API = $(wildcard apollo_api/public/src/*.c) \
+                  $(wildcard apollo_api/private/src/*.c)
+
+SRCS_HMC7044 = $(wildcard c_src/devices/hmc7044/public/src/*.c) \
+               $(wildcard c_src/devices/hmc7044/private/src/*.c)
+
+SRCS_ADF4382 = $(wildcard c_src/devices/adf4382/public/src/*.c) \
+               $(wildcard c_src/devices/adf4382/private/src/*.c)
+
+SRCS_ADF4030 = $(wildcard c_src/devices/adf4030/public/src/*.c) \
+               $(wildcard c_src/devices/adf4030/private/src/*.c) \
+               c_src/devices/adf4030/private/src/regmap/adi_adf4030_bf.c
+
+SRCS_FPGA = $(wildcard c_src/devices/fpga_apollo/public/src/*.c) \
+            $(wildcard c_src/devices/fpga_apollo/private/src/*.c)
+
+SRCS_PROTOCOL = c_src/protocol/smbus/src/adi_smbus.c \
+                c_src/protocol/pmbus/src/adi_pmbus.c
+
+SRCS_MATH = $(wildcard c_src/math/vector/src/*.c)
+
+SRCS_VGA = $(wildcard c_src/devices/adl6331/public/src/*.c) \
+           $(wildcard c_src/devices/adl6331/private/src/*.c) \
+           $(wildcard c_src/devices/adl6332/public/src/*.c) \
+           $(wildcard c_src/devices/adl6332/private/src/*.c)
+
+SRCS_POWER = $(wildcard c_src/devices/ltc2977/public/src/*.c) \
+             $(wildcard c_src/devices/ltm4681/public/src/*.c) \
+             $(wildcard c_src/devices/ltc2980/public/src/*.c)
+
+SRCS_LOADER = c_src/devices/image_loader/public/src/adi_fpga_image_loader.c
+
+SRCS_VERSAL = platforms/versal/versal_hal.c
+
+ALL_SRCS = $(SRCS_UTILS) $(SRCS_APOLLO_API) $(SRCS_HMC7044) $(SRCS_ADF4382) \
+           $(SRCS_ADF4030) $(SRCS_FPGA) $(SRCS_PROTOCOL) $(SRCS_MATH) \
+           $(SRCS_VGA) $(SRCS_POWER) $(SRCS_LOADER) $(SRCS_VERSAL)
+
+OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(ALL_SRCS))
+
+all: $(OBJS)
+	@echo "=== BUILD SUMMARY ==="
+	@echo "Total objects: $(words $(OBJS))"
+	@echo "All compiled successfully!"
+
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+clean:
+	rm -rf $(OBJDIR)
+
+.PHONY: all clean
