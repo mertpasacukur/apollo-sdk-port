@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Source file implementing FPGA image loader for ADS10
  *
@@ -144,3 +145,4 @@ end:
 }
 
 /*! @} */
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples calibration function implementations
  *
@@ -318,3 +319,5 @@ static uint32_t Crc32(const uint8_t buf[], uint32_t bufLen)
 
   return a;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

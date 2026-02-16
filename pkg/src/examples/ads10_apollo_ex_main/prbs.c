@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo PRBS example running on ADS10 platform
  *
@@ -364,3 +365,5 @@ static int32_t spo_sweep_prbs(adi_apollo_device_t *device, adi_apollo_serdes_ck_
 
 	return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

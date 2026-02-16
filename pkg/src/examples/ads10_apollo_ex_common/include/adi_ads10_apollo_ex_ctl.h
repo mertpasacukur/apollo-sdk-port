@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples console control functions
  *
@@ -91,3 +92,5 @@ extern "C" {
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EXCTL_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

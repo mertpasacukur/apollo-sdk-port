@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     CE board power modules example. Voltage and current measurements.
  *
@@ -556,3 +557,5 @@ static int32_t ltc2980_check_faults(adi_ltc2980_device_t *ltc2980, adi_ltc2980_s
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

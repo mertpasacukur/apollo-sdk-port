@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo ADS10 FPGA platform image loading APIs
  *
@@ -53,3 +54,4 @@ int32_t adi_fpga_image_loader_ads10_destroy(adi_fpga_image_loader_t *il);
 
 #endif /* __ADI_FPGA_IMAGE_LOADER_ADS10_H__ */
 /*! @} */
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 #ifndef __ADI_ID99_UC00_H__
 #define __ADI_ID99_UC00_H__
 
@@ -3124,3 +3125,5 @@ adi_apollo_top_t id99_uc00_0 = {
 		.profile_checksum = 3883975864 };
 
 #endif /* __ADI_ID99_UC00_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

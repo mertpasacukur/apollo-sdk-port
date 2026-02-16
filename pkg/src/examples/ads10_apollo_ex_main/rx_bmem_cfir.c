@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx CFIR data path test using BMEM-AWG as input source
  *
@@ -127,3 +128,5 @@ int32_t rx_bmem_cfir(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

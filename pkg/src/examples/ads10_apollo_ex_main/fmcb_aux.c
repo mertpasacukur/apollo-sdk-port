@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo FMCB Auxiliary Device SPI read back check
  *
@@ -95,3 +96,5 @@ int32_t fmcb_aux(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
     return err;
 
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

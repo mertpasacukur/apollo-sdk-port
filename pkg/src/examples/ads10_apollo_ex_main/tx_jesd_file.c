@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo load vector from file example
  *
@@ -137,3 +138,5 @@
  
      return err;
  }
+
+#endif /* !defined(VERSAL_PLATFORM) */

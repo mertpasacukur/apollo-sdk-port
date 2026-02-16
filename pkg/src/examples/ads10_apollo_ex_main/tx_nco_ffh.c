@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Tx data path Fast-Frequency Hopping
  *  
@@ -251,3 +252,5 @@ static int32_t apollo_cnco_auto_hop(adi_apollo_device_t *device, adi_apollo_coar
 
     return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples Multi-Chip Sync and Calibration functions
  *
@@ -196,3 +197,5 @@ int32_t adi_ads10_apollo_ex_mcs_adf4030_fpga_path_delay_offset(adi_adf4030_devic
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_MCS_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */
