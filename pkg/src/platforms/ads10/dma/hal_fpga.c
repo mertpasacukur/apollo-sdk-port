@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     HAL FPGA Source File
  *
@@ -141,3 +142,5 @@ unsigned int Hal_FpgaDeinit(void)
 }
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

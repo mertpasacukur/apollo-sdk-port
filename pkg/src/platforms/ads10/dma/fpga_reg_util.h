@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     FPGA REG UTIL Header File
  *
@@ -38,3 +39,5 @@
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

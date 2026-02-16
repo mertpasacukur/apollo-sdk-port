@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     SIMPLE DMA REGS Header File
  *
@@ -140,3 +141,5 @@
 #endif	/* end ifndef _DEF_SIMPLE_DMA_REGS_H */
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

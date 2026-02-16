@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     CDMA API Source File
  *
@@ -447,3 +448,5 @@ static void XAxiCdma_AresetPulseGenerate(void)
 }
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

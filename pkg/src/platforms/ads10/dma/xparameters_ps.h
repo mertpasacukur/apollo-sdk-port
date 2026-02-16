@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2015 Xilinx, Inc.  All rights reserved.
@@ -331,3 +332,5 @@ extern "C" {
 #endif
 
 #endif /* protection macro */
+
+#endif /* !defined(VERSAL_PLATFORM) */

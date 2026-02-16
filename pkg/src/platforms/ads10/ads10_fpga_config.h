@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Basic FPGA config functions
  *
@@ -38,3 +39,5 @@ int32_t ads10_fpga_config_load_image(uint8_t file[], uint32_t length);
 #endif
 
 #endif /* __ADS10_FPGA_CONFIG_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

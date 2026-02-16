@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -166,3 +167,5 @@ void XAxiCdma_DumpBd(XAxiCdma_Bd* BdPtr);
 
 #endif    /* prevent circular inclusions */
 /** @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

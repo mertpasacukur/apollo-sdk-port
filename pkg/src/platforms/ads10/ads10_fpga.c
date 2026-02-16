@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief    ADS10/FPGA API
  *
@@ -222,3 +223,5 @@ end_unmap:
 end:
 	return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

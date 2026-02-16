@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     Analog Devices DMA API Header File
  *
@@ -204,3 +205,5 @@ int32_t axi_dmac_transfer_start(uint32_t src_addr, uint32_t dst_addr, uint32_t s
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     JESD204 CFG SETTINGS Header File
  *
@@ -92,3 +93,5 @@
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

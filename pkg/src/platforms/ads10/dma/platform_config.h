@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     PLATFORM CONFIG Header File
  *
@@ -35,3 +36,5 @@
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

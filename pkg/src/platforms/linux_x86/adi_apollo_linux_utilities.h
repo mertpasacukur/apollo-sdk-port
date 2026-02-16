@@ -1,3 +1,4 @@
+#if defined(__linux__)
 /*!
  * \brief     Apollo CPU file load Utilities headers
  *
@@ -129,3 +130,5 @@ int32_t adi_apollo_utilites_file_to_16b_samples_arr(adi_apollo_device_t *device,
 #endif
 
 #endif /* __ADI_APOLLO_LINUX_UTILITIES_H__ */
+
+#endif /* defined(__linux__) */

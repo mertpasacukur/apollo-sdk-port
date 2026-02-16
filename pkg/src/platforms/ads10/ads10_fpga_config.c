@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Basic FPGA ADS10 config functions
  *
@@ -576,3 +577,5 @@ end_fd:
     close(fd);
     return -1;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */
