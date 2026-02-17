@@ -39,8 +39,7 @@
 #include "versal_apollo_ex_adf4382.h"
 #include "versal_apollo_ex_adf4030.h"
 
-/* Example functions */
-#include "apollo_examples.h"
+/* TODO: Add Versal-specific example/test headers here */
 
 /* Device profile — compile-time selection */
 #include "id00_uc06.h"
@@ -214,21 +213,25 @@ int main(void)
      */
     xil_printf("--- Step 10: FPGA JESD Init ---\r\n");
     xil_printf("TODO: JESD204 configuration — uses Xilinx JESD204 IP.\r\n");
-    xil_printf("      Versal's versal_apollo_ex_fpga_jesd_configure() is not portable.\r\n");
+    xil_printf("      Original platform's FPGA JESD configure is not portable.\r\n");
     xil_printf("      Versal equivalent requires Xilinx JESD204C IP driver integration.\r\n");
     /* err = versal_apollo_ex_fpga_jesd_configure(&fpga_device, ...); */
 
     /*
      * ========== Step 11: Run example ==========
-     * On Versal, this calls ex_func (fullchip, tx_nco, etc.) parsed from CLI.
-     * On Versal, we call the compile-time selected example directly.
+     * TODO: Implement Versal-specific test/example here.
+     *       Original platform called fullchip() which is platform-specific
+     *       and not available on Versal.
+     *
+     *       Options:
+     *       - Basic init + loopback test
+     *       - Data capture / playback test
+     *       - NCO sweep test
      */
-    xil_printf("--- Step 11: Run Example (%s) ---\r\n", VERSAL_EXAMPLE_NAME);
-
-    /* Default: fullchip example */
-    err = fullchip(&device, &fpga_device, profile, 0, NULL, 0);
-    xil_printf("Example returned: %s (err=%d)\r\n",
-               err == API_CMS_ERROR_OK ? "OK" : "*ERROR*", err);
+    xil_printf("--- Step 11: Run Example ---\r\n");
+    xil_printf("TODO: No Versal example implemented yet.\r\n");
+    xil_printf("      Device is initialized and ready.\r\n");
+    err = API_CMS_ERROR_OK;
 
 end:
     /*
