@@ -22,20 +22,20 @@
 #include "versal_fpga.h"
 
 #define DEV_CLK_MODE_MASK ( \
-    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER \
-    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL \
-    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382 \
+    VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER \
+    | VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL \
+    | VERSAL_APOLLO_CLK_MODE_DEV_CLK_ADF4382 \
 )
 
 #define FPGA_CLK_MODE_MASK ( \
-    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL \
-    | ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC \
+    VERSAL_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL \
+    | VERSAL_APOLLO_CLK_MODE_FPGA_CLK_FMC \
 )
 
-int32_t adi_ads10_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_device,
+int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_device,
                                                    uint32_t ltc6955_clk_khz,
                                                    adi_apollo_top_t *profile,
-                                                   adi_ads10_apollo_clk_mode_e mode)
+                                                   versal_apollo_clk_mode_e mode)
 {
 
     int32_t err;
@@ -43,7 +43,7 @@ int32_t adi_ads10_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpg
     err = adi_fpga_apollo_clk_line_rate_div_pgm(fpga_device);
     ADI_CMS_ERROR_RETURN(err);
 
-    return adi_ads10_apollo_ex_configure_clks(fpga_device,
+    return versal_apollo_ex_configure_clks(fpga_device,
                                               ltc6955_clk_khz,
                                               profile->clk_cfg.dev_clk_freq_kHz,
                                               profile->mcs_cfg.internal_sysref_prd_digclk_cycles_center,
@@ -53,19 +53,19 @@ int32_t adi_ads10_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpg
                                               mode);
 }
 
-int32_t adi_ads10_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
+int32_t versal_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
                                            uint32_t ltc6955_clk_khz,
                                            uint32_t dev_clk_khz,
                                            uint16_t digclk_cycles,
                                            adi_apollo_divg_mode_e divg_mode,
                                            uint32_t lane_rate_khz,
                                            uint8_t fpga_clk_div,
-                                           adi_ads10_apollo_clk_mode_e mode)
+                                           versal_apollo_clk_mode_e mode)
 {
     int32_t err;
-    uint32_t ads10_sysref = 0, ads10_vcxo = 0, ads10_mgt = 0;
-    adi_ads10_apollo_clk_mode_e dev_clk_mode = mode & DEV_CLK_MODE_MASK;
-    adi_ads10_apollo_clk_mode_e fpga_clk_mode = mode & FPGA_CLK_MODE_MASK;
+    uint32_t clk_sysref = 0, clk_vcxo = 0, clk_mgt = 0;
+    versal_apollo_clk_mode_e dev_clk_mode = mode & DEV_CLK_MODE_MASK;
+    versal_apollo_clk_mode_e fpga_clk_mode = mode & FPGA_CLK_MODE_MASK;
     adi_adf4382_device_t adf4382_device = { {0} };
     adi_hmc7044_device_t hmc7044_device = { {0} };
     adi_hmc7044_device_rational_freq_t sysref_hz = {
@@ -81,45 +81,45 @@ int32_t adi_ads10_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device
     ADI_CMS_SINGLE_SELECT_CHECK(fpga_clk_mode);
 
     switch (fpga_clk_mode) {
-        case ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC:
-            err = adi_ads10_apollo_ex_hmc7044_startup(&hmc7044_device,
+        case VERSAL_APOLLO_CLK_MODE_FPGA_CLK_FMC:
+            err = versal_apollo_ex_hmc7044_startup(&hmc7044_device,
                                                       ((uint64_t) (ltc6955_clk_khz * 1e3)),
                                                       &sysref_hz,
                                                       &fpga_ref_hz);
             ADI_CMS_ERROR_RETURN(err);
 
-            ads10_sysref = 1;
-            ads10_vcxo   = 1;
-            ads10_mgt    = 1;
+            clk_sysref = 1;
+            clk_vcxo   = 1;
+            clk_mgt    = 1;
             break;
         default:
             // Fall through
-        case ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL:
+        case VERSAL_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL:
             // NOP
             break;
     }
 
-    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, CLK_SRC_SEL, MGT_REFCLK_SEL_MASK, ads10_mgt);
+    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, CLK_SRC_SEL, MGT_REFCLK_SEL_MASK, clk_mgt);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, CLK_SRC_SEL, SYSREF_SEL_MASK, ads10_sysref);
+    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, CLK_SRC_SEL, SYSREF_SEL_MASK, clk_sysref);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, MISC_0, AD9528_VCXO_SELECT_MASK, ads10_vcxo);
+    err = adi_fpga_apollo_private_write32_bitfield(fpga_device, MISC_0, AD9528_VCXO_SELECT_MASK, clk_vcxo);
     ADI_CMS_ERROR_RETURN(err);
 
     switch (dev_clk_mode) {
-        case ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382:
-            err = adi_ads10_apollo_ex_adf4382_startup(&adf4382_device,
+        case VERSAL_APOLLO_CLK_MODE_DEV_CLK_ADF4382:
+            err = versal_apollo_ex_adf4382_startup(&adf4382_device,
                                                       ((uint64_t) (dev_clk_khz * 1e3)),
                                                       ((uint64_t) (ltc6955_clk_khz * 1e3)));
             ADI_CMS_ERROR_RETURN(err);
             break;
         default:
             // Fall through
-        case ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER:
+        case VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER:
             // Fall through
-        case ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL:
+        case VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL:
             // NOP
             break;
     }
@@ -127,8 +127,8 @@ int32_t adi_ads10_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
-                                          adi_ads10_apollo_clk_mode_e clk_mode,
+int32_t versal_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
+                                          versal_apollo_clk_mode_e clk_mode,
                                           uint64_t rfout_freq_hz,
                                           uint64_t ref_freq_hz)
 {
@@ -138,8 +138,8 @@ int32_t adi_ads10_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
     adi_adf4382_device_t adf4382 = { {0} };
     uint8_t clk1_opwr = 5;
 
-    if (clk_mode & ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382) {
-        err = adi_ads10_apollo_ex_adf4382_hal_config(&adf4382, NULL, NULL);
+    if (clk_mode & VERSAL_APOLLO_CLK_MODE_DEV_CLK_ADF4382) {
+        err = versal_apollo_ex_adf4382_hal_config(&adf4382, NULL, NULL);
         ADI_CMS_ERROR_RETURN(err);
 
         while (!power_good) {

@@ -16,6 +16,6 @@
  * in versal_hal.c using Xil_In32/Xil_Out32 with VERSAL_FPGA_REG_BASE_ADDR.
  *
  * versal_fpga_mem_read / versal_fpga_mem_write are also in versal_hal.c
- * as TODO stubs. This file is kept for compatibility with the ADS10 build
- * structure that has a separate ads10_fpga.c.
+ * as TODO stubs. This file is kept for compatibility with the original build
+ * structure that has a separate fpga module.
  */

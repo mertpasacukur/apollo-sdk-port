@@ -40,8 +40,8 @@
 
 /*============= A X I   J E S D   R E G I S T E R S =======================*/
 /*
- * Same offsets as ADS10 — these are FPGA-register-relative offsets.
- * Only used if the FPGA design matches the ADS10 register map.
+ * Same offsets as original platform — these are FPGA-register-relative offsets.
+ * Only used if the FPGA design matches the original register map.
  */
 #define AXI_FPGA_MISC_1_REG        0x10B
 #define AXI_FPGA_DUT_RSTB          0x002
@@ -67,14 +67,14 @@
 
 /*============= O U T P U T   D I R ========================================*/
 /*
- * On ADS10, OUTPUT_DIR is a filesystem path. On Versal baremetal, we don't
+ * On the original platform, OUTPUT_DIR is a filesystem path. On Versal baremetal, we don't
  * have a filesystem, so utilities that write files are stubbed out.
  */
 #define OUTPUT_DIR                  "/tmp"
 
 /*============= F W   I M A G E S   D I R ==================================*/
 /*
- * On ADS10, FW_IMAGES_DIR is a filesystem path containing .bin files.
+ * On the original platform, FW_IMAGES_DIR is a filesystem path containing .bin files.
  * On Versal, FW comes from QSPI flash. This define is kept for compatibility.
  */
 #define FW_IMAGES_DIR               "qspi_flash"

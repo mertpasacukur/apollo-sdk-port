@@ -37,15 +37,15 @@ typedef struct {
     uint8_t en_auto_align;
 } adi_apollo_ex_adf4382_mcs_init_config_t;
 
-int32_t adi_ads10_apollo_ex_adf4382_hal_config(adi_adf4382_device_t *adf4382, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn);
+int32_t versal_apollo_ex_adf4382_hal_config(adi_adf4382_device_t *adf4382, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn);
 
-int32_t adi_ads10_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
+int32_t versal_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
                                             uint64_t rfout_freq_hz, uint64_t ref_freq_hz);
 
-int32_t adi_ads10_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf4382,
+int32_t versal_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf4382,
                                                     adi_apollo_ex_adf4382_mcs_init_config_t *adf4382_mcs_init_config,
                                                     uint8_t *phase_adj_rb);
 
-int32_t adi_ads10_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current);
+int32_t versal_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current);
 
 #endif /* __VERSAL_APOLLO_EX_ADF4382_H__ */

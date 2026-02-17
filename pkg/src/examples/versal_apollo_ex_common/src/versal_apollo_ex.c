@@ -1,9 +1,9 @@
 /*!
  * @brief     Versal Apollo examples common function implementation.
  *
- *            Direct port of adi_ads10_apollo_ex.c for Versal Standalone.
+ *            Direct port of adi_versal_apollo_ex.c for Versal Standalone.
  *            Wires versal_ HAL functions into the Apollo SDK callback structures
- *            using the EXACT SAME struct-field-assignment pattern as ADS10.
+ *            using the EXACT SAME struct-field-assignment pattern as Versal.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */
@@ -88,7 +88,7 @@ int32_t versal_apollo_ex_configure_startup(adi_apollo_device_t *apollo_device)
 
     /*
      * Configure the startup info with a QSPI-based FW provider.
-     * This replaces the filesystem-based provider from ADS10/Linux.
+     * This replaces the filesystem-based provider from Versal/Linux.
      */
     startup_info->fw_provider = versal_fw_provider_create(apollo_device, FW_IMAGES_DIR);
     startup_info->open  = versal_fw_provider_open;

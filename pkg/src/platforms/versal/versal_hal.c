@@ -1,7 +1,7 @@
 /*!
  * @brief     Versal platform HAL implementation for Apollo SDK port.
  *
- *            Replaces all Linux/ADS10 platform-dependent code with Xilinx
+ *            Replaces all original Linux platform-dependent code with Xilinx
  *            Versal Standalone BSP. Uses AXI Quad SPI (XSpi) for device
  *            communication.
  *
@@ -283,8 +283,8 @@ int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable)
 
     /*
      * Read-modify-write AXI GPIO or FPGA register.
-     * Same concept as ADS10: toggle a bit in a register.
-     * Uses AXI_FPGA_MISC_1_REG offset from FPGA base (like ADS10).
+     * Same concept as original platform: toggle a bit in a register.
+     * Uses AXI_FPGA_MISC_1_REG offset from FPGA base (like original platform).
      */
     tmp_val = Xil_In32(VERSAL_FPGA_REG_BASE_ADDR + 4 * AXI_FPGA_MISC_1_REG);
     if (enable) {

@@ -14,7 +14,7 @@
 #include "versal_hal.h"
 
 
-int32_t adi_ads10_apollo_ex_adf4382_hal_config(adi_adf4382_device_t *adf4382, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn)
+int32_t versal_apollo_ex_adf4382_hal_config(adi_adf4382_device_t *adf4382, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn)
 {
     int32_t err;
     uint8_t spi_wire_mode;
@@ -46,7 +46,7 @@ int32_t adi_ads10_apollo_ex_adf4382_hal_config(adi_adf4382_device_t *adf4382, vo
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
+int32_t versal_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
                                             uint64_t rfout_freq_hz, uint64_t ref_freq_hz)
 {
     int32_t err;
@@ -66,7 +66,7 @@ int32_t adi_ads10_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
         .rfout_freq_hz = rfout_freq_hz,
     };
 
-    if (err = adi_ads10_apollo_ex_adf4382_hal_config(adf4382, NULL, NULL), err != API_CMS_ERROR_OK) {
+    if (err = versal_apollo_ex_adf4382_hal_config(adf4382, NULL, NULL), err != API_CMS_ERROR_OK) {
         xil_printf("Unable to configure ADF4382 HAL: %d\r\n", err);
         return err;
     }
@@ -102,7 +102,7 @@ int32_t adi_ads10_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf4382,
+int32_t versal_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf4382,
                                                     adi_apollo_ex_adf4382_mcs_init_config_t *adf4382_mcs_init_config,
                                                     uint8_t *phase_adj_rb)
 {
@@ -147,7 +147,7 @@ end:
     return err;
 }
 
-int32_t adi_ads10_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current)
+int32_t versal_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current)
 {
     int32_t err = API_CMS_ERROR_OK;
     uint8_t reg_read = 0;

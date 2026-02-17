@@ -2,7 +2,7 @@
  * @brief     FW image provider header for Versal (QSPI flash).
  *
  *            Reads firmware images from MT25QU02G QSPI flash instead of
- *            the filesystem-based approach used on ADS10/Linux.
+ *            the filesystem-based approach used on the original Linux platform.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */

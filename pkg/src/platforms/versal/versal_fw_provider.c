@@ -1,7 +1,7 @@
 /*!
  * @brief     FW image provider for Versal — reads from QSPI flash (MT25QU02G).
  *
- *            On ADS10/Linux, FW images are .bin files on a filesystem.
+ *            On the original Linux platform, FW images are .bin files on a filesystem.
  *            On Versal Standalone, they are stored in QSPI flash at fixed
  *            offsets with a simple [4-byte LE size][data] format.
  *

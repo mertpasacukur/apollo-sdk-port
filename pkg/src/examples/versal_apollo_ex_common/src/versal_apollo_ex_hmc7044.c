@@ -21,7 +21,7 @@
 
 #define ADI_ADF4030_REF_FREQ_MAX      		250000000U  // 250Mhz
 
-int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn)
+int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn)
 {
     int32_t err;
     adi_hmc7044_hal_t* hal = &hmc7044->hal_info;
@@ -45,7 +45,7 @@ int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, vo
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
+int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
                                             adi_hmc7044_device_rational_freq_t *fpga_ref_hz)
@@ -146,7 +146,7 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
         }
     };
 
-    err = adi_ads10_apollo_ex_hmc7044_hal_config(hmc7044, NULL, NULL);
+    err = versal_apollo_ex_hmc7044_hal_config(hmc7044, NULL, NULL);
     ADI_CMS_ERROR_RETURN(err);
 
     err = adi_hmc7044_device_reset(hmc7044, 0);
@@ -179,7 +179,7 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     err = adi_hmc7044_clkout_multi_slip_config_set(hmc7044, ADI_HMC7044_SCLKOUT3, &multi_slip_config);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(hmc7044);
+    err = versal_apollo_ex_hmc7044_reset_fsm_reseed(hmc7044);
     ADI_CMS_ERROR_RETURN(err);
 
     err = adi_hmc7044_device_clkout_config_set(hmc7044, &device_clkout);
@@ -189,14 +189,14 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     err = adi_hmc7044_clkout_channel_driver_config_set(hmc7044, 3, &bsync0_clkout_driver_config);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(hmc7044);
+    err = versal_apollo_ex_hmc7044_reset_fsm_reseed(hmc7044);
     ADI_CMS_ERROR_RETURN(err);
 
     return API_CMS_ERROR_OK;
 }
 
 
-int32_t adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc7044)
+int32_t versal_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc7044)
 {
     int32_t err = 0;
     ADI_CMS_NULL_PTR_CHECK(hmc7044);

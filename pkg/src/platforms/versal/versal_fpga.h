@@ -1,5 +1,5 @@
 /*!
- * @brief     Versal FPGA access header — matches ads10_fpga.h interface.
+ * @brief     Versal FPGA access header — matches original fpga interface.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */

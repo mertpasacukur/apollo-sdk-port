@@ -2,7 +2,7 @@
  * @brief     Versal Apollo example common header.
  *
  *            Declarations for HAL wiring and startup functions.
- *            Port of adi_ads10_apollo_ex.h for Versal Standalone.
+ *            Port of adi_versal_apollo_ex.h for Versal Standalone.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */

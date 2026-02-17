@@ -1,7 +1,7 @@
 /*!
  * @brief     Versal Apollo example program main.
  *
- *            Port of ads10_apollo_ex_main/main.c for Xilinx Versal Standalone.
+ *            Port of versal_apollo_ex_main/main.c for Xilinx Versal Standalone.
  *            No CLI — profile and example are selected at compile time.
  *
  *            Default configuration:
@@ -77,9 +77,9 @@ int main(void)
     uint8_t is_hw_open = 0;
 
     /* Clock config */
-    adi_ads10_apollo_clk_mode_e clk_mode =
-        ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER |
-        ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL;
+    versal_apollo_clk_mode_e clk_mode =
+        VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER |
+        VERSAL_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL;
     uint32_t ltc6955_clk_khz = 125e3;
 
     xil_printf("\r\n================================================\r\n");
@@ -122,7 +122,7 @@ int main(void)
 
     /*
      * ========== Step 5: Configure startup (FW provider) ==========
-     * QSPI-based firmware provider replaces ADS10 filesystem provider.
+     * QSPI-based firmware provider replaces Versal filesystem provider.
      */
     xil_printf("--- Step 5: Startup Config ---\r\n");
     versal_apollo_ex_configure_startup(&device);
@@ -132,10 +132,10 @@ int main(void)
      * Stop any active play/capture to reduce power before Apollo reset.
      *
      * TODO: This uses FPGA-register-relative offsets that may differ
-     * from ADS10. Verify FPGA register map matches your Vivado design.
+     * from Versal. Verify FPGA register map matches your Vivado design.
      */
     xil_printf("--- Step 6: FPGA Pre-Reset ---\r\n");
-    /* adi_ads10_apollo_ex_fpga_pre_reset(&fpga_device); */
+    /* versal_apollo_ex_fpga_pre_reset(&fpga_device); */
     /* TODO: Implement versal-specific pre-reset if FPGA design differs */
 
     /*
@@ -166,13 +166,13 @@ int main(void)
     xil_printf("--- Step 8: Clock Configuration ---\r\n");
 
     /* 8a: Configure HMC7044 + ADF4382 via ex_common clock helper */
-    err = adi_ads10_apollo_ex_configure_profile_clks(&fpga_device, ltc6955_clk_khz, profile, clk_mode);
+    err = versal_apollo_ex_configure_profile_clks(&fpga_device, ltc6955_clk_khz, profile, clk_mode);
     if (err != API_CMS_ERROR_OK) {
         xil_printf("WARNING: Clock config returned err=%d (may be OK if using ext clocks)\r\n", err);
         /* Don't bail — external clock mode may not need HMC7044/ADF4382 */
     }
 
-    /* 8b: Configure ADF4030 (not in original ADS10 main.c, but needed for our chain) */
+    /* 8b: Configure ADF4030 (not in original Versal main.c, but needed for our chain) */
     {
         adi_adf4030_device_t adf4030_device = { {0} };
 
@@ -186,7 +186,7 @@ int main(void)
          * TODO: Add ADF4030 configuration sequence here.
          * This depends on the clock plan and frequency requirements.
          * Example:
-         *   adi_ads10_apollo_ex_adf4030_configure_hal(&adf4030_device, ADF4030_0);
+         *   versal_apollo_ex_adf4030_configure_hal(&adf4030_device, ADF4030_0);
          *   adi_adf4030_device_init(&adf4030_device);
          *   adi_adf4030_vco_config(&adf4030_device, ...);
          */
@@ -207,20 +207,20 @@ int main(void)
 
     /*
      * ========== Step 10: FPGA profile init (JESD) ==========
-     * On ADS10, this configures FPGA JESD Rx/Tx links from the profile.
+     * On Versal, this configures FPGA JESD Rx/Tx links from the profile.
      * On Versal, the Xilinx JESD204 IP handles this differently.
      *
      * TODO: Integrate with Xilinx JESD204C IP driver.
      */
     xil_printf("--- Step 10: FPGA JESD Init ---\r\n");
     xil_printf("TODO: JESD204 configuration — uses Xilinx JESD204 IP.\r\n");
-    xil_printf("      ADS10's adi_ads10_apollo_ex_fpga_jesd_configure() is not portable.\r\n");
+    xil_printf("      Versal's versal_apollo_ex_fpga_jesd_configure() is not portable.\r\n");
     xil_printf("      Versal equivalent requires Xilinx JESD204C IP driver integration.\r\n");
-    /* err = adi_ads10_apollo_ex_fpga_jesd_configure(&fpga_device, ...); */
+    /* err = versal_apollo_ex_fpga_jesd_configure(&fpga_device, ...); */
 
     /*
      * ========== Step 11: Run example ==========
-     * On ADS10, this calls ex_func (fullchip, tx_nco, etc.) parsed from CLI.
+     * On Versal, this calls ex_func (fullchip, tx_nco, etc.) parsed from CLI.
      * On Versal, we call the compile-time selected example directly.
      */
     xil_printf("--- Step 11: Run Example (%s) ---\r\n", VERSAL_EXAMPLE_NAME);

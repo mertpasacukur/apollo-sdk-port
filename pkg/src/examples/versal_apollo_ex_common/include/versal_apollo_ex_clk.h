@@ -15,38 +15,38 @@
 #define __VERSAL_APOLLO_EX_CLK_H__
 
 typedef enum {
-    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER = 0x01,
-    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL   = 0x02,
-    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382         = 0x04,
-    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL       = 0x08,
-    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC            = 0x10
-} adi_ads10_apollo_clk_mode_e;
+    VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER = 0x01,
+    VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL   = 0x02,
+    VERSAL_APOLLO_CLK_MODE_DEV_CLK_ADF4382         = 0x04,
+    VERSAL_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL       = 0x08,
+    VERSAL_APOLLO_CLK_MODE_FPGA_CLK_FMC            = 0x10
+} versal_apollo_clk_mode_e;
 
 /**
  * \brief Configures the clocks.
  */
-int32_t adi_ads10_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
+int32_t versal_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
                                            uint32_t ltc6955_clk_khz,
                                            uint32_t dev_clk_khz,
                                            uint16_t digclk_cycles,
                                            adi_apollo_divg_mode_e divg_mode,
                                            uint32_t lane_rate_khz,
                                            uint8_t fpga_clk_div,
-                                           adi_ads10_apollo_clk_mode_e mode);
+                                           versal_apollo_clk_mode_e mode);
 
 /**
  * \brief Configures clocks based on device profile.
  */
-int32_t adi_ads10_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_device,
+int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_device,
                                                    uint32_t ltc6955_clk_khz,
                                                    adi_apollo_top_t *profile,
-                                                   adi_ads10_apollo_clk_mode_e mode);
+                                                   versal_apollo_clk_mode_e mode);
 
 /**
  * \brief Displays clk power level, if ADF4382 calibrate until power level is good.
  */
-int32_t adi_ads10_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
-                                          adi_ads10_apollo_clk_mode_e clk_mode,
+int32_t versal_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
+                                          versal_apollo_clk_mode_e clk_mode,
                                           uint64_t rfout_freq_hz,
                                           uint64_t ref_freq_hz);
 

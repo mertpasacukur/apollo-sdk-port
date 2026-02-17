@@ -1,7 +1,7 @@
 /*!
  * @brief     Versal platform configuration header file.
  *
- *            Port of ads10_hal.h for Xilinx Versal Standalone (baremetal).
+ *            Port of original HAL for Xilinx Versal Standalone (baremetal).
  *            Uses XSpi for SPI communication, Xil_In32/Out32 for FPGA regs.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
@@ -32,7 +32,7 @@
 
 /*!
  * @brief   SPI SDO enable function pointer type.
- *          On ADS10 this controlled FMCB level shifters; on Versal it is unused
+ *          On the original platform this controlled FMCB level shifters; on Versal it is unused
  *          but kept for API compatibility with ex_common function signatures.
  */
 typedef int32_t (*hal_spi_sdo_en)(void* user_data, uint32_t target, uint8_t enable);
@@ -41,7 +41,7 @@ typedef int32_t (*hal_spi_sdo_en)(void* user_data, uint32_t target, uint8_t enab
 
 /*!
  * @brief   SPI HAL configuration.
- *          Matches the original ads10_hal.h hal_spi_config_t layout
+ *          Matches the original hal_spi_config_t layout
  *          so the SDK's device HAL code works without changes.
  */
 typedef struct {
@@ -61,7 +61,7 @@ typedef struct {
 
 /*!
  * @brief   Apollo HAL configuration combining SPI0, SPI1, and HSCI.
- *          Same layout as ads10_hal.h adi_fpga_apollo_hal_config_t.
+ *          Same layout as original adi_fpga_apollo_hal_config_t.
  */
 typedef struct {
     void                *user_data;

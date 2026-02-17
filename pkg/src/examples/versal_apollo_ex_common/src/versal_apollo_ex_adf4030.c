@@ -12,13 +12,13 @@
 #include "xil_printf.h"
 
 #include "versal_apollo_ex_adf4030.h"
-#include "adi_ads10_apollo_ex_types.h"
+#include "versal_apollo_ex_types.h"
 #include "versal_hal.h"
 
 
 /*==================== P U B L I C   A P I   C O D E ====================*/
 
-int32_t adi_ads10_apollo_ex_adf4030_configure_hal(adi_adf4030_device_t *adf4030, uint8_t dev_id)
+int32_t versal_apollo_ex_adf4030_configure_hal(adi_adf4030_device_t *adf4030, uint8_t dev_id)
 {
     int32_t err = 0;
     adi_adf4030_hal_t *hal = &adf4030->hal_info;
@@ -39,7 +39,7 @@ int32_t adi_ads10_apollo_ex_adf4030_configure_hal(adi_adf4030_device_t *adf4030,
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_adf4030_vco_freq_calc(uint64_t ref_input_freq, uint64_t bsync_out_freq, uint64_t *vco_out_freq)
+int32_t versal_apollo_ex_adf4030_vco_freq_calc(uint64_t ref_input_freq, uint64_t bsync_out_freq, uint64_t *vco_out_freq)
 {
     int32_t err = API_CMS_ERROR_OK;
     uint16_t i = 0;
@@ -104,7 +104,7 @@ end:
 }
 
 
-int32_t adi_ads10_apollo_ex_adf4030_startup(adi_adf4030_device_t *adf4030, uint64_t ref_input_freq_hz, uint64_t vco_out_freq_hz)
+int32_t versal_apollo_ex_adf4030_startup(adi_adf4030_device_t *adf4030, uint64_t ref_input_freq_hz, uint64_t vco_out_freq_hz)
 {
     int32_t err = 0;
     uint8_t ref_status = 0;
@@ -157,7 +157,7 @@ int32_t adi_ads10_apollo_ex_adf4030_startup(adi_adf4030_device_t *adf4030, uint6
 }
 
 
-int32_t adi_ads10_apollo_ex_adf4030_bsync_output_set(adi_adf4030_device_t *adf4030,
+int32_t versal_apollo_ex_adf4030_bsync_output_set(adi_adf4030_device_t *adf4030,
                                                      uint16_t bsync_out_ch_sel,
                                                      uint64_t vco_out_freq_hz,
                                                      uint64_t bsync_out_freq_hz,
@@ -190,7 +190,7 @@ int32_t adi_ads10_apollo_ex_adf4030_bsync_output_set(adi_adf4030_device_t *adf40
 }
 
 
-int32_t adi_ads10_apollo_ex_adf4030_bsync_input_set(adi_adf4030_device_t *adf4030, uint16_t bsync_in_ch_sel)
+int32_t versal_apollo_ex_adf4030_bsync_input_set(adi_adf4030_device_t *adf4030, uint16_t bsync_in_ch_sel)
 {
     int32_t err = 0;
     adi_adf4030_channel_id_e channel_id = 0;
@@ -208,7 +208,7 @@ int32_t adi_ads10_apollo_ex_adf4030_bsync_input_set(adi_adf4030_device_t *adf403
 }
 
 
-int32_t adi_ads10_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf4030,
+int32_t versal_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf4030,
                                                     uint16_t bsync_in_ch_sel,
                                                     uint16_t bsync_out_ch_sel,
                                                     uint64_t bsync_out_freq_hz)

@@ -16,12 +16,12 @@
 /**
  * \brief   Initializes HMC7044 device HAL.
  */
-int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn);
+int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn);
 
 /**
  * \brief   Initializes and configures HMC7044.
  */
-int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
+int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
                                             adi_hmc7044_device_rational_freq_t *fpga_ref_hz);
@@ -29,6 +29,6 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
 /**
  * \brief   Perform reset to all HMC7044 dividers and sync by running reseed.
  */
-int32_t adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc7044);
+int32_t versal_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc7044);
 
 #endif /* __VERSAL_APOLLO_EX_HMC7044_H__ */
