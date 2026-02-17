@@ -190,17 +190,24 @@ static int32_t versal_apollo_ex_reg_test(adi_apollo_device_t *device)
 
 /*!
  * @brief FPGA pre-reset: stop play/capture to reduce power before Apollo reset.
- *        Uses FPGA register bitfield writes — verify offsets match your Vivado design.
+ *
+ *        On the original platform this writes SEQ_CTRL_2 bitfields and disables
+ *        the SYSREF sequencer external trigger. These are FPGA-design-specific
+ *        register accesses.
+ *
+ *        TODO: Enable once FPGA register map (SEQ_CTRL_2, etc.) is confirmed
+ *        for your Versal Vivado design. Uncomment the lines below:
+ *
+ *        adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_FIRST_TRIG_CNT_MASK, 1);
+ *        adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_SECOND_TRIG_CNT_MASK, 1);
+ *        adi_fpga_apollo_core_sysref_seq_ext_trig_enable_set(fpga_device, 0);
  */
 static int32_t versal_apollo_ex_fpga_pre_reset(adi_fpga_apollo_device_t *fpga_device)
 {
-    int32_t err = API_CMS_ERROR_OK;
+    (void)fpga_device; /* Suppress unused parameter warning */
 
-    adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_FIRST_TRIG_CNT_MASK, 1);
-    adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_SECOND_TRIG_CNT_MASK, 1);
-    adi_fpga_apollo_core_sysref_seq_ext_trig_enable_set(fpga_device, 0);
-
-    return err;
+    /* TODO: Implement when FPGA design register map is verified */
+    return API_CMS_ERROR_OK;
 }
 
 /*!
@@ -353,8 +360,9 @@ int main(void)
         goto end;
     }
 
-    /* Print active protocol and RMW status */
+    /* Set RMW based on active protocol (disabled by default, same as original) */
     adi_apollo_hal_active_protocol_get(&device, &protocol);
+    adi_apollo_hal_rmw_enable_set(&device, protocol, 0);
     xil_printf("Active Apollo HAL Protocol: %s, RMW: disabled\r\n",
                (protocol == ADI_APOLLO_HAL_PROTOCOL_SPI0) ? "SPI0" : "HSCI");
 
