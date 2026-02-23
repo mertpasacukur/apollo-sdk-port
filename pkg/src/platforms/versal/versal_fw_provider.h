@@ -40,7 +40,9 @@ int32_t versal_fw_provider_close(adi_apollo_fw_provider_t *fw_provider, adi_apol
 /**
  * @brief   Reads FW binary from QSPI flash. Allocates buffer and returns pointer.
  *
- * Flash layout per partition: [4-byte LE size][raw firmware data]
+ * Flash layout per partition: [256-byte header][raw firmware data]
+ * Header: [4B fw_id][4B fw_size][4B checksum][244B reserved]
+ * TODO: fw_id and checksum validation not yet implemented.
  */
 int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *fw_provider,
                                adi_apollo_startup_fw_id_e fw_id,

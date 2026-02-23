@@ -12,6 +12,12 @@
  *              ...
  *              Partition 9: VERSAL_FW_FLASH_BASE_OFFSET + 9*2MB  (Prod TYE Oper)
  *
+ *            Each partition has a 256-byte header:
+ *              [0x00] uint32_t fw_id      — Firmware ID (not validated yet)
+ *              [0x04] uint32_t fw_size    — Data size in bytes (excl. header)
+ *              [0x08] uint32_t checksum   — CRC32 placeholder (not validated yet)
+ *              [0x0C] 244 bytes reserved  — Must be 0xFF
+ *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */
 
@@ -219,7 +225,6 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
     int32_t err;
     uint32_t flash_addr;
     uint32_t fw_size;
-    uint8_t size_buf[4];
     versal_fw_provider_obj_t *data;
 
     ADI_CMS_NULL_PTR_CHECK(obj);
@@ -243,16 +248,24 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
 
     flash_addr = fw_flash_offset(fw_id);
 
-    /* Read 4-byte LE size header */
-    err = versal_qspi_read(&data->qspi_inst, flash_addr, size_buf, 4);
+    /*
+     * Read 256-byte partition header:
+     *   [0x00] uint32_t fw_id      (LE) — TODO: validate against requested fw_id
+     *   [0x04] uint32_t fw_size    (LE) — firmware data size (excl. header)
+     *   [0x08] uint32_t checksum   (LE) — TODO: validate CRC32 over fw data
+     *   [0x0C] 244 bytes reserved
+     */
+    uint8_t hdr_buf[VERSAL_FW_HEADER_SIZE];
+    err = versal_qspi_read(&data->qspi_inst, flash_addr, hdr_buf, VERSAL_FW_HEADER_SIZE);
     if (err != API_CMS_ERROR_OK) return err;
 
-    fw_size = (uint32_t)size_buf[0] |
-              ((uint32_t)size_buf[1] << 8) |
-              ((uint32_t)size_buf[2] << 16) |
-              ((uint32_t)size_buf[3] << 24);
+    /* Parse fw_size from header offset 0x04 (LE) */
+    fw_size = (uint32_t)hdr_buf[4] |
+              ((uint32_t)hdr_buf[5] << 8) |
+              ((uint32_t)hdr_buf[6] << 16) |
+              ((uint32_t)hdr_buf[7] << 24);
 
-    if (fw_size == 0 || fw_size > (VERSAL_FW_PARTITION_SIZE - 4)) {
+    if (fw_size == 0 || fw_size > (VERSAL_FW_PARTITION_SIZE - VERSAL_FW_HEADER_SIZE)) {
         xil_printf("ERROR: Invalid FW size %lu at flash 0x%08lX\r\n",
                    (unsigned long)fw_size, (unsigned long)flash_addr);
         return API_CMS_ERROR_ERROR;
@@ -265,7 +278,7 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
         return API_CMS_ERROR_MEM_ALLOC;
     }
 
-    err = versal_qspi_read(&data->qspi_inst, flash_addr + 4, data->buffer, fw_size);
+    err = versal_qspi_read(&data->qspi_inst, flash_addr + VERSAL_FW_HEADER_SIZE, data->buffer, fw_size);
     if (err != API_CMS_ERROR_OK) {
         free(data->buffer);
         data->buffer = NULL;

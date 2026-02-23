@@ -58,10 +58,23 @@
 /*============= F I R M W A R E   F L A S H   L A Y O U T ==================*/
 /*
  * 2MB per firmware partition, configurable.
- * Each partition format: [4-byte LE size][raw firmware data]
  *
+ * Each partition starts with a 256-byte header:
+ *   Offset  Size   Field
+ *   ------  ----   -----
+ *   0x00    4      fw_id       (uint32_t LE) — Firmware ID (adi_apollo_startup_fw_id_e)
+ *   0x04    4      fw_size     (uint32_t LE) — Firmware data size in bytes (excludes header)
+ *   0x08    4      checksum    (uint32_t LE) — Reserved for CRC32 over fw data (not validated yet)
+ *   0x0C    244    reserved    — Padding, must be 0xFF. Reserved for future use.
+ *
+ * Firmware data immediately follows the 256-byte header.
+ * Partition format: [256-byte header][raw firmware data]
+ *
+ * TODO: Implement fw_id validation against requested fw_id.
+ * TODO: Implement CRC32 checksum validation over firmware data.
  * TODO: Adjust base offset and partition size for your flash layout.
  */
+#define VERSAL_FW_HEADER_SIZE       256U
 #define VERSAL_FW_FLASH_BASE_OFFSET 0x01000000UL  /* 16MB into flash */
 #define VERSAL_FW_PARTITION_SIZE    0x00200000UL  /* 2MB per partition */
 
