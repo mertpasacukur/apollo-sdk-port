@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "xil_printf.h"
 #include "sleep.h"
 
 /* Apollo SDK — platform-independent */
@@ -30,6 +29,9 @@
 /* Versal platform HAL */
 #include "versal_hal.h"
 #include "versal_fpga.h"
+
+/* Debug system */
+#include "versal_debug.h"
 
 /* Example common — HAL wiring, startup */
 #include "versal_apollo_ex.h"
@@ -73,13 +75,13 @@ static int32_t versal_apollo_ex_print_regs(adi_apollo_device_t *device, uint32_t
 
     for (i = 0; i < nregs; i++) {
         if (err = adi_apollo_hal_reg_get(device, reg + i, &data8), err != API_CMS_ERROR_OK) {
-            xil_printf("*error*\r\n");
+            dbg_printf(DBG_ERROR, "*error*\r\n");
             return err;
         }
-        xil_printf("0x%08X: 0x%02X\r\n", reg + i, data8);
-        if ((i + 1) % 4 == 0) xil_printf("\r\n");
+        dbg_printf(DBG_DEBUG, "0x%08X: 0x%02X\r\n", reg + i, data8);
+        if ((i + 1) % 4 == 0) dbg_printf(DBG_DEBUG, "\r\n");
     }
-    xil_printf("\r\n");
+    dbg_printf(DBG_DEBUG, "\r\n");
 
     return API_CMS_ERROR_OK;
 }
@@ -97,13 +99,13 @@ static int32_t versal_apollo_ex_fpga_reg_test(adi_fpga_apollo_device_t *fpga_dev
     if (err = adi_fpga_apollo_core_reg_get(fpga_device, offset, &out_data), err != API_CMS_ERROR_OK) {
         return err;
     }
-    xil_printf("FPGA reg at offset 0x%X value is 0x%04X\r\n", offset, out_data);
+    dbg_printf(DBG_DEBUG, "FPGA reg at offset 0x%X value is 0x%04X\r\n", offset, out_data);
 
     offset = 0x101;
     if (err = adi_fpga_apollo_core_reg_get(fpga_device, offset, &out_data), err != API_CMS_ERROR_OK) {
         return err;
     }
-    xil_printf("FPGA reg at offset 0x%X value is 0x%04X\r\n", offset, out_data);
+    dbg_printf(DBG_DEBUG, "FPGA reg at offset 0x%X value is 0x%04X\r\n", offset, out_data);
 
     return API_CMS_ERROR_OK;
 }
@@ -135,7 +137,7 @@ static int32_t versal_apollo_ex_reg_test(adi_apollo_device_t *device)
             break;
         }
     }
-    xil_printf("Test direct register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
+    dbg_printf(DBG_INFO, "Test direct register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
     if (stat != 0) {
         return API_CMS_ERROR_ERROR;
     }
@@ -157,7 +159,7 @@ static int32_t versal_apollo_ex_reg_test(adi_apollo_device_t *device)
             break;
         }
     }
-    xil_printf("Test indirect register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
+    dbg_printf(DBG_INFO, "Test indirect register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
     if (stat != 0) {
         return API_CMS_ERROR_ERROR;
     }
@@ -180,7 +182,7 @@ static int32_t versal_apollo_ex_reg_test(adi_apollo_device_t *device)
             break;
         }
     }
-    xil_printf("Test ARM 32-bit register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
+    dbg_printf(DBG_INFO, "Test ARM 32-bit register %s\r\n", (0 == stat) ? "Passed" : "*** FAILED ***");
     if (stat != 0) {
         return API_CMS_ERROR_ERROR;
     }
@@ -190,22 +192,10 @@ static int32_t versal_apollo_ex_reg_test(adi_apollo_device_t *device)
 
 /*!
  * @brief FPGA pre-reset: stop play/capture to reduce power before Apollo reset.
- *
- *        On the original platform this writes SEQ_CTRL_2 bitfields and disables
- *        the SYSREF sequencer external trigger. These are FPGA-design-specific
- *        register accesses.
- *
- *        TODO: Enable once FPGA register map (SEQ_CTRL_2, etc.) is confirmed
- *        for your Versal Vivado design. Uncomment the lines below:
- *
- *        adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_FIRST_TRIG_CNT_MASK, 1);
- *        adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_SECOND_TRIG_CNT_MASK, 1);
- *        adi_fpga_apollo_core_sysref_seq_ext_trig_enable_set(fpga_device, 0);
  */
 static int32_t versal_apollo_ex_fpga_pre_reset(adi_fpga_apollo_device_t *fpga_device)
 {
-    (void)fpga_device; /* Suppress unused parameter warning */
-
+    (void)fpga_device;
     /* TODO: Implement when FPGA design register map is verified */
     return API_CMS_ERROR_OK;
 }
@@ -242,7 +232,6 @@ int main(void)
     adi_apollo_device_t device = { {0} };
     adi_fpga_apollo_device_t fpga_device = { {0} };
     adi_apollo_top_t *profile = &VERSAL_PROFILE_STRUCT;
-    uint8_t is_hw_open = 0;
     adi_apollo_hal_protocol_e protocol;
 
     /* Clock config */
@@ -259,82 +248,81 @@ int main(void)
     uint8_t is_rx_fsrc  = profile->rx_path[0].rx_fsrc[0].enable  || profile->rx_path[1].rx_fsrc[0].enable;
     uint8_t is_tx_fsrc  = profile->tx_path[0].tx_fsrc[0].enable  || profile->tx_path[1].tx_fsrc[0].enable;
 
-    xil_printf("\r\n================================================\r\n");
-    xil_printf("  Apollo SDK — Versal Standalone\r\n");
-    xil_printf("  Profile: %s\r\n", VERSAL_PROFILE_NAME);
-    xil_printf("================================================\r\n\r\n");
+    dbg_printf(DBG_ALWAYS, "\r\n================================================\r\n");
+    dbg_printf(DBG_ALWAYS, "  Apollo SDK — Versal Standalone\r\n");
+    dbg_printf(DBG_ALWAYS, "  Profile: %s\r\n", VERSAL_PROFILE_NAME);
+    dbg_printf(DBG_ALWAYS, "================================================\r\n\r\n");
 
     /* Print profile feature summary */
-    xil_printf("RX CFIR:  %s\r\n", is_rx_cfir  ? "enabled" : "disabled");
-    xil_printf("TX CFIR:  %s\r\n", is_tx_cfir  ? "enabled" : "disabled");
-    xil_printf("RX PFILT: %s\r\n", is_rx_pfilt ? "enabled" : "disabled");
-    xil_printf("TX PFILT: %s\r\n", is_tx_pfilt ? "enabled" : "disabled");
-    xil_printf("RX FSRC:  %s\r\n", is_rx_fsrc  ? "enabled" : "disabled");
-    xil_printf("TX FSRC:  %s\r\n", is_tx_fsrc  ? "enabled" : "disabled");
-    xil_printf("\r\n");
+    dbg_printf(DBG_INFO, "RX CFIR:  %s\r\n", is_rx_cfir  ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "TX CFIR:  %s\r\n", is_tx_cfir  ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "RX PFILT: %s\r\n", is_rx_pfilt ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "TX PFILT: %s\r\n", is_tx_pfilt ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "RX FSRC:  %s\r\n", is_rx_fsrc  ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "TX FSRC:  %s\r\n", is_tx_fsrc  ? "enabled" : "disabled");
+    dbg_printf(DBG_INFO, "\r\n");
 
     /*
      * ========== Step 1: Open Versal platform ==========
      * Initialize SPI0 (AD9084), SPI1 (HMC7044/ADF4030/ADF4382).
      */
-    xil_printf("--- Step 1: Hardware Init ---\r\n");
-    if (err = versal_hw_open(), err != API_CMS_ERROR_OK) {
-        xil_printf("FATAL: versal_hw_open failed. err=%d\r\n", err);
-        goto end;
+    dbg_printf(DBG_INFO, "--- Step 1: Hardware Init ---\r\n");
+    err = versal_hw_open();
+    if (err != API_CMS_ERROR_OK) {
+        dbg_printf(DBG_ERROR, "FATAL: versal_hw_open failed. err=%d\r\n", err);
+        return err;
     }
-    is_hw_open = 1;
 
     /*
      * ========== Step 2: Create platform HAL instance ==========
      */
-    xil_printf("--- Step 2: HAL Instance ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 2: HAL Instance ---\r\n");
     adi_fpga_apollo_hal_config_t *versal_platform = versal_apollo_hal_instance();
 
     /*
      * ========== Step 3: Wire FPGA HAL ==========
      */
-    xil_printf("--- Step 3: FPGA HAL Wiring ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 3: FPGA HAL Wiring ---\r\n");
     versal_apollo_ex_configure_fpga_hal(&fpga_device, versal_platform);
 
     /*
      * ========== Step 4: Wire Apollo HAL ==========
      */
-    xil_printf("--- Step 4: Apollo HAL Wiring ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 4: Apollo HAL Wiring ---\r\n");
     versal_apollo_ex_configure_hal(&device, versal_platform, 0 /* no HSCI */);
 
     /*
      * ========== Step 5: Configure startup (FW provider) ==========
      * QSPI-based firmware provider.
      */
-    xil_printf("--- Step 5: Startup Config ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 5: Startup Config ---\r\n");
     versal_apollo_ex_configure_startup(&device);
 
     /*
      * ========== Step 6: FPGA pre-reset ==========
      * Stop any active play/capture to reduce power before Apollo reset.
-     *
-     * NOTE: SEQ_CTRL_2 and related offsets must match your Vivado FPGA design.
-     * If your register map differs, update versal_config.h accordingly.
      */
-    xil_printf("--- Step 6: FPGA Pre-Reset ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 6: FPGA Pre-Reset ---\r\n");
     versal_apollo_ex_fpga_pre_reset(&fpga_device);
 
     /*
      * ========== Step 7: Open Apollo API ==========
      * Platform-independent. Executes hard reset + init sequence.
      */
-    xil_printf("--- Step 7: Apollo Device Open ---\r\n");
-    if (err = adi_apollo_device_hw_open(&device, ADI_APOLLO_HARD_RESET_AND_INIT), err != API_CMS_ERROR_OK) {
-        xil_printf("ERROR: adi_apollo_device_hw_open failed. err=%d\r\n", err);
-        goto end;
+    dbg_printf(DBG_INFO, "--- Step 7: Apollo Device Open ---\r\n");
+    err = adi_apollo_device_hw_open(&device, ADI_APOLLO_HARD_RESET_AND_INIT);
+    if (err != API_CMS_ERROR_OK) {
+        dbg_printf(DBG_ERROR, "ERROR: adi_apollo_device_hw_open failed. err=%d\r\n", err);
+        versal_hw_close();
+        return err;
     }
 
-    xil_printf("Device is: %s\r\n", device.dev_info.is_8t8r ? "8T8R" : "4T4R");
+    dbg_printf(DBG_INFO, "Device is: %s\r\n", device.dev_info.is_8t8r ? "8T8R" : "4T4R");
 
     /*
      * ========== Step 8: Set active protocol and RMW ==========
      */
-    xil_printf("--- Step 8: Protocol Config ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 8: Protocol Config ---\r\n");
     adi_apollo_hal_active_protocol_set(&device, ADI_APOLLO_HAL_PROTOCOL_SPI0);
     adi_apollo_hal_rmw_enable_set(&device, ADI_APOLLO_HAL_PROTOCOL_SPI0, 0);
 
@@ -344,38 +332,40 @@ int main(void)
     /*
      * ========== Step 9: FPGA register access test ==========
      */
-    xil_printf("--- Step 9: Register Tests ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 9: Register Tests ---\r\n");
     err = versal_apollo_ex_fpga_reg_test(&fpga_device);
-    xil_printf("FPGA register access test: %s\r\n", (err == API_CMS_ERROR_OK) ? "Passed" : "*** FAILED ***");
+    dbg_printf(DBG_INFO, "FPGA register access test: %s\r\n", (err == API_CMS_ERROR_OK) ? "Passed" : "*** FAILED ***");
     if (err != API_CMS_ERROR_OK) {
-        goto end;
+        versal_hw_close();
+        return err;
     }
 
     /*
      * ========== Step 10: Apollo register access test ==========
      */
     err = versal_apollo_ex_reg_test(&device);
-    xil_printf("Apollo register access test: %s\r\n", (err == API_CMS_ERROR_OK) ? "Passed" : "*** FAILED ***");
+    dbg_printf(DBG_INFO, "Apollo register access test: %s\r\n", (err == API_CMS_ERROR_OK) ? "Passed" : "*** FAILED ***");
     if (err != API_CMS_ERROR_OK) {
-        goto end;
+        versal_hw_close();
+        return err;
     }
 
-    /* Set RMW based on active protocol (disabled by default, same as original) */
+    /* Set RMW based on active protocol */
     adi_apollo_hal_active_protocol_get(&device, &protocol);
     adi_apollo_hal_rmw_enable_set(&device, protocol, 0);
-    xil_printf("Active Apollo HAL Protocol: %s, RMW: disabled\r\n",
+    dbg_printf(DBG_INFO, "Active Apollo HAL Protocol: %s, RMW: disabled\r\n",
                (protocol == ADI_APOLLO_HAL_PROTOCOL_SPI0) ? "SPI0" : "HSCI");
 
     /*
      * ========== Step 11: Configure clocks ==========
      * HMC7044 (clock distribution) + ADF4382 (PLL) + ADF4030 (transceiver clock).
      */
-    xil_printf("--- Step 11: Clock Configuration ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 11: Clock Configuration ---\r\n");
 
     /* 11a: Configure HMC7044 + ADF4382 via ex_common clock helper */
     err = versal_apollo_ex_configure_profile_clks(&fpga_device, ltc6955_clk_khz, profile, clk_mode);
     if (err != API_CMS_ERROR_OK) {
-        xil_printf("WARNING: Clock config returned err=%d (may be OK if using ext clocks)\r\n", err);
+        dbg_printf(DBG_WARNING, "WARNING: Clock config returned err=%d (may be OK if using ext clocks)\r\n", err);
     }
 
     /* 11b: Configure ADF4030 */
@@ -391,29 +381,25 @@ int main(void)
         /*
          * TODO: Add ADF4030 configuration sequence here.
          * Depends on clock plan and frequency requirements.
-         * Example:
-         *   versal_apollo_ex_adf4030_startup(&adf4030_device, ref_freq_hz, vco_freq_hz);
          */
-        xil_printf("INFO: ADF4030 HAL wired on SPI1/CS1. TODO: Add config sequence.\r\n");
+        dbg_printf(DBG_INFO, "INFO: ADF4030 HAL wired on SPI1/CS1. TODO: Add config sequence.\r\n");
     }
 
     /*
      * ========== Step 12: Apollo startup (FW + profile + DP) ==========
-     * Loads firmware from QSPI flash, programs device profile,
-     * configures digital datapath.
      */
-    xil_printf("--- Step 12: Apollo Startup ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 12: Apollo Startup ---\r\n");
     err = versal_apollo_ex_startup(&device, profile);
     if (err != API_CMS_ERROR_OK) {
-        xil_printf("ERROR: Apollo startup failed. err=%d\r\n", err);
-        goto end;
+        dbg_printf(DBG_ERROR, "ERROR: Apollo startup failed. err=%d\r\n", err);
+        versal_hw_close();
+        return err;
     }
 
     /*
      * ========== Step 13: Print device info ==========
-     * UUID and Die ID — platform-independent SDK calls.
      */
-    xil_printf("--- Step 13: Device Info ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 13: Device Info ---\r\n");
     {
         uint8_t uuid[ADI_APOLLO_UUID_NUM_BYTES];
         char uuid_str[256];
@@ -422,77 +408,48 @@ int main(void)
         adi_apollo_device_uuid_get(&device, uuid, ADI_APOLLO_UUID_NUM_BYTES);
         versal_uuid_to_str(uuid, ADI_APOLLO_UUID_NUM_BYTES, uuid_str, 256);
         adi_apollo_hal_log_write(&device, ADI_CMS_LOG_MSG, "UUID: %s", uuid_str);
-        xil_printf("UUID: %s\r\n", uuid_str);
+        dbg_printf(DBG_INFO, "UUID: %s\r\n", uuid_str);
 
         adi_apollo_device_die_id_get(&device, &die_id);
         adi_apollo_hal_log_write(&device, ADI_CMS_LOG_MSG, "dev id: %d", die_id);
-        xil_printf("Die ID: %d\r\n", die_id);
+        dbg_printf(DBG_INFO, "Die ID: %d\r\n", die_id);
     }
 
     /*
      * ========== Step 14: Clock power calibration ==========
      */
-    xil_printf("--- Step 14: Clock Power Cal ---\r\n");
+    dbg_printf(DBG_INFO, "--- Step 14: Clock Power Cal ---\r\n");
     err = versal_apollo_ex_clk_power_cal(&device,
                                          clk_mode,
                                          (uint64_t)(profile->clk_cfg.dev_clk_freq_kHz * 1e3),
                                          (uint64_t)(ltc6955_clk_khz * 1e3));
     if (err != API_CMS_ERROR_OK) {
-        xil_printf("WARNING: clk_power_cal returned err=%d\r\n", err);
+        dbg_printf(DBG_WARNING, "WARNING: clk_power_cal returned err=%d\r\n", err);
     }
 
     /*
      * ========== Step 15: FPGA profile init (JESD + FSRC) ==========
-     *
-     * On the original platform, this:
-     *   1) Configures FPGA JESD Rx/Tx links from the profile
-     *   2) Initializes FPGA FSRC for Tx and Rx
-     *
-     * On Versal:
-     *   - JESD: Xilinx JESD204C IP driver integration required (TODO)
-     *   - FSRC: The FPGA FSRC API calls (adi_fpga_apollo_*) should work
-     *     if the Versal FPGA design includes the same FSRC registers.
-     *
-     * TODO: Implement Versal JESD204C configuration.
-     *       FSRC configuration can be enabled once FPGA design is verified.
      */
-    xil_printf("--- Step 15: FPGA Profile Init ---\r\n");
-    xil_printf("TODO: JESD204C configuration requires Xilinx JESD204C IP driver.\r\n");
-    xil_printf("TODO: FSRC init can be enabled when FPGA register map is verified.\r\n");
-    /* err = versal_apollo_ex_fpga_profile_init(&fpga_device, profile); */
+    dbg_printf(DBG_INFO, "--- Step 15: FPGA Profile Init ---\r\n");
+    dbg_printf(DBG_INFO, "TODO: JESD204C configuration requires Xilinx JESD204C IP driver.\r\n");
+    dbg_printf(DBG_INFO, "TODO: FSRC init can be enabled when FPGA register map is verified.\r\n");
 
     /*
      * ========== Step 16: Ready ==========
-     * Device is fully initialized. On the original platform, an example
-     * function (fullchip, tx_nco, etc.) would run here.
-     *
-     * TODO: Implement Versal-specific test/example functions.
-     *       Options:
-     *       - Basic init verification (register read-back)
-     *       - Data capture / playback test
-     *       - NCO sweep test
-     *       - Loopback test
      */
-    xil_printf("--- Step 16: Ready ---\r\n");
-    xil_printf("Apollo device initialized and ready.\r\n");
-    xil_printf("TODO: Implement Versal-specific example/test function.\r\n");
-    err = API_CMS_ERROR_OK;
+    dbg_printf(DBG_ALWAYS, "--- Step 16: Ready ---\r\n");
+    dbg_printf(DBG_ALWAYS, "Apollo device initialized and ready.\r\n");
 
-end:
-    /*
-     * ========== Cleanup ==========
-     */
-    xil_printf("--- Cleanup ---\r\n");
-    if (is_hw_open) {
-        versal_hw_close();
-    }
+    /* Cleanup */
+    dbg_printf(DBG_INFO, "--- Cleanup ---\r\n");
+    versal_hw_close();
 
-    xil_printf("\r\nDone. Entering idle loop.\r\n");
+    dbg_printf(DBG_ALWAYS, "\r\nDone. Entering idle loop.\r\n");
 
     /* Baremetal: infinite loop (no OS to return to) */
     while (1) {
         sleep(1);
     }
 
-    return err;
+    return 0;
 }

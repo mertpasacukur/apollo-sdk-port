@@ -9,9 +9,9 @@
  */
 
 #include <string.h>
-#include "xil_printf.h"
 
 #include "versal_manual_test.h"
+#include "versal_debug.h"
 #include "adi_apollo_hal.h"
 #include "adi_hmc7044_core.h"
 #include "adi_adf4382_core.h"
@@ -69,11 +69,11 @@ void versal_manual_test_init(adi_apollo_device_t   *apollo,
     g_adf4382 = adf4382;
     g_adf4030 = adf4030;
 
-    xil_printf("[MANUAL_TEST] Initialized. Devices:\r\n");
-    xil_printf("  APOLLO:  %s\r\n", g_apollo  ? "OK" : "NULL");
-    xil_printf("  HMC7044: %s\r\n", g_hmc7044 ? "OK" : "NULL");
-    xil_printf("  ADF4382: %s\r\n", g_adf4382 ? "OK" : "NULL");
-    xil_printf("  ADF4030: %s\r\n", g_adf4030 ? "OK" : "NULL");
+    dbg_printf(DBG_INFO, "[MANUAL_TEST] Initialized. Devices:\r\n");
+    dbg_printf(DBG_INFO, "  APOLLO:  %s\r\n", g_apollo  ? "OK" : "NULL");
+    dbg_printf(DBG_INFO, "  HMC7044: %s\r\n", g_hmc7044 ? "OK" : "NULL");
+    dbg_printf(DBG_INFO, "  ADF4382: %s\r\n", g_adf4382 ? "OK" : "NULL");
+    dbg_printf(DBG_INFO, "  ADF4030: %s\r\n", g_adf4030 ? "OK" : "NULL");
 }
 
 int32_t versal_manual_test_read(const char *device_name, uint32_t address, uint8_t *data)
@@ -82,7 +82,7 @@ int32_t versal_manual_test_read(const char *device_name, uint32_t address, uint8
     manual_test_device_e dev;
 
     if (data == NULL) {
-        xil_printf("[MANUAL_TEST] ERROR: data pointer is NULL\r\n");
+        dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: data pointer is NULL\r\n");
         return API_CMS_ERROR_NULL_PARAM;
     }
 
@@ -91,59 +91,59 @@ int32_t versal_manual_test_read(const char *device_name, uint32_t address, uint8
     switch (dev) {
     case DEV_APOLLO:
         if (g_apollo == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: APOLLO not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: APOLLO not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_apollo_hal_reg_get(g_apollo, address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[APOLLO] READ  0x%08X = 0x%02X\r\n", address, *data);
+            dbg_printf(DBG_DEBUG, "[APOLLO] READ  0x%08X = 0x%02X\r\n", address, *data);
         } else {
-            xil_printf("[APOLLO] READ  0x%08X FAILED (err=%d)\r\n", address, err);
+            dbg_printf(DBG_DEBUG, "[APOLLO] READ  0x%08X FAILED (err=%d)\r\n", address, err);
         }
         break;
 
     case DEV_HMC7044:
         if (g_hmc7044 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: HMC7044 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: HMC7044 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_hmc7044_core_spi_reg_get(g_hmc7044, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[HMC7044] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
+            dbg_printf(DBG_DEBUG, "[HMC7044] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
         } else {
-            xil_printf("[HMC7044] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
+            dbg_printf(DBG_DEBUG, "[HMC7044] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
         }
         break;
 
     case DEV_ADF4382:
         if (g_adf4382 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: ADF4382 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: ADF4382 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_adf4382_core_spi_reg_get(g_adf4382, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[ADF4382] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
+            dbg_printf(DBG_DEBUG, "[ADF4382] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
         } else {
-            xil_printf("[ADF4382] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
+            dbg_printf(DBG_DEBUG, "[ADF4382] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
         }
         break;
 
     case DEV_ADF4030:
         if (g_adf4030 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: ADF4030 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: ADF4030 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_adf4030_core_spi_reg_get(g_adf4030, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[ADF4030] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
+            dbg_printf(DBG_DEBUG, "[ADF4030] READ  0x%04X = 0x%02X\r\n", (uint16_t)address, *data);
         } else {
-            xil_printf("[ADF4030] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
+            dbg_printf(DBG_DEBUG, "[ADF4030] READ  0x%04X FAILED (err=%d)\r\n", (uint16_t)address, err);
         }
         break;
 
     default:
-        xil_printf("[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
-        xil_printf("  Valid: APOLLO, HMC7044, ADF4382, ADF4030\r\n");
+        dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
+        dbg_printf(DBG_ERROR, "  Valid: APOLLO, HMC7044, ADF4382, ADF4030\r\n");
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
@@ -160,59 +160,59 @@ int32_t versal_manual_test_write(const char *device_name, uint32_t address, uint
     switch (dev) {
     case DEV_APOLLO:
         if (g_apollo == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: APOLLO not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: APOLLO not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_apollo_hal_reg_set(g_apollo, address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[APOLLO] WRITE 0x%08X = 0x%02X OK\r\n", address, data);
+            dbg_printf(DBG_DEBUG, "[APOLLO] WRITE 0x%08X = 0x%02X OK\r\n", address, data);
         } else {
-            xil_printf("[APOLLO] WRITE 0x%08X = 0x%02X FAILED (err=%d)\r\n", address, data, err);
+            dbg_printf(DBG_DEBUG, "[APOLLO] WRITE 0x%08X = 0x%02X FAILED (err=%d)\r\n", address, data, err);
         }
         break;
 
     case DEV_HMC7044:
         if (g_hmc7044 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: HMC7044 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: HMC7044 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_hmc7044_core_spi_reg_set(g_hmc7044, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[HMC7044] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
+            dbg_printf(DBG_DEBUG, "[HMC7044] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
         } else {
-            xil_printf("[HMC7044] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
+            dbg_printf(DBG_DEBUG, "[HMC7044] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
         }
         break;
 
     case DEV_ADF4382:
         if (g_adf4382 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: ADF4382 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: ADF4382 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_adf4382_core_spi_reg_set(g_adf4382, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[ADF4382] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
+            dbg_printf(DBG_DEBUG, "[ADF4382] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
         } else {
-            xil_printf("[ADF4382] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
+            dbg_printf(DBG_DEBUG, "[ADF4382] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
         }
         break;
 
     case DEV_ADF4030:
         if (g_adf4030 == NULL) {
-            xil_printf("[MANUAL_TEST] ERROR: ADF4030 not initialized\r\n");
+            dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: ADF4030 not initialized\r\n");
             return API_CMS_ERROR_NULL_PARAM;
         }
         err = adi_adf4030_core_spi_reg_set(g_adf4030, (uint16_t)address, data);
         if (err == API_CMS_ERROR_OK) {
-            xil_printf("[ADF4030] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
+            dbg_printf(DBG_DEBUG, "[ADF4030] WRITE 0x%04X = 0x%02X OK\r\n", (uint16_t)address, data);
         } else {
-            xil_printf("[ADF4030] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
+            dbg_printf(DBG_DEBUG, "[ADF4030] WRITE 0x%04X = 0x%02X FAILED (err=%d)\r\n", (uint16_t)address, data, err);
         }
         break;
 
     default:
-        xil_printf("[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
-        xil_printf("  Valid: APOLLO, HMC7044, ADF4382, ADF4030\r\n");
+        dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
+        dbg_printf(DBG_ERROR, "  Valid: APOLLO, HMC7044, ADF4382, ADF4030\r\n");
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
@@ -228,22 +228,22 @@ int32_t versal_manual_test_dump(const char *device_name, uint32_t start_addr, ui
 
     dev = resolve_device(device_name);
     if (dev == DEV_UNKNOWN) {
-        xil_printf("[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
+        dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: Unknown device \"%s\"\r\n", device_name);
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
     if (count == 0U || count > 256U) {
-        xil_printf("[MANUAL_TEST] ERROR: count must be 1-256\r\n");
+        dbg_printf(DBG_ERROR, "[MANUAL_TEST] ERROR: count must be 1-256\r\n");
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
-    xil_printf("[%s] DUMP 0x%04X .. 0x%04X (%u regs)\r\n",
+    dbg_printf(DBG_DEBUG, "[%s] DUMP 0x%04X .. 0x%04X (%u regs)\r\n",
                device_name, start_addr, start_addr + count - 1U, count);
 
     for (i = 0; i < count; i++) {
         err = versal_manual_test_read(device_name, start_addr + i, &data);
         if (err != API_CMS_ERROR_OK) {
-            xil_printf("[%s] DUMP aborted at offset %u (err=%d)\r\n", device_name, i, err);
+            dbg_printf(DBG_ERROR, "[%s] DUMP aborted at offset %u (err=%d)\r\n", device_name, i, err);
             return err;
         }
     }

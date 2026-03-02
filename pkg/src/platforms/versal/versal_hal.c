@@ -25,6 +25,7 @@
 
 #include "versal_hal.h"
 #include "versal_config.h"
+#include "versal_debug.h"
 
 /*============= D E F I N E S ==============*/
 #define SPI_BUF_SIZE    256
@@ -54,7 +55,7 @@ static int32_t versal_spi_instance_init(XSpi *inst, uint16_t device_id, const ch
 
     status = XSpi_Initialize(inst, device_id);
     if (status != XST_SUCCESS) {
-        xil_printf("ERROR: %s XSpi_Initialize failed (%d)\r\n", label, status);
+        dbg_printf(DBG_ERROR, "ERROR: %s XSpi_Initialize failed (%d)\r\n", label, status);
         return API_CMS_ERROR_HW_OPEN;
     }
 
@@ -64,20 +65,20 @@ static int32_t versal_spi_instance_init(XSpi *inst, uint16_t device_id, const ch
                               XSP_MANUAL_SSELECT_OPTION |
                               XSP_CLK_ACTIVE_LOW_OPTION);
     if (status != XST_SUCCESS) {
-        xil_printf("ERROR: %s XSpi_SetOptions failed (%d)\r\n", label, status);
+        dbg_printf(DBG_ERROR, "ERROR: %s XSpi_SetOptions failed (%d)\r\n", label, status);
         return API_CMS_ERROR_HW_OPEN;
     }
 
     status = XSpi_Start(inst);
     if (status != XST_SUCCESS) {
-        xil_printf("ERROR: %s XSpi_Start failed (%d)\r\n", label, status);
+        dbg_printf(DBG_ERROR, "ERROR: %s XSpi_Start failed (%d)\r\n", label, status);
         return API_CMS_ERROR_HW_OPEN;
     }
 
     /* Polled mode — disable interrupts */
     XSpi_IntrGlobalDisable(inst);
 
-    xil_printf("INFO: %s initialized\r\n", label);
+    dbg_printf(DBG_INFO, "INFO: %s initialized\r\n", label);
     return API_CMS_ERROR_OK;
 }
 
@@ -120,9 +121,9 @@ int32_t versal_hw_open(void)
     g_spi_rd_cnt = 0;
     g_spi_wr_cnt = 0;
 
-    xil_printf("\r\n========================================\r\n");
-    xil_printf(" Apollo SDK — Versal Standalone HAL\r\n");
-    xil_printf("========================================\r\n");
+    dbg_printf(DBG_ALWAYS, "\r\n========================================\r\n");
+    dbg_printf(DBG_ALWAYS, " Apollo SDK — Versal Standalone HAL\r\n");
+    dbg_printf(DBG_ALWAYS, "========================================\r\n");
 
     /* Initialize SPI0 (AD9084) */
     err = versal_spi_instance_init(&g_spi0, VERSAL_SPI0_DEVICE_ID, "SPI0 (AD9084)");
@@ -132,13 +133,13 @@ int32_t versal_hw_open(void)
     err = versal_spi_instance_init(&g_spi1, VERSAL_SPI1_DEVICE_ID, "SPI1 (Clocks)");
     if (err != API_CMS_ERROR_OK) return err;
 
-    xil_printf("INFO: versal_hw_open() complete\r\n");
+    dbg_printf(DBG_INFO, "INFO: versal_hw_open() complete\r\n");
     return API_CMS_ERROR_OK;
 }
 
 int32_t versal_hw_close(void)
 {
-    xil_printf("INFO: versal_hw_close() — SPI rd=%lu, wr=%lu, total=%lu\r\n",
+    dbg_printf(DBG_INFO, "INFO: versal_hw_close() — SPI rd=%lu, wr=%lu, total=%lu\r\n",
                (unsigned long)g_spi_rd_cnt, (unsigned long)g_spi_wr_cnt,
                (unsigned long)(g_spi_rd_cnt + g_spi_wr_cnt));
 
@@ -173,7 +174,7 @@ int32_t versal_spi_read(void *user_data, const uint8_t tx_data[], uint8_t rx_dat
     uint32_t total = txn_config->addr_len + data_len;
 
     if (total > SPI_BUF_SIZE) {
-        xil_printf("ERROR: SPI read size %lu exceeds buffer\r\n", (unsigned long)total);
+        dbg_printf(DBG_ERROR, "ERROR: SPI read size %lu exceeds buffer\r\n", (unsigned long)total);
         return API_CMS_ERROR_SPI_XFER;
     }
 
@@ -191,7 +192,7 @@ int32_t versal_spi_read(void *user_data, const uint8_t tx_data[], uint8_t rx_dat
     /* Full-duplex SPI transfer */
     status = XSpi_Transfer(spi_inst, g_spi_tx_buf, g_spi_rx_buf, total);
     if (status != XST_SUCCESS) {
-        xil_printf("ERROR: SPI read transfer failed (%d) dev=%s\r\n", status, spi_desc->name);
+        dbg_printf(DBG_ERROR, "ERROR: SPI read transfer failed (%d) dev=%s\r\n", status, spi_desc->name);
         return API_CMS_ERROR_SPI_XFER;
     }
 
@@ -202,6 +203,17 @@ int32_t versal_spi_read(void *user_data, const uint8_t tx_data[], uint8_t rx_dat
      *   rx_data[addr_len..] = actual data
      */
     memcpy(rx_data, g_spi_rx_buf, total);
+
+    /* Debug: print TX/RX bytes */
+    dbg_printf(DBG_DEBUG, "[SPI-RD] dev=%s cs=%u len=%lu TX:", spi_desc->name, spi_desc->spi_cs, (unsigned long)total);
+    for (uint32_t i = 0; i < total && i < 8U; i++) {
+        dbg_printf(DBG_DEBUG, " %02X", g_spi_tx_buf[i]);
+    }
+    dbg_printf(DBG_DEBUG, " RX:");
+    for (uint32_t i = 0; i < total && i < 8U; i++) {
+        dbg_printf(DBG_DEBUG, " %02X", g_spi_rx_buf[i]);
+    }
+    dbg_printf(DBG_DEBUG, "\r\n");
 
     return API_CMS_ERROR_OK;
 }
@@ -220,7 +232,7 @@ int32_t versal_spi_write(void *user_data, const uint8_t tx_data[],
     spi_inst = versal_get_spi_instance(spi_desc);
 
     if (num_tx_bytes > SPI_BUF_SIZE) {
-        xil_printf("ERROR: SPI write size %lu exceeds buffer\r\n", (unsigned long)num_tx_bytes);
+        dbg_printf(DBG_ERROR, "ERROR: SPI write size %lu exceeds buffer\r\n", (unsigned long)num_tx_bytes);
         return API_CMS_ERROR_SPI_XFER;
     }
 
@@ -237,9 +249,16 @@ int32_t versal_spi_write(void *user_data, const uint8_t tx_data[],
     /* Full-duplex transfer (rx discarded for writes) */
     status = XSpi_Transfer(spi_inst, g_spi_tx_buf, g_spi_rx_buf, num_tx_bytes);
     if (status != XST_SUCCESS) {
-        xil_printf("ERROR: SPI write transfer failed (%d) dev=%s\r\n", status, spi_desc->name);
+        dbg_printf(DBG_ERROR, "ERROR: SPI write transfer failed (%d) dev=%s\r\n", status, spi_desc->name);
         return API_CMS_ERROR_SPI_XFER;
     }
+
+    /* Debug: print TX bytes */
+    dbg_printf(DBG_DEBUG, "[SPI-WR] dev=%s cs=%u len=%lu TX:", spi_desc->name, spi_desc->spi_cs, (unsigned long)num_tx_bytes);
+    for (uint32_t i = 0; i < num_tx_bytes && i < 8U; i++) {
+        dbg_printf(DBG_DEBUG, " %02X", g_spi_tx_buf[i]);
+    }
+    dbg_printf(DBG_DEBUG, "\r\n");
 
     return API_CMS_ERROR_OK;
 }
@@ -350,7 +369,7 @@ int32_t versal_fpga_mem_read(uint32_t mem_addr, uint32_t num_bytes, uint8_t *buf
     (void)mem_addr;
     (void)num_bytes;
     (void)buffer;
-    xil_printf("TODO: versal_fpga_mem_read — DMA not implemented\r\n");
+    dbg_printf(DBG_WARNING, "TODO: versal_fpga_mem_read — DMA not implemented\r\n");
     return API_CMS_ERROR_ERROR;
 }
 
@@ -359,7 +378,7 @@ int32_t versal_fpga_mem_write(uint32_t mem_addr, uint32_t num_bytes, uint8_t *bu
     (void)mem_addr;
     (void)num_bytes;
     (void)buffer;
-    xil_printf("TODO: versal_fpga_mem_write — DMA not implemented\r\n");
+    dbg_printf(DBG_WARNING, "TODO: versal_fpga_mem_write — DMA not implemented\r\n");
     return API_CMS_ERROR_ERROR;
 }
 
