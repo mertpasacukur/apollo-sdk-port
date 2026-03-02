@@ -31,9 +31,9 @@
 
 /*============= S T A T I C   D A T A ======================================*/
 
-/* XSpi instances */
-static XSpi     g_spi0;        /* SPI0: AD9084 */
-static XSpi     g_spi1;        /* SPI1: HMC7044, ADF4030, ADF4382 */
+/* XSpi instances — NOT static, accessible by versal_raw_regio.c */
+XSpi     g_spi0;        /* SPI0: AD9084 */
+XSpi     g_spi1;        /* SPI1: HMC7044, ADF4030, ADF4382 */
 
 /* SPI tx/rx buffers */
 static uint8_t  g_spi_tx_buf[SPI_BUF_SIZE];
