@@ -6,12 +6,6 @@
  *            structs to be initialized. Only needs versal_hw_open() to
  *            init the SPI instances.
  *
- *            Includes an interactive UART shell for register debugging:
- *              > r APOLLO 0x47000200
- *              > w APOLLO 0x47000200 0xAA
- *              > d HMC7044 0x0000 16
- *              > rmw ADF4382 0x0010 0x0F 0x05
- *
  *            SPI Topology (from versal_config.h):
  *              SPI0: AD9084 (Apollo) — CS0
  *              SPI1: HMC7044 (CS0), ADF4030 (CS1), ADF4382 (CS2)
@@ -106,20 +100,11 @@ int32_t raw_regio_dump(raw_device_e dev, uint32_t start_addr, uint32_t count);
 raw_device_e raw_regio_resolve_name(const char *name);
 
 /*!
- * @brief  Interactive UART shell. Blocks forever, processes commands.
+ * @brief  Read all known chip/product ID registers and print results.
  *
- *         Commands:
- *           r <DEV> <ADDR>              — Read register
- *           w <DEV> <ADDR> <DATA>       — Write register
- *           d <DEV> <ADDR> <COUNT>      — Dump registers
- *           rmw <DEV> <ADDR> <MASK> <DATA> — Read-modify-write
- *           scan <DEV>                  — Read chip/product ID registers
- *           help                        — Show commands
- *           q                           — Quit shell (return to caller)
- *
- *         All numeric values accept 0x hex or decimal.
+ * @param[in] dev  Filter to one device, or RAW_DEV_UNKNOWN to scan all.
  */
-void raw_regio_shell(void);
+void raw_regio_scan(raw_device_e dev);
 
 #ifdef __cplusplus
 }

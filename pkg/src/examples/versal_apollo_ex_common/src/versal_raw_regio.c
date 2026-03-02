@@ -25,7 +25,6 @@
  */
 
 #include <string.h>
-#include <stdlib.h>
 
 #include "xspi.h"
 #include "xil_printf.h"
@@ -245,9 +244,8 @@ int32_t raw_regio_dump(raw_device_e dev, uint32_t start_addr, uint32_t count)
     return 0;
 }
 
-/*============= I N T E R A C T I V E   S H E L L ==========================*/
+/*============= S C A N   ( C H I P   I D ) ================================*/
 
-/* Known chip ID registers for 'scan' command */
 typedef struct {
     raw_device_e dev;
     const char  *label;
@@ -272,93 +270,7 @@ static const scan_entry_t g_scan_table[] = {
 
 #define SCAN_TABLE_SIZE  (sizeof(g_scan_table) / sizeof(g_scan_table[0]))
 
-static void shell_print_help(void)
-{
-    xil_printf("\r\n=== RAW REGISTER I/O SHELL ===\r\n");
-    xil_printf("Devices: APOLLO (AD9084), HMC7044 (HMC), ADF4382, ADF4030\r\n\r\n");
-    xil_printf("Commands:\r\n");
-    xil_printf("  r <DEV> <ADDR>                  Read register\r\n");
-    xil_printf("  w <DEV> <ADDR> <DATA>           Write register\r\n");
-    xil_printf("  d <DEV> <ADDR> <COUNT>          Dump consecutive regs (hex table)\r\n");
-    xil_printf("  rmw <DEV> <ADDR> <MASK> <DATA>  Read-modify-write\r\n");
-    xil_printf("  scan                            Read all chip ID registers\r\n");
-    xil_printf("  scan <DEV>                      Read chip ID for one device\r\n");
-    xil_printf("  help                            Show this help\r\n");
-    xil_printf("  q                               Quit shell\r\n\r\n");
-    xil_printf("Numbers: 0x1234 (hex) or 4660 (decimal)\r\n\r\n");
-    xil_printf("Examples:\r\n");
-    xil_printf("  r APOLLO 0x0003\r\n");
-    xil_printf("  w HMC7044 0x0001 0x55\r\n");
-    xil_printf("  d ADF4382 0x0000 32\r\n");
-    xil_printf("  rmw ADF4030 0x0010 0x0F 0x05\r\n\r\n");
-}
-
-static uint32_t parse_uint32(const char *s)
-{
-    if (s == NULL) return 0;
-    return (uint32_t)strtoul(s, NULL, 0);  /* auto-detect hex with 0x prefix */
-}
-
-/* Simple line reader using xil_printf/inbyte */
-#define CMD_BUF_SIZE  128
-#define MAX_TOKENS    6
-
-static int32_t shell_readline(char *buf, uint32_t size)
-{
-    uint32_t idx = 0;
-    char c;
-
-    xil_printf("raw> ");
-
-    while (idx < size - 1U) {
-        c = (char)inbyte();
-
-        if (c == '\r' || c == '\n') {
-            buf[idx] = '\0';
-            xil_printf("\r\n");
-            return (int32_t)idx;
-        }
-        else if (c == '\b' || c == 0x7F) {
-            if (idx > 0U) {
-                idx--;
-                xil_printf("\b \b");
-            }
-        }
-        else if (c >= 0x20) {
-            buf[idx++] = c;
-            outbyte(c);
-        }
-    }
-
-    buf[idx] = '\0';
-    xil_printf("\r\n");
-    return (int32_t)idx;
-}
-
-static int32_t tokenize(char *buf, char *tokens[], int32_t max_tokens)
-{
-    int32_t count = 0;
-    char *p = buf;
-
-    while (*p != '\0' && count < max_tokens) {
-        /* Skip whitespace */
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == '\0') break;
-
-        tokens[count++] = p;
-
-        /* Advance to next whitespace */
-        while (*p != '\0' && *p != ' ' && *p != '\t') p++;
-        if (*p != '\0') {
-            *p = '\0';
-            p++;
-        }
-    }
-
-    return count;
-}
-
-static void cmd_scan(raw_device_e filter)
+void raw_regio_scan(raw_device_e filter)
 {
     uint32_t i;
     uint8_t val;
@@ -382,149 +294,4 @@ static void cmd_scan(raw_device_e filter)
     }
 
     xil_printf("-------------------\r\n\r\n");
-}
-
-void raw_regio_shell(void)
-{
-    char buf[CMD_BUF_SIZE];
-    char *tokens[MAX_TOKENS];
-    int32_t ntok;
-    raw_device_e dev;
-    uint32_t addr;
-    uint8_t data, mask;
-    uint32_t count;
-    int32_t err;
-
-    shell_print_help();
-
-    while (1) {
-        shell_readline(buf, CMD_BUF_SIZE);
-        ntok = tokenize(buf, tokens, MAX_TOKENS);
-
-        if (ntok == 0) continue;
-
-        /* ---- QUIT ---- */
-        if (strcmp(tokens[0], "q") == 0 || strcmp(tokens[0], "quit") == 0) {
-            xil_printf("[RAW] Shell exiting.\r\n");
-            return;
-        }
-
-        /* ---- HELP ---- */
-        if (strcmp(tokens[0], "help") == 0 || strcmp(tokens[0], "?") == 0) {
-            shell_print_help();
-            continue;
-        }
-
-        /* ---- SCAN ---- */
-        if (strcmp(tokens[0], "scan") == 0) {
-            if (ntok >= 2) {
-                dev = raw_regio_resolve_name(tokens[1]);
-                cmd_scan(dev);
-            } else {
-                cmd_scan(RAW_DEV_UNKNOWN);  /* scan all */
-            }
-            continue;
-        }
-
-        /* ---- READ ---- */
-        if (strcmp(tokens[0], "r") == 0 || strcmp(tokens[0], "read") == 0) {
-            if (ntok < 3) {
-                xil_printf("Usage: r <DEV> <ADDR>\r\n");
-                continue;
-            }
-            dev = raw_regio_resolve_name(tokens[1]);
-            if (dev == RAW_DEV_UNKNOWN) {
-                xil_printf("Unknown device: %s\r\n", tokens[1]);
-                continue;
-            }
-            addr = parse_uint32(tokens[2]);
-            err = raw_regio_read(dev, addr, &data);
-            if (err == 0) {
-                xil_printf("[%s] 0x%04X = 0x%02X (%u)\r\n",
-                           g_dev_table[dev].name, addr, data, data);
-            } else {
-                xil_printf("[%s] 0x%04X READ FAILED\r\n",
-                           g_dev_table[dev].name, addr);
-            }
-            continue;
-        }
-
-        /* ---- WRITE ---- */
-        if (strcmp(tokens[0], "w") == 0 || strcmp(tokens[0], "write") == 0) {
-            if (ntok < 4) {
-                xil_printf("Usage: w <DEV> <ADDR> <DATA>\r\n");
-                continue;
-            }
-            dev = raw_regio_resolve_name(tokens[1]);
-            if (dev == RAW_DEV_UNKNOWN) {
-                xil_printf("Unknown device: %s\r\n", tokens[1]);
-                continue;
-            }
-            addr = parse_uint32(tokens[2]);
-            data = (uint8_t)parse_uint32(tokens[3]);
-
-            err = raw_regio_write(dev, addr, data);
-            if (err == 0) {
-                xil_printf("[%s] 0x%04X <= 0x%02X OK\r\n",
-                           g_dev_table[dev].name, addr, data);
-            } else {
-                xil_printf("[%s] 0x%04X <= 0x%02X FAILED\r\n",
-                           g_dev_table[dev].name, addr, data);
-            }
-            continue;
-        }
-
-        /* ---- DUMP ---- */
-        if (strcmp(tokens[0], "d") == 0 || strcmp(tokens[0], "dump") == 0) {
-            if (ntok < 4) {
-                xil_printf("Usage: d <DEV> <ADDR> <COUNT>\r\n");
-                continue;
-            }
-            dev = raw_regio_resolve_name(tokens[1]);
-            if (dev == RAW_DEV_UNKNOWN) {
-                xil_printf("Unknown device: %s\r\n", tokens[1]);
-                continue;
-            }
-            addr  = parse_uint32(tokens[2]);
-            count = parse_uint32(tokens[3]);
-            raw_regio_dump(dev, addr, count);
-            continue;
-        }
-
-        /* ---- READ-MODIFY-WRITE ---- */
-        if (strcmp(tokens[0], "rmw") == 0) {
-            if (ntok < 5) {
-                xil_printf("Usage: rmw <DEV> <ADDR> <MASK> <DATA>\r\n");
-                continue;
-            }
-            dev = raw_regio_resolve_name(tokens[1]);
-            if (dev == RAW_DEV_UNKNOWN) {
-                xil_printf("Unknown device: %s\r\n", tokens[1]);
-                continue;
-            }
-            addr = parse_uint32(tokens[2]);
-            mask = (uint8_t)parse_uint32(tokens[3]);
-            data = (uint8_t)parse_uint32(tokens[4]);
-
-            /* Show before */
-            uint8_t before;
-            raw_regio_read(dev, addr, &before);
-            xil_printf("[%s] RMW 0x%04X: before=0x%02X, mask=0x%02X, data=0x%02X\r\n",
-                       g_dev_table[dev].name, addr, before, mask, data);
-
-            err = raw_regio_rmw(dev, addr, mask, data);
-            if (err == 0) {
-                uint8_t after;
-                raw_regio_read(dev, addr, &after);
-                xil_printf("[%s] RMW 0x%04X: after=0x%02X OK\r\n",
-                           g_dev_table[dev].name, addr, after);
-            } else {
-                xil_printf("[%s] RMW FAILED\r\n", g_dev_table[dev].name);
-            }
-            continue;
-        }
-
-        /* ---- UNKNOWN ---- */
-        xil_printf("Unknown command: '%s'. Type 'help'.\r\n", tokens[0]);
-    }
 }
