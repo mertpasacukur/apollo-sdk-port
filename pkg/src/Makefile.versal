@@ -81,8 +81,7 @@ SRCS_LOADER = c_src/devices/image_loader/public/src/adi_fpga_image_loader.c
 
 SRCS_VERSAL = platforms/versal/versal_hal.c
 
-SRCS_EX_COMMON = examples/versal_apollo_ex_common/src/versal_manual_test.c \
-                 examples/versal_apollo_ex_common/src/versal_raw_regio.c
+SRCS_EX_COMMON = examples/versal_apollo_ex_common/src/versal_manual_test.c
 
 ALL_SRCS = $(SRCS_UTILS) $(SRCS_APOLLO_API) $(SRCS_HMC7044) $(SRCS_ADF4382) \
            $(SRCS_ADF4030) $(SRCS_FPGA) $(SRCS_PROTOCOL) $(SRCS_MATH) \
