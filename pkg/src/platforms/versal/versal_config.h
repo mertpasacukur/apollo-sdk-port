@@ -24,29 +24,47 @@
 /*============= F P G A   R E G I S T E R   B A S E   A D D R E S S ========*/
 /*
  * AXI base address of the Apollo FPGA register block as seen from Versal PS.
- * TODO: Update from Vivado Address Editor.
+ *
+ * TODO: Fill in from Vivado Address Editor once FPGA design is finalized.
+ *       This is the base address assigned to the custom Apollo register block
+ *       in the Versal block design. Typically found in xparameters.h as
+ *       XPAR_<IP_NAME>_BASEADDR after bitstream generation.
  */
-#define VERSAL_FPGA_REG_BASE_ADDR   0xA0000000UL
+/* #define VERSAL_FPGA_REG_BASE_ADDR   0x????????UL */
 
 /*============= G P I O   F O R   R E S E T   P I N =======================*/
 /*
  * AD9084 hardware reset via AXI GPIO.
- * TODO: Update base address and bit position from your Vivado design.
+ *
+ * TODO: Fill in from Vivado Address Editor once GPIO IP is placed.
+ *       - VERSAL_GPIO_BASE_ADDR: Base address of the AXI GPIO instance
+ *         controlling AD9084 RESETB pin.
+ *       - VERSAL_RESET_PIN_BIT: Bit position within GPIO channel that
+ *         drives the AD9084 RESETB line.
+ *       Values come from xparameters.h after bitstream generation.
  */
-#define VERSAL_GPIO_BASE_ADDR       0xA0010000UL
-#define VERSAL_GPIO_DATA_OFFSET     0x00
-#define VERSAL_GPIO_TRI_OFFSET      0x04
-#define VERSAL_RESET_PIN_BIT        0   /* Bit position for AD9084 RESETB */
+/* #define VERSAL_GPIO_BASE_ADDR       0x????????UL */
+/* #define VERSAL_GPIO_DATA_OFFSET     0x00            */
+/* #define VERSAL_GPIO_TRI_OFFSET      0x04            */
+/* #define VERSAL_RESET_PIN_BIT        ?               */
 
 /*============= A X I   J E S D   R E G I S T E R S =======================*/
 /*
- * Same offsets as original platform — these are FPGA-register-relative offsets.
- * Only used if the FPGA design matches the original register map.
+ * FPGA-register-relative offsets for Apollo FPGA misc/control registers.
+ *
+ * TODO: Fill in once the FPGA register map is defined.
+ *       These offsets are relative to VERSAL_FPGA_REG_BASE_ADDR.
+ *       On the original ADS10 platform the values were:
+ *         AXI_FPGA_MISC_1_REG = 0x10B
+ *         AXI_FPGA_DUT_RSTB   = 0x002
+ *         AXI_FPGA_DUT_TX_EN  = 0x00C
+ *         AXI_FPGA_DUT_RX_EN  = 0x030
+ *       Verify against your Versal FPGA design's register map.
  */
-#define AXI_FPGA_MISC_1_REG        0x10B
-#define AXI_FPGA_DUT_RSTB          0x002
-#define AXI_FPGA_DUT_TX_EN         0x00C
-#define AXI_FPGA_DUT_RX_EN         0x030
+/* #define AXI_FPGA_MISC_1_REG        0x??? */
+/* #define AXI_FPGA_DUT_RSTB          0x??? */
+/* #define AXI_FPGA_DUT_TX_EN         0x??? */
+/* #define AXI_FPGA_DUT_RX_EN         0x??? */
 
 /*============= P S   Q S P I   C O N F I G ================================*/
 /*

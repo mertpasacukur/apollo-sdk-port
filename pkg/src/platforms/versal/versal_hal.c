@@ -19,7 +19,7 @@
 #include <stdarg.h>
 
 #include "xspi.h"
-#include "xil_io.h"
+/* #include "xil_io.h" */  /* TODO: Uncomment when FPGA register access is implemented */
 #include "xil_printf.h"
 #include "sleep.h"
 
@@ -296,22 +296,30 @@ int32_t versal_wait_us(void *user_data, uint32_t time_us)
 
 int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable)
 {
-    uint32_t tmp_val;
-
     (void)user_data;
 
     /*
-     * Read-modify-write AXI GPIO or FPGA register.
-     * Same concept as original platform: toggle a bit in a register.
-     * Uses AXI_FPGA_MISC_1_REG offset from FPGA base (like original platform).
+     * TODO: Implement AD9084 hardware reset pin control.
+     *
+     * This function should toggle the AD9084 RESETB line via FPGA registers.
+     * On the original ADS10 platform, this was a read-modify-write on
+     * AXI_FPGA_MISC_1_REG with the AXI_FPGA_DUT_RSTB bit mask:
+     *
+     *   1. Read current value:  Xil_In32(FPGA_BASE + 4 * AXI_FPGA_MISC_1_REG)
+     *   2. If enable:  set AXI_FPGA_DUT_RSTB bit (assert reset)
+     *      If !enable: clear AXI_FPGA_DUT_RSTB bit (de-assert reset)
+     *   3. Write back: Xil_Out32(FPGA_BASE + 4 * AXI_FPGA_MISC_1_REG, val)
+     *
+     * Alternatively, if the Versal design uses a dedicated AXI GPIO IP
+     * for the reset pin, use XGpio driver or direct Xil_Out32 to the
+     * GPIO base address + data offset with the correct bit position.
+     *
+     * Requires: VERSAL_FPGA_REG_BASE_ADDR and register offsets defined
+     *           in versal_config.h (currently commented out — fill in
+     *           once FPGA design is finalized).
      */
-    tmp_val = Xil_In32(VERSAL_FPGA_REG_BASE_ADDR + 4 * AXI_FPGA_MISC_1_REG);
-    if (enable) {
-        tmp_val |= AXI_FPGA_DUT_RSTB;
-    } else {
-        tmp_val &= (~AXI_FPGA_DUT_RSTB);
-    }
-    Xil_Out32(VERSAL_FPGA_REG_BASE_ADDR + 4 * AXI_FPGA_MISC_1_REG, tmp_val);
+    dbg_printf(DBG_WARNING, "TODO: versal_hw_rst_pin_ctrl_apollo(enable=%u) — "
+               "FPGA register addresses not yet defined\r\n", enable);
 
     return API_CMS_ERROR_OK;
 }
@@ -352,13 +360,42 @@ int32_t versal_user_data_free(void **user_data)
 
 int32_t versal_axi_reg_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = Xil_In32(VERSAL_FPGA_REG_BASE_ADDR + 4 * reg_offset);
+    /*
+     * TODO: Implement FPGA register read.
+     *
+     * Read a 32-bit value from the Apollo FPGA register block.
+     * Address = VERSAL_FPGA_REG_BASE_ADDR + (4 * reg_offset)
+     *
+     * Implementation (once FPGA base address is known):
+     *   *out_data = Xil_In32(VERSAL_FPGA_REG_BASE_ADDR + 4 * reg_offset);
+     *
+     * Requires: VERSAL_FPGA_REG_BASE_ADDR defined in versal_config.h.
+     */
+    (void)reg_offset;
+    *out_data = 0;
+    dbg_printf(DBG_WARNING, "TODO: versal_axi_reg_read32(offset=0x%03lX) — "
+               "FPGA base address not yet defined\r\n", (unsigned long)reg_offset);
     return API_CMS_ERROR_OK;
 }
 
 int32_t versal_axi_reg_write32(uint32_t reg_offset, uint32_t data)
 {
-    Xil_Out32(VERSAL_FPGA_REG_BASE_ADDR + 4 * reg_offset, data);
+    /*
+     * TODO: Implement FPGA register write.
+     *
+     * Write a 32-bit value to the Apollo FPGA register block.
+     * Address = VERSAL_FPGA_REG_BASE_ADDR + (4 * reg_offset)
+     *
+     * Implementation (once FPGA base address is known):
+     *   Xil_Out32(VERSAL_FPGA_REG_BASE_ADDR + 4 * reg_offset, data);
+     *
+     * Requires: VERSAL_FPGA_REG_BASE_ADDR defined in versal_config.h.
+     */
+    (void)reg_offset;
+    (void)data;
+    dbg_printf(DBG_WARNING, "TODO: versal_axi_reg_write32(offset=0x%03lX, data=0x%08lX) — "
+               "FPGA base address not yet defined\r\n",
+               (unsigned long)reg_offset, (unsigned long)data);
     return API_CMS_ERROR_OK;
 }
 

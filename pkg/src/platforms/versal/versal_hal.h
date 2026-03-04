@@ -112,6 +112,7 @@ int32_t versal_cms_spi_write(void *user_data, const uint8_t tx_data[],
 int32_t versal_wait_us(void *user_data, uint32_t time_us);
 
 /* --- Reset Pin --- */
+/* TODO: Requires FPGA register base or AXI GPIO — see versal_config.h */
 int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable);
 
 /* --- Logging --- */
@@ -121,6 +122,7 @@ int32_t versal_log_write(void *user_data, int32_t log_type, const char *message,
 int32_t versal_user_data_free(void **user_data);
 
 /* --- FPGA Register Access --- */
+/* TODO: Requires VERSAL_FPGA_REG_BASE_ADDR from FPGA design — see versal_config.h */
 int32_t versal_axi_reg_read32(uint32_t reg_offset, uint32_t *out_data);
 int32_t versal_axi_reg_write32(uint32_t reg_offset, uint32_t data);
 
