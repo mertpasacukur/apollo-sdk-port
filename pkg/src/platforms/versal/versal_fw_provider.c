@@ -61,10 +61,11 @@ static const struct {
     uint32_t flash_addr;
     uint32_t max_size;
 } fw_flash_map[] = {
-    { 0x01030000UL, 0x00200000UL },  /* fw_id 0: flash_image_0x01030000.bin */
-    { 0x20000000UL, 0x00200000UL },  /* fw_id 1: flash_image_0x20000000.bin */
-    { 0x02000000UL, 0x00200000UL },  /* fw_id 2: flash_image_0x02000000.bin */
-    { 0x21000000UL, 0x00200000UL },  /* fw_id 3: flash_image_0x21000000.bin */
+    /* TODO PASA: Replace hardcoded sizes with 4-byte size header read from flash */
+    { 0x01030000UL,   4096UL },    /* fw_id 0: flash_image_0x01030000.bin */
+    { 0x20000000UL, 196604UL },    /* fw_id 1: flash_image_0x20000000.bin */
+    { 0x02000000UL, 360444UL },    /* fw_id 2: flash_image_0x02000000.bin */
+    { 0x21000000UL,  23424UL },    /* fw_id 3: flash_image_0x21000000.bin */
 };
 #define FW_FLASH_MAP_COUNT (sizeof(fw_flash_map) / sizeof(fw_flash_map[0]))
 
@@ -277,54 +278,29 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
     }
 
     /*
-     * Flash layout per partition:
-     *   [0x00] uint32_t fw_size (LE) — file size in bytes (prepended during flash programming)
-     *   [0x04] raw firmware data
-     *
-     * To program flash, use the provided pack_fw.py script which prepends
-     * the 4-byte size header to each .bin file before writing.
-     *
-     * Alternatively, write .bin files RAW and set fw_size to the file size
-     * in the first 4 bytes at each flash offset.
+     * TODO PASA: Şimdilik hardcoded boyutlarla RAW okuma yapılıyor.
+     * İleride 4-byte size header sistemi veya filesystem eklenebilir.
+     * Dosyalar header'sız doğrudan flash offset'lerine yazılıyor.
      */
-    #define FW_SIZE_HEADER  4
+    fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
+              fw_flash_map[(uint32_t)fw_id].max_size : 0;
 
-    uint32_t max_fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
-                           fw_flash_map[(uint32_t)fw_id].max_size : 0;
-
-    /* Read 4-byte size header */
-    uint8_t hdr[FW_SIZE_HEADER];
-    err = versal_qspi_read(&data->qspi_inst, flash_addr, hdr, FW_SIZE_HEADER);
-    if (err != API_CMS_ERROR_OK) return err;
-
-    fw_size = (uint32_t)hdr[0] |
-              ((uint32_t)hdr[1] << 8) |
-              ((uint32_t)hdr[2] << 16) |
-              ((uint32_t)hdr[3] << 24);
-
-    if (fw_size == 0xFFFFFFFF || fw_size == 0) {
-        xil_printf("ERROR: Flash empty or invalid at 0x%08lX (fw_id=%d, read=0x%08lX)\r\n",
-                   (unsigned long)flash_addr, (int)fw_id, (unsigned long)fw_size);
-        return API_CMS_ERROR_ERROR;
-    }
-
-    if (fw_size > max_fw_size) {
-        xil_printf("ERROR: FW size %lu exceeds max %lu at 0x%08lX\r\n",
-                   (unsigned long)fw_size, (unsigned long)max_fw_size, (unsigned long)flash_addr);
+    if (fw_size == 0) {
+        xil_printf("ERROR: FW ID %d has no size mapping\r\n", (int)fw_id);
         return API_CMS_ERROR_ERROR;
     }
 
     xil_printf("FW provider: id=%d, flash=0x%08lX, size=%lu bytes\r\n",
                (int)fw_id, (unsigned long)flash_addr, (unsigned long)fw_size);
 
-    /* Allocate and read FW data (after the 4-byte size header) */
+    /* Allocate and read FW data directly (no header) */
     data->buffer = (uint8_t *)malloc(fw_size);
     if (data->buffer == NULL) {
         xil_printf("ERROR: FW buffer malloc failed (size=%lu)\r\n", (unsigned long)fw_size);
         return API_CMS_ERROR_MEM_ALLOC;
     }
 
-    err = versal_qspi_read(&data->qspi_inst, flash_addr + FW_SIZE_HEADER, data->buffer, fw_size);
+    err = versal_qspi_read(&data->qspi_inst, flash_addr, data->buffer, fw_size);
     if (err != API_CMS_ERROR_OK) {
         free(data->buffer);
         data->buffer = NULL;
