@@ -61,8 +61,9 @@ static const struct {
     uint32_t flash_addr;
     uint32_t max_size;
 } fw_flash_map[] = {
-    /* TODO PASA: Replace hardcoded sizes with 4-byte size header read from flash */
-    { 0x01030000UL,   4096UL },    /* fw_id 0: flash_image_0x01030000.bin */
+    /* TODO PASA: Replace hardcoded sizes with dynamic size detection */
+    /* NOTE: Flash offsets must be 128KB aligned for Vitis Program Flash */
+    { 0x01040000UL,   4096UL },    /* fw_id 0: flash_image_0x01030000.bin (aligned 0x01030000→0x01040000) */
     { 0x20000000UL, 196604UL },    /* fw_id 1: flash_image_0x20000000.bin */
     { 0x02000000UL, 360444UL },    /* fw_id 2: flash_image_0x02000000.bin */
     { 0x21000000UL,  23424UL },    /* fw_id 3: flash_image_0x21000000.bin */
