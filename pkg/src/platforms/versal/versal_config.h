@@ -94,8 +94,17 @@
  * TODO: Adjust base offset and partition size for your flash layout.
  */
 #define VERSAL_FW_HEADER_SIZE       256U
-#define VERSAL_FW_FLASH_BASE_OFFSET 0x01000000UL  /* 16MB into flash */
-#define VERSAL_FW_PARTITION_SIZE    0x00200000UL  /* 2MB per partition */
+/*
+ * FW flash layout is now defined in fw_flash_map[] in versal_fw_provider.c
+ * All offsets start at 256MB (0x10000000), 128KB aligned:
+ *   fw_id 0 → 0x10000000
+ *   fw_id 1 → 0x10020000
+ *   fw_id 2 → 0x10060000
+ *   fw_id 3 → 0x100C0000
+ */
+/* Legacy defines — kept for any remaining references */
+#define VERSAL_FW_FLASH_BASE_OFFSET 0x10000000UL  /* 256MB into flash */
+#define VERSAL_FW_PARTITION_SIZE    0x00020000UL  /* 128KB per partition (aligned) */
 
 /*============= O U T P U T   D I R ========================================*/
 /*
