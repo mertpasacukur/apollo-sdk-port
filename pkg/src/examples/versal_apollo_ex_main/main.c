@@ -33,6 +33,9 @@
 /* Debug system */
 #include "versal_debug.h"
 
+/* Shell / command interface */
+#include "shell.h"
+
 /* Example common — HAL wiring, startup */
 #include "versal_apollo_ex.h"
 #include "versal_apollo_ex_types.h"
@@ -446,9 +449,9 @@ int main(void)
 
     dbg_printf(DBG_ALWAYS, "\r\nDone. Entering idle loop.\r\n");
 
-    /* Baremetal: infinite loop (no OS to return to) */
+    /* Baremetal: infinite loop with shell command processing */
     while (1) {
-        sleep(1);
+        checkShell();
     }
 
     return 0;

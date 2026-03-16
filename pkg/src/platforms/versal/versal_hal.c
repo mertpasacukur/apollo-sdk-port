@@ -59,11 +59,12 @@ static int32_t versal_spi_instance_init(XSpi *inst, uint16_t device_id, const ch
         return API_CMS_ERROR_HW_OPEN;
     }
 
-    /* Master mode, manual slave select, clock active low */
+    /* Master mode, manual slave select, SPI Mode 3 (CPOL=1, CPHA=1) for AD9084 */
     status = XSpi_SetOptions(inst,
                               XSP_MASTER_OPTION |
                               XSP_MANUAL_SSELECT_OPTION |
-                              XSP_CLK_ACTIVE_LOW_OPTION);
+                              XSP_CLK_ACTIVE_LOW_OPTION |
+                              XSP_CLK_PHASE_1_OPTION);
     if (status != XST_SUCCESS) {
         dbg_printf(DBG_ERROR, "ERROR: %s XSpi_SetOptions failed (%d)\r\n", label, status);
         return API_CMS_ERROR_HW_OPEN;
