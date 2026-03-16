@@ -16,10 +16,58 @@
 #include "adi_hmc7044_core.h"
 #include "adi_hmc7044_device.h"
 #include "adi_hmc7044_pll.h"
+#include "versal_hmc7044_pl.h"
 
 #include "versal_hal.h"
 
 #define ADI_ADF4030_REF_FREQ_MAX      		250000000U  // 250Mhz
+
+/*
+ * HMC7044 SPI wrapper callbacks — route HAL calls to custom PL IP (3-wire).
+ * The adi_hmc7044 HAL expects standard CMS SPI callback signatures.
+ * We wrap hmcRead/hmcWrite to match those signatures.
+ */
+static int32_t hmc7044_pl_spi_write(void *user_data, uint8_t *indata, uint32_t len)
+{
+    (void)user_data;
+
+    /*
+     * HMC7044 SPI frame (24-bit): [R/W(1)] [W1W0(2)] [A12..A0(13)] [D7..D0(8)]
+     * For write: bit23=0, bits22-21=W1W0, bits20-8=addr, bits7-0=data
+     * indata[] contains the raw SPI frame bytes (MSB first).
+     * Typically len=3: indata[0]=cmd|addr_hi, indata[1]=addr_lo, indata[2]=data
+     */
+    if (len < 3) return API_CMS_ERROR_INVALID_PARAM;
+
+    uint16_t address = ((uint16_t)(indata[0] & 0x1F) << 8) | (uint16_t)indata[1];
+    uint8_t data = indata[2];
+
+    return hmcWrite(address, data);
+}
+
+static int32_t hmc7044_pl_spi_read(void *user_data, uint8_t *indata, uint8_t *outdata, uint32_t len)
+{
+    (void)user_data;
+
+    /*
+     * HMC7044 SPI frame for read: bit23=1, bits20-8=addr
+     * indata[0]=cmd|addr_hi, indata[1]=addr_lo
+     * outdata[2]=read data (returned in last byte position)
+     */
+    if (len < 3) return API_CMS_ERROR_INVALID_PARAM;
+
+    uint16_t address = ((uint16_t)(indata[0] & 0x1F) << 8) | (uint16_t)indata[1];
+    uint8_t data = 0;
+    int32_t err = hmcRead(address, &data);
+
+    if (outdata != NULL && len >= 3) {
+        outdata[0] = 0;
+        outdata[1] = 0;
+        outdata[2] = data;
+    }
+
+    return err;
+}
 
 int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void *sdo_en_context, hal_spi_sdo_en sdo_en_fcn)
 {
@@ -32,13 +80,18 @@ int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void 
     ADI_CMS_ERROR_RETURN(err);
 
     hal->delay_us = &versal_wait_us;
-    hal->spi_read = &versal_cms_spi_read;
-    hal->spi_write = &versal_cms_spi_write;
+
+    /* Route HMC7044 SPI through custom PL IP (3-wire) instead of XSpi */
+    hal->spi_read = &hmc7044_pl_spi_read;
+    hal->spi_write = &hmc7044_pl_spi_write;
+
+    xil_printf("HMC7044: HAL wired to custom PL IP (3-wire SPI)\r\n");
 
     /* Verify SPI read is functional */
     err = adi_hmc7044_core_spi_reg_test(hmc7044);
     if (err != API_CMS_ERROR_OK) {
         xil_printf("ERROR: HMC7044 SPI Reg Test Failed! err=%d\r\n", err);
+        xil_printf("NOTE: hmcRead/hmcWrite must be implemented in versal_hmc7044_pl.c\r\n");
         ADI_CMS_ERROR_RETURN(err);
     }
 
