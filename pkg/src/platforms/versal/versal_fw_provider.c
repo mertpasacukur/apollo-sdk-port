@@ -64,10 +64,29 @@ static const struct {
     /* TODO PASA: Replace hardcoded sizes with dynamic size detection */
     /* All offsets 128KB aligned, starting at 256MB (0x10000000) */
     /* Flash: MT25QU02G 512MB, safe region after boot image */
-    { 0x10000000UL,   4096UL },    /* fw_id 0: flash_image_0x01030000.bin */
-    { 0x10020000UL, 196604UL },    /* fw_id 1: flash_image_0x20000000.bin */
-    { 0x10060000UL, 360444UL },    /* fw_id 2: flash_image_0x02000000.bin */
-    { 0x100C0000UL,  23424UL },    /* fw_id 3: flash_image_0x21000000.bin */
+    /*
+     * Original Linux SDK mapping (ads10_fw_provider.c):
+     *   fw_id 0: APOLLO_FW_CPU0_B.bin           (not used in signed flow)
+     *   fw_id 1: APOLLO_FW_CPU1_B.bin           (not used in signed flow)
+     *   fw_id 2: app_signed_encrypted_B/flash_image_0x01030000.bin
+     *   fw_id 3: app_signed_encrypted_B/flash_image_0x20000000.bin
+     *   fw_id 4: app_signed_encrypted_B/flash_image_0x02000000.bin
+     *   fw_id 5: app_signed_encrypted_B/flash_image_0x21000000.bin
+     *   fw_id 6: app_signed_encrypted_prod_B/flash_image_0x01030000.bin
+     *   fw_id 7: app_signed_encrypted_prod_B/flash_image_0x20000000.bin
+     *   fw_id 8: app_signed_encrypted_prod_B/flash_image_0x02000000.bin
+     *   fw_id 9: app_signed_encrypted_prod_B/flash_image_0x21000000.bin
+     */
+    { 0x00000000UL,      0UL },    /* fw_id 0: CPU0 FW (not used) */
+    { 0x00000000UL,      0UL },    /* fw_id 1: CPU1 FW (not used) */
+    { 0x10000000UL,   4096UL },    /* fw_id 2: signed_B/flash_image_0x01030000.bin */
+    { 0x10020000UL, 196604UL },    /* fw_id 3: signed_B/flash_image_0x20000000.bin */
+    { 0x10060000UL, 360444UL },    /* fw_id 4: signed_B/flash_image_0x02000000.bin */
+    { 0x100C0000UL,  23424UL },    /* fw_id 5: signed_B/flash_image_0x21000000.bin */
+    { 0x10100000UL,   4096UL },    /* fw_id 6: signed_prod_B/flash_image_0x01030000.bin */
+    { 0x10120000UL, 196604UL },    /* fw_id 7: signed_prod_B/flash_image_0x20000000.bin */
+    { 0x10160000UL, 360444UL },    /* fw_id 8: signed_prod_B/flash_image_0x02000000.bin */
+    { 0x101C0000UL,  23540UL },    /* fw_id 9: signed_prod_B/flash_image_0x21000000.bin */
 };
 #define FW_FLASH_MAP_COUNT (sizeof(fw_flash_map) / sizeof(fw_flash_map[0]))
 
