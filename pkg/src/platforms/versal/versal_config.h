@@ -30,7 +30,8 @@
  *       in the Versal block design. Typically found in xparameters.h as
  *       XPAR_<IP_NAME>_BASEADDR after bitstream generation.
  */
-/* #define VERSAL_FPGA_REG_BASE_ADDR   0x????????UL */
+/* TODO PASA: Fill from xparameters.h (XPAR_AXI_..._BASEADDR) */
+#define VERSAL_FPGA_REG_BASE_ADDR   0x80000000UL  /* TODO PASA: PLACEHOLDER — replace with real address */
 
 /*============= G P I O   F O R   R E S E T   P I N =======================*/
 /*

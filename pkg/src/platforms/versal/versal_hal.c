@@ -300,27 +300,35 @@ int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable)
     (void)user_data;
 
     /*
-     * TODO: Implement AD9084 hardware reset pin control.
+     * Apollo reset control via FPGA register.
+     * Register map (from Apollo_3U1502_regMap):
+     *   Offset 0: version_read_ctrl
+     *   Offset 1: reset_reg — bit[0] = Apollo_resetb (write 1 to release reset)
+     *   Offset 2: JESD_reset_reg
      *
-     * This function should toggle the AD9084 RESETB line via FPGA registers.
-     * On the original ADS10 platform, this was a read-modify-write on
-     * AXI_FPGA_MISC_1_REG with the AXI_FPGA_DUT_RSTB bit mask:
-     *
-     *   1. Read current value:  Xil_In32(FPGA_BASE + 4 * AXI_FPGA_MISC_1_REG)
-     *   2. If enable:  set AXI_FPGA_DUT_RSTB bit (assert reset)
-     *      If !enable: clear AXI_FPGA_DUT_RSTB bit (de-assert reset)
-     *   3. Write back: Xil_Out32(FPGA_BASE + 4 * AXI_FPGA_MISC_1_REG, val)
-     *
-     * Alternatively, if the Versal design uses a dedicated AXI GPIO IP
-     * for the reset pin, use XGpio driver or direct Xil_Out32 to the
-     * GPIO base address + data offset with the correct bit position.
-     *
-     * Requires: VERSAL_FPGA_REG_BASE_ADDR and register offsets defined
-     *           in versal_config.h (currently commented out — fill in
-     *           once FPGA design is finalized).
+     * Base address comes from xparameters.h:
+     *   TODO PASA: Set VERSAL_FPGA_REG_BASE_ADDR in versal_config.h
+     *              from xparameters.h (XPAR_AXI_..._BASEADDR)
      */
-    dbg_printf(DBG_WARNING, "TODO: versal_hw_rst_pin_ctrl_apollo(enable=%u) — "
-               "FPGA register addresses not yet defined\r\n", enable);
+    #ifndef VERSAL_FPGA_REG_BASE_ADDR
+    #error "VERSAL_FPGA_REG_BASE_ADDR not defined — set it in versal_config.h from xparameters.h"
+    #endif
+
+    #define APOLLO_RESET_REG_OFFSET  1   /* Register 1 = reset_reg */
+    #define APOLLO_RESETB_BIT        0   /* Bit 0 = Apollo_resetb */
+
+    uint32_t addr = VERSAL_FPGA_REG_BASE_ADDR + (APOLLO_RESET_REG_OFFSET * 4);
+
+    if (enable) {
+        /* Release reset: write 1 to Apollo_resetb bit */
+        Xil_Out32(addr, Xil_In32(addr) | (1U << APOLLO_RESETB_BIT));
+    } else {
+        /* Assert reset: write 0 to Apollo_resetb bit */
+        Xil_Out32(addr, Xil_In32(addr) & ~(1U << APOLLO_RESETB_BIT));
+    }
+
+    dbg_printf(DBG_DEBUG, "rst_pin_ctrl_apollo: enable=%u, addr=0x%08lX, val=0x%08lX\r\n",
+               enable, (unsigned long)addr, (unsigned long)Xil_In32(addr));
 
     return API_CMS_ERROR_OK;
 }
