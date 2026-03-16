@@ -317,7 +317,7 @@ int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable)
     #define APOLLO_RESET_REG_OFFSET  1   /* Register 1 = reset_reg */
     #define APOLLO_RESETB_BIT        0   /* Bit 0 = Apollo_resetb */
 
-    uint32_t addr = VERSAL_FPGA_REG_BASE_ADDR + (APOLLO_RESET_REG_OFFSET * 4);
+    UINTPTR addr = (UINTPTR)VERSAL_FPGA_REG_BASE_ADDR + (APOLLO_RESET_REG_OFFSET * 4);
 
     if (enable) {
         /* Release reset: write 1 to Apollo_resetb bit */
@@ -327,8 +327,8 @@ int32_t versal_hw_rst_pin_ctrl_apollo(void *user_data, uint8_t enable)
         Xil_Out32(addr, Xil_In32(addr) & ~(1U << APOLLO_RESETB_BIT));
     }
 
-    dbg_printf(DBG_DEBUG, "rst_pin_ctrl_apollo: enable=%u, addr=0x%08lX, val=0x%08lX\r\n",
-               enable, (unsigned long)addr, (unsigned long)Xil_In32(addr));
+    dbg_printf(DBG_DEBUG, "rst_pin_ctrl_apollo: enable=%u, addr=0x%llX, val=0x%08lX\r\n",
+               enable, (unsigned long long)addr, (unsigned long)Xil_In32(addr));
 
     return API_CMS_ERROR_OK;
 }
