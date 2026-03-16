@@ -1,7 +1,7 @@
 /*!
  * @brief     HMC7044 Custom PL IP — 3-Wire SPI Implementation
  *
- *            TODO: Paşa fills in with custom PL IP driver code.
+ *            TODO PASA: Fill in with custom PL IP driver code.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */

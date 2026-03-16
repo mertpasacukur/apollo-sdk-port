@@ -280,9 +280,9 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
     }
 
     /*
-     * TODO PASA: Şimdilik hardcoded boyutlarla RAW okuma yapılıyor.
-     * İleride 4-byte size header sistemi veya filesystem eklenebilir.
-     * Dosyalar header'sız doğrudan flash offset'lerine yazılıyor.
+     * TODO PASA: Currently using hardcoded sizes for RAW flash read.
+     * Later: add 4-byte size header system or filesystem.
+     * Files are written directly to flash offsets without any header.
      */
     fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
               fw_flash_map[(uint32_t)fw_id].max_size : 0;

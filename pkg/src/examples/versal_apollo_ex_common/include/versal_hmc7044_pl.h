@@ -6,7 +6,7 @@
  *            These functions provide the register read/write interface
  *            to that custom IP.
  *
- *            Paşa fills in the implementation with his PL IP driver code.
+ *            TODO PASA: Fill in the implementation with PL IP driver code.
  *
  * @copyright copyright(c) 2026. Port for Versal Standalone.
  */
