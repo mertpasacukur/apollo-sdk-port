@@ -256,6 +256,9 @@ int main(void)
     dbg_printf(DBG_ALWAYS, "  Profile: %s\r\n", VERSAL_PROFILE_NAME);
     dbg_printf(DBG_ALWAYS, "================================================\r\n\r\n");
 
+    /* Initialize shell/command interface */
+    initShell();
+
     /* Print profile feature summary */
     dbg_printf(DBG_INFO, "RX CFIR:  %s\r\n", is_rx_cfir  ? "enabled" : "disabled");
     dbg_printf(DBG_INFO, "TX CFIR:  %s\r\n", is_tx_cfir  ? "enabled" : "disabled");
