@@ -61,10 +61,10 @@ static const struct {
     uint32_t flash_addr;
     uint32_t max_size;
 } fw_flash_map[] = {
-    { 0x01030000UL,   4096UL },     /* fw_id 0: flash_image_0x01030000.bin (4,096 B) */
-    { 0x20000000UL, 196604UL },    /* fw_id 1: flash_image_0x20000000.bin (196,604 B) */
-    { 0x02000000UL, 360444UL },    /* fw_id 2: flash_image_0x02000000.bin (360,444 B) */
-    { 0x21000000UL,  23424UL },    /* fw_id 3: flash_image_0x21000000.bin (23,424 B) */
+    { 0x01030000UL, 0x00200000UL },  /* fw_id 0: flash_image_0x01030000.bin */
+    { 0x20000000UL, 0x00200000UL },  /* fw_id 1: flash_image_0x20000000.bin */
+    { 0x02000000UL, 0x00200000UL },  /* fw_id 2: flash_image_0x02000000.bin */
+    { 0x21000000UL, 0x00200000UL },  /* fw_id 3: flash_image_0x21000000.bin */
 };
 #define FW_FLASH_MAP_COUNT (sizeof(fw_flash_map) / sizeof(fw_flash_map[0]))
 
@@ -277,49 +277,54 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
     }
 
     /*
-     * RAW flash read — no header.
-     * Files are written directly to flash at their mapped offsets.
-     * We read the actual file size from the .bin content.
+     * Flash layout per partition:
+     *   [0x00] uint32_t fw_size (LE) — file size in bytes (prepended during flash programming)
+     *   [0x04] raw firmware data
      *
-     * Strategy: read first 4 bytes to get the embedded size,
-     * or use the known max_size from the map and read entire partition.
+     * To program flash, use the provided pack_fw.py script which prepends
+     * the 4-byte size header to each .bin file before writing.
      *
-     * For Apollo FW images, the binary is self-contained.
-     * We read the full file (known size from flash map).
+     * Alternatively, write .bin files RAW and set fw_size to the file size
+     * in the first 4 bytes at each flash offset.
      */
+    #define FW_SIZE_HEADER  4
+
     uint32_t max_fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
                            fw_flash_map[(uint32_t)fw_id].max_size : 0;
 
-    if (max_fw_size == 0) {
-        xil_printf("ERROR: FW ID %d has no size mapping\r\n", (int)fw_id);
-        return API_CMS_ERROR_ERROR;
-    }
-
-    /* Read first 4 bytes to check if flash is populated (not 0xFFFFFFFF) */
-    uint8_t probe[4];
-    err = versal_qspi_read(&data->qspi_inst, flash_addr, probe, 4);
+    /* Read 4-byte size header */
+    uint8_t hdr[FW_SIZE_HEADER];
+    err = versal_qspi_read(&data->qspi_inst, flash_addr, hdr, FW_SIZE_HEADER);
     if (err != API_CMS_ERROR_OK) return err;
 
-    uint32_t first_word = (uint32_t)probe[0] |
-                          ((uint32_t)probe[1] << 8) |
-                          ((uint32_t)probe[2] << 16) |
-                          ((uint32_t)probe[3] << 24);
+    fw_size = (uint32_t)hdr[0] |
+              ((uint32_t)hdr[1] << 8) |
+              ((uint32_t)hdr[2] << 16) |
+              ((uint32_t)hdr[3] << 24);
 
-    if (first_word == 0xFFFFFFFF) {
-        xil_printf("ERROR: Flash empty at 0x%08lX (fw_id=%d) — FW not programmed\r\n",
-                   (unsigned long)flash_addr, (int)fw_id);
+    if (fw_size == 0xFFFFFFFF || fw_size == 0) {
+        xil_printf("ERROR: Flash empty or invalid at 0x%08lX (fw_id=%d, read=0x%08lX)\r\n",
+                   (unsigned long)flash_addr, (int)fw_id, (unsigned long)fw_size);
         return API_CMS_ERROR_ERROR;
     }
 
-    /* Allocate buffer and read full FW image */
-    fw_size = max_fw_size;
+    if (fw_size > max_fw_size) {
+        xil_printf("ERROR: FW size %lu exceeds max %lu at 0x%08lX\r\n",
+                   (unsigned long)fw_size, (unsigned long)max_fw_size, (unsigned long)flash_addr);
+        return API_CMS_ERROR_ERROR;
+    }
+
+    xil_printf("FW provider: id=%d, flash=0x%08lX, size=%lu bytes\r\n",
+               (int)fw_id, (unsigned long)flash_addr, (unsigned long)fw_size);
+
+    /* Allocate and read FW data (after the 4-byte size header) */
     data->buffer = (uint8_t *)malloc(fw_size);
     if (data->buffer == NULL) {
         xil_printf("ERROR: FW buffer malloc failed (size=%lu)\r\n", (unsigned long)fw_size);
         return API_CMS_ERROR_MEM_ALLOC;
     }
 
-    err = versal_qspi_read(&data->qspi_inst, flash_addr, data->buffer, fw_size);
+    err = versal_qspi_read(&data->qspi_inst, flash_addr + FW_SIZE_HEADER, data->buffer, fw_size);
     if (err != API_CMS_ERROR_OK) {
         free(data->buffer);
         data->buffer = NULL;
