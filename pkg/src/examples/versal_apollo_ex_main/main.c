@@ -238,9 +238,10 @@ int main(void)
     adi_apollo_hal_protocol_e protocol;
 
     /* Clock config */
+    /* Clock mode: HMC7044 provides dev_clk to Apollo via FMC path */
     versal_apollo_clk_mode_e clk_mode =
         VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER |
-        VERSAL_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL;
+        VERSAL_APOLLO_CLK_MODE_FPGA_CLK_FMC;
     uint32_t ltc6955_clk_khz = 125e3;
 
     /* Profile feature flags */
