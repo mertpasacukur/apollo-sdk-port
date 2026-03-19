@@ -15,6 +15,7 @@
 #include "adi_fpga_apollo_core_types.h"
 #include "adi_fpga_apollo_gpio_types.h"
 #include "adi_fpga_apollo_clk_types.h"
+#include "adi_fpga_apollo_vec_grp_types.h"
 
 #ifndef CLIENT_IGNORE
 

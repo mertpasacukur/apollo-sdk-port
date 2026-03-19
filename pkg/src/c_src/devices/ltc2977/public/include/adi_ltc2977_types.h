@@ -30,6 +30,18 @@ typedef struct {
     uint8_t patch;
 } adi_ltc2977_version_t;
 
+/**
+ * \brief LTC2977 Fault status struct
+ */
+typedef struct {
+    uint16_t status_word;       /*!< Two byte summary of the unit’s fault condition. CMD Code: 0x79 */
+    uint8_t status_vout;        /*!< Output voltage fault and warning status. CMD Code: 0x7A */
+    uint8_t status_input;       /*!< Input voltage fault and warning status. CMD Code: 0x7C */
+    uint8_t status_temp;        /*!< Temperature fault and warning status. CMD Code: 0x7D */
+    uint8_t status_cml;         /*!< Communication and memory fault and warning status. CMD Code: 0x7E */
+    uint8_t status_mfr;         /*!< Manufacturer specific fault and state information. CMD Code: 0x80 */
+} adi_ltc2977_fault_status_t;
+
 #ifndef CLIENT_IGNORE
 
 /**

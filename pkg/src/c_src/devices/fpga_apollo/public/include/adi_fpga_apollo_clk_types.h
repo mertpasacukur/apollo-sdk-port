@@ -21,6 +21,13 @@
 #include "adi_fpga_apollo_common_types.h"
 
 
+typedef enum {
+    ADI_FPGA_APOLLO_DIV_1   = 0x0,                        /*!< /1 */
+    ADI_FPGA_APOLLO_DIV_2   = 0x1,                        /*!< /2 */
+    ADI_FPGA_APOLLO_DIV_4   = 0x2,                        /*!< /4 */
+    ADI_FPGA_APOLLO_DIV_8   = 0x3,                        /*!< /8 */
+} adi_fpga_apollo_clk_div_sel;
+
 /**
 * \brief FPGA clk parameters per link
 */

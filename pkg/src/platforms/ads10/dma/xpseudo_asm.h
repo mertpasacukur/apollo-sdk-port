@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2009 - 2015 Xilinx, Inc.  All rights reserved.
@@ -76,5 +75,3 @@
 /**
 * @} End of "addtogroup a9_specific".
 */
-
-#endif /* !defined(VERSAL_PLATFORM) */

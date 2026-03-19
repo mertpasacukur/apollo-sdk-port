@@ -67,6 +67,11 @@ int32_t adi_adf4030_tdc_measure(adi_adf4030_device_t *adf4030,
         }
     }
 
+    // Add check if tdc_status is cleared
+    if (tdc_status) {
+        return API_CMS_ERROR_OPERATION_TIMEOUT;
+    }
+
     err = adi_adf4030_bf___REG0073___TDIFF_MATH_get(adf4030, &raw_time_diff);
     ADI_ADF4030_CHECK_ERR_OK(err);
 

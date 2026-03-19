@@ -104,6 +104,17 @@ int32_t adi_adl6332_core_spi_reg_get(adi_adl6332_device_t *adl6332, adi_adl6332_
  */
 int32_t adi_adl6332_core_spi_reg_test(adi_adl6332_device_t *adl6332, adi_adl6332_chip_id_e chip_id);
 
+/**
+ * \brief Get the evaluation board revision
+ *
+ * \param[in]  adl6332 [context variable]       Reference to the device.
+ * \param[out] rev                              Pointer to store the revision value. 0: Rev B | 1: Rev C
+ *
+ * \return API_CMS_ERROR_OK                     API Completed Successfully
+ * \return <0                                   Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_adl6332_core_eval_board_rev_get(adi_adl6332_device_t *adl6332, uint8_t *rev);
+
 #ifdef __cplusplus
 }
 #endif

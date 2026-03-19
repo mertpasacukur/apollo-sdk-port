@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo JRx data path with CFIR
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -75,7 +72,7 @@ int32_t tx_jesd_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
     printf("Create tone (A/B): %7.3fMHz\n", tone_ratio[0] * tx_dp_info.fdata);
     /* Create and populate transmit buffer with baseband tone at 0.1*Fdata, = 125MHz @1250Gsps, 250MHz @2500 */
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio[0], -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio[0], -1.0);
     ADI_CMS_ERROR_RETURN(err);
 
     /* Transmit data out from FPGA JTx */
@@ -130,7 +127,7 @@ int32_t tx_jesd_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
     
         /* Will assume all chans match A0 (side-A, chan 0) */
         printf("Create tone (A/B): %7.3fMHz\n", tone_ratio[i] * tx_dp_info.fdata);
-        err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio[i], -1.0);
+        err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio[i], -1.0);
         ADI_CMS_ERROR_RETURN(err);
 
         /* Start transmit from FPGA JTx */
@@ -161,5 +158,3 @@ int32_t tx_jesd_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

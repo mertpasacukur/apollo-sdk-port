@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo BMEM delay test
  * 
@@ -21,9 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_loopback.h"
@@ -59,10 +56,8 @@ int32_t rx_bmem_delay(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     err = adi_apollo_bmem_hsdin_delay_start(device, ADI_APOLLO_BMEM_A0);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, "rx_bmem_delay", true);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, "rx_bmem_delay", true, true);
     ADI_CMS_ERROR_RETURN(err);
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

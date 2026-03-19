@@ -1,5 +1,5 @@
 /*!
- * \brief     ADF4382 Lock Detect Functionality
+ * \brief     ADF4382 Lock Detect Control Functionality
  *
  * \copyright copyright(c) 2022 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its

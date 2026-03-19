@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     ADS10 Apollo Standalone App Extras Source File
  *            This file contains all the publicly exposed methods and data
@@ -286,5 +285,3 @@ int32_t adi_ads10_apollo_extras_arr1d_double_delta_get(double data[], uint32_t l
     return API_CMS_ERROR_OK;
 }
 /*! @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */

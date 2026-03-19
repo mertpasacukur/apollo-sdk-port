@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common clocking functions
  *
@@ -15,12 +14,27 @@
 #ifndef __ADI_ADS10_APOLLO_EX_CLK_H__
 #define __ADI_ADS10_APOLLO_EX_CLK_H__
 
+#define DEV_CLK_MODE_MASK ( \
+    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER \
+    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL \
+    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382 \
+    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_PLL \
+    | ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_HMC7044_PLL \
+)
+
+#define FPGA_CLK_MODE_MASK ( \
+    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL \
+    | ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC \
+)
+
 typedef enum {
     ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER = 0x01,   /*!< Set Device Clk Mode to External Center (CLK_C) */
     ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL   = 0x02,   /*!< Set Device Clk Mode to External Dual (CLK_A + CLK_B) */
     ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382         = 0x04,   /*!< Set Device Clk Mode to ADF4382 */
     ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_EXTERNAL       = 0x08,   /*!< Set FPGA Clk Mode to External (ADS10 EXT_CLK) */
-    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC            = 0x10    /*!< Set FPGA Clk Mode to FMC (HMC7044) */
+    ADI_ADS10_APOLLO_CLK_MODE_FPGA_CLK_FMC            = 0x10,   /*!< Set FPGA Clk Mode to FMC (HMC7044) */
+    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_PLL    = 0x20,   /*!< Set Device Clk Mode to PLL ref from External */
+    ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_HMC7044_PLL     = 0x40    /*!< Set Device Clk Mode to PLL ref from HMC7044 */
 } adi_ads10_apollo_clk_mode_e;
 
 #ifdef __cplusplus
@@ -33,6 +47,7 @@ extern "C" {
  * \param[in] fpga_device      Pointer to the FPGA device data structure
  * \param[in] ltc6955_clk_khz  Input frequency to the LTC6955 to drive the HMC7044 and ADF4382
  * \param[in] dev_clk_khz      Device clk for Apollo
+ * \param[in] ref_clk_freq_khz Device clk PLL ref clk for Apollo
  * \param[in] digclk_cycles    Digital clk cycles.  Used for calculating SYSREF
  * \param[in] divg_mode        The ratio of digital clock to device clock.  Used for calculating SYSREF
  * \param[in] lane_rate_khz    JESD lane rate
@@ -45,6 +60,7 @@ extern "C" {
 int32_t adi_ads10_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
                                            uint32_t ltc6955_clk_khz,
                                            uint32_t dev_clk_khz,
+                                           uint32_t ref_clk_freq_khz,
                                            uint16_t digclk_cycles,
                                            adi_apollo_divg_mode_e divg_mode,
                                            uint32_t lane_rate_khz,
@@ -88,5 +104,3 @@ int32_t adi_ads10_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_CLK_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

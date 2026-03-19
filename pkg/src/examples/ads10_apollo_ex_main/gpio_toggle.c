@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo CMOS GPIO toggle example running on ADS10 platform
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -246,5 +243,3 @@ static int32_t num_gpios_to_test_get(adi_fpga_apollo_device_t* fpga_device, uint
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx ADC Clock Conditioning test
  *
@@ -27,9 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -55,7 +52,8 @@ int32_t rx_adc_cc(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
     adi_apollo_device_tmu_data_t tmu_data;
     uint32_t num_samples = DEFAULT_NUM_SAMPLES_L;
     uint8_t num_vc;
-    adi_ads10_apollo_rx_channel_info_t channel;
+    adi_ads10_apollo_channel_info_t channel;
+    adi_ads10_apollo_channel_selectors_t channel_selectors = { ADI_APOLLO_CDDC_A0, ADI_APOLLO_CNCO_A0, ADI_APOLLO_FNCO_A0, ADI_APOLLO_FDDC_A0, ADI_APOLLO_FSRC_A0};
     adi_fpga_apollo_capture_frame_t *cap_frame_info;
     int16_t *capture_buf;
     uint32_t num_samples_file = 0;
@@ -91,11 +89,11 @@ int32_t rx_adc_cc(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
         }
 
         /* Capture data into separate I/Q arrays */
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, true);
         ADI_CMS_ERROR_RETURN(err);
 
         cap_frame_info = &fpga_device->state_info.capture_info.capture_frame;
-        err = adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, &channel);
+        err = adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, channel_selectors, &channel);
         ADI_CMS_ERROR_RETURN(err);
 
         /* Process the capture data - calc rms level per channel. With no input can get rough noise measurement */
@@ -105,7 +103,7 @@ int32_t rx_adc_cc(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
                 /* get correct filename */
                 snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_IQ%d_NP%d_DR%lld_CF%lld.txt", OUTPUT_DIR, cap_fname_base, j, vc, cap_frame_info->link_bits_per_sample[j], channel.data_rate_hz, channel.nco_freq_hz);
 
-                err = adi_apollo_utilites_file_to_16b_samples_arr(device, fname, &capture_buf, &num_samples_file, 0);
+                err = adi_apollo_utilities_file_to_16b_samples_arr(device, fname, &capture_buf, &num_samples_file, 0);
                 ADI_CMS_ERROR_GOTO(err, end);
 
                 adi_ads10_apollo_extras_calc_rms(capture_buf, num_samples_file, &cap_anal);
@@ -186,5 +184,3 @@ static int32_t cc_run(adi_apollo_device_t* device, uint16_t adc_cal_chans, bool 
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

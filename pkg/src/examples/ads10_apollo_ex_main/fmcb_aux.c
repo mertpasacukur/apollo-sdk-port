@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo FMCB Auxiliary Device SPI read back check
  *
@@ -44,8 +43,8 @@ int32_t fmcb_aux(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
     adi_hmc7044_device_t hmc7044 = {{0}};
     uint8_t is_ext_clk = 0;
 
-    adi_adl6331_chip_id_e ys_ids[VGA_NUM] = {ADI_ADL6331_CHIP_ID_0, ADI_ADL6331_CHIP_ID_2, ADI_ADL6331_CHIP_ID_1, ADI_ADL6331_CHIP_ID_3};
-    adi_adl6332_chip_id_e sq_ids[VGA_NUM] = {ADI_ADL6332_CHIP_ID_7, ADI_ADL6332_CHIP_ID_5, ADI_ADL6332_CHIP_ID_4, ADI_ADL6332_CHIP_ID_6};
+    adi_adl6331_chip_id_e ys_ids[VGA_NUM] = {ADI_ADL6331_CHIP_ID_1, ADI_ADL6331_CHIP_ID_3, ADI_ADL6331_CHIP_ID_0, ADI_ADL6331_CHIP_ID_2};
+    adi_adl6332_chip_id_e sq_ids[VGA_NUM] = {ADI_ADL6332_CHIP_ID_4, ADI_ADL6332_CHIP_ID_6, ADI_ADL6332_CHIP_ID_7, ADI_ADL6332_CHIP_ID_5};
 
     if (is_ext_clk == 1) {
         err = adi_ads10_apollo_ex_adf4382_hal_config(&adf4382, NULL, &ads10_fpga_fmcb_aux_gpio_write);
@@ -76,25 +75,31 @@ int32_t fmcb_aux(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
     err = adi_ads10_apollo_ex_adl6331_hal_config(&adl6331, NULL, &ads10_fpga_fmcb_aux_gpio_write);
     ADI_CMS_ERROR_RETURN(err);
 
-    printf("Verify Yellowstone SPI read/write...\n");
-    for (i = 0; i < VGA_NUM; i++) {
-        err = adi_adl6331_core_spi_reg_test(&adl6331, ys_ids[i]);
-        ADI_CMS_ERROR_RETURN(err);
+    if (adl6331.rev == 1) {
+        printf("SPI readback not supported on FMCB Rev C.\n");
+    } else {
+        printf("Verify ADL6331 SPI read/write...\n");
+        for (i = 0; i < VGA_NUM; i++) {
+            err = adi_adl6331_core_spi_reg_test(&adl6331, ys_ids[i]);
+            ADI_CMS_ERROR_RETURN(err);
+        printf("Passed.\n");
+        }
     }
-    printf("Passed.\n");
 
     err = adi_ads10_apollo_ex_adl6332_hal_config(&adl6332, NULL, &ads10_fpga_fmcb_aux_gpio_write);
     ADI_CMS_ERROR_RETURN(err);
 
-    printf("Verify Sequoia SPI read/write...\n");
-    for (i = 0; i < VGA_NUM; i++) {
-        err = adi_adl6332_core_spi_reg_test(&adl6332, sq_ids[i]);
-        ADI_CMS_ERROR_RETURN(err);
+    if (adl6332.rev == 1) {
+        printf("SPI readback not supported on FMCB Rev C.\n");
+    } else {
+        printf("Verify ADL6332 SPI read/write...\n");
+        for (i = 0; i < VGA_NUM; i++) {
+            err = adi_adl6332_core_spi_reg_test(&adl6332, sq_ids[i]);
+            ADI_CMS_ERROR_RETURN(err);
+        }
+        printf("Passed.\n");
     }
-    printf("Passed.\n");
 
     return err;
 
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common ADF4382 functions
  *
@@ -91,39 +90,31 @@ int32_t adi_ads10_apollo_ex_adf4382_startup(adi_adf4382_device_t *adf4382,
         .rfout_freq_hz = rfout_freq_hz,
     };
 
-    if (err = adi_ads10_apollo_ex_adf4382_hal_config(adf4382, NULL, &ads10_fpga_fmcb_aux_gpio_write), err != API_CMS_ERROR_OK) {
-        printf("Unable to configure ADF4382 HAL: %d/n", err);
-        return err;
-    }
+    err = adi_ads10_apollo_ex_adf4382_hal_config(adf4382, NULL, &ads10_fpga_fmcb_aux_gpio_write);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_core_init(adf4382), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_core_init(): %d\n", err);
-        return err;
-    }
+    err = adi_adf4382_core_init(adf4382);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_clkctrl_config_set(adf4382, &clkctrl_config), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_clkctrl_config_set(): %d\n", err);
-        return err;
-    }
+    err = adi_adf4382_clkctrl_config_set(adf4382, &clkctrl_config);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_rfout_output_set(adf4382, &rfout_config), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_rfout_output_set(): %d\n", err);
-        return err;
-    }
+    err = adi_adf4382_rfout_output_set(adf4382, &rfout_config);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_pdctrl_pd_set(adf4382, ADI_ADF4382_PDCTRL_TARGET_ALL
-                                               | ADI_ADF4382_PDCTRL_TARGET_CLKOUT1
-                                               | ADI_ADF4382_PDCTRL_TARGET_CLKOUT2, 0),
-        err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_pdctrl_pd_set(): %d\n", err);
-        return err;
-    }
+    err = adi_adf4382_pdctrl_pd_set(adf4382, ADI_ADF4382_PDCTRL_TARGET_ALL
+                                            | ADI_ADF4382_PDCTRL_TARGET_CLKOUT1
+                                            | ADI_ADF4382_PDCTRL_TARGET_CLKOUT2, 0);
+    ADI_CMS_ERROR_RETURN(err);
 
     /* Query lock status (timeout = 500ms)*/
-    if (err = adi_adf4382_ldctrl_lock_wait(adf4382, 500000), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_ldctrl_lock_wait(): %d\n", err);
-        return err;
-    }
+    err = adi_adf4382_ldctrl_lock_wait(adf4382, 500000);
+    ADI_CMS_ERROR_RETURN(err);
+
+    /* Disable Automatic VCO Calibration after target output freq lock is achieved */
+    err = adi_adf4382_bf___REG0020___EN_AUTOCAL_set(adf4382, 0);
+    ADI_CMS_ERROR_RETURN(err);
+
     return API_CMS_ERROR_OK;
 }
 
@@ -133,43 +124,28 @@ int32_t adi_ads10_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf438
 {
     int32_t err = API_CMS_ERROR_OK;
 
-    if (err = adi_adf4382_cpctrl_bleed_word_set(adf4382, &adf4382_mcs_init_config->bleed_word_config), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_cpctrl_bleed_word_set(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_cpctrl_bleed_word_set(adf4382, &adf4382_mcs_init_config->bleed_word_config);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_cpctrl_bleed_polarity_set(adf4382, adf4382_mcs_init_config->bleed_pol), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_cpctrl_bleed_polarity_set(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_cpctrl_bleed_polarity_set(adf4382, adf4382_mcs_init_config->bleed_pol);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_bf___REG0032___BLEED_ADJ_CAL_set(adf4382, adf4382_mcs_init_config->bleed_adj_cal), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_bf___REG0032___BLEED_ADJ_CAL_set(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_bf___REG0032___BLEED_ADJ_CAL_set(adf4382, adf4382_mcs_init_config->bleed_adj_cal);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_phase_adjust_config_set(adf4382, &adf4382_mcs_init_config->phase_adj_config, phase_adj_rb), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_phase_adjust_config_set(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_phase_adjust_config_set(adf4382, &adf4382_mcs_init_config->phase_adj_config, phase_adj_rb);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_cpctrl_en_bleed_set(adf4382, adf4382_mcs_init_config->en_bleed), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_cpctrl_en_bleed_set(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_cpctrl_en_bleed_set(adf4382, adf4382_mcs_init_config->en_bleed);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_phase_adjust_resync_enable(adf4382, adf4382_mcs_init_config->en_phase_resync), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_phase_adjust_resync_enable(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_phase_adjust_resync_enable(adf4382, adf4382_mcs_init_config->en_phase_resync);
+    ADI_CMS_ERROR_RETURN(err);
 
-    if (err = adi_adf4382_phase_adjust_auto_align_enable(adf4382, adf4382_mcs_init_config->en_auto_align), err != API_CMS_ERROR_OK) {
-        printf("Error in adi_adf4382_phase_adjust_auto_align_enable(). err: %d\n", err);
-        goto end;
-    }
+    err = adi_adf4382_phase_adjust_auto_align_enable(adf4382, adf4382_mcs_init_config->en_auto_align);
+    ADI_CMS_ERROR_RETURN(err);
 
-end:
-    return err;
+    return API_CMS_ERROR_OK;
 }
 
 int32_t adi_ads10_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current)
@@ -198,5 +174,3 @@ int32_t adi_ads10_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, u
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

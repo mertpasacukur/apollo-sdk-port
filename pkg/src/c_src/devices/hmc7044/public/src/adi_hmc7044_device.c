@@ -111,6 +111,9 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
                                        },
                                        fdist = { 0 },
                                        fvco_clk_hz = { 0 };
+    bool is_fvco_clk_valid = false;
+    uint64_t vco_window_low_limit[ADI_HMC7044_INT_VCO_COUNT] = {ADI_HMC7044_3GHZ_VCO_HZ_MIN, ADI_HMC7044_2GHZ_VCO_HZ_MIN};
+    uint64_t vco_window_hi_limit[ADI_HMC7044_INT_VCO_COUNT] = {ADI_HMC7044_3GHZ_VCO_HZ_MAX, ADI_HMC7044_2GHZ_VCO_HZ_MAX};
 
     ADI_HMC7044_PTR_CHECK(hmc7044);
     ADI_HMC7044_NULL_CHECK(config);
@@ -193,28 +196,44 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
             adi_hmc7044_private_math_rational_lcm(pfd2_lcm_hz.freq_hz, pfd2_lcm_hz.div, config->output_freq[i].freq_hz, config->output_freq[i].div, &pfd2_lcm_hz.freq_hz, &pfd2_lcm_hz.div);
         }
     }
-
-    for (ref_div = 0; ref_div < HMC7044_PLL2_R_DIV_MAX; ref_div++) {
-        fdist.freq_hz = ref_div * pfd2_lcm_hz.freq_hz;
-        fdist.div = pfd2_lcm_hz.div;
-        fdist_dec = fdist.freq_hz / fdist.div;
-        if (fdist_dec > HMC7044_VCO_CLK_FREQ_HZ_MIN && fdist_dec < HMC7044_VCO_CLK_FREQ_HZ_MAX) {
-            for (i = 0; i < ADI_HMC7044_CLKOUT_COUNT; i++) {
-                if (config->output_freq[i].div != 0 && config->output_freq[i].freq_hz != 0 && (config->clkout & (1 << i))) {
-                    output_chan_divider = (fdist.freq_hz * config->output_freq[i].div) / (fdist.div * config->output_freq[i].freq_hz);
-                    if (output_chan_divider % 2 != 0) {
-                        if (output_chan_divider != 1 && output_chan_divider != 3 && output_chan_divider != 5) {
-                            break;
+ 
+    /* Determine PLL2 fvco. Try for 3G VCO first, then 2G */
+    for (int w = 0; w < ADI_HMC7044_INT_VCO_COUNT; w++) {
+        for (ref_div = 1; ref_div < HMC7044_PLL2_R_DIV_MAX; ref_div++) {
+            fdist.freq_hz = ref_div * pfd2_lcm_hz.freq_hz;
+            fdist.div = pfd2_lcm_hz.div;
+            fdist_dec = fdist.freq_hz / fdist.div;
+            if (fdist_dec > vco_window_low_limit[w] && fdist_dec < vco_window_hi_limit[w]) {
+                for (i = 0; i < ADI_HMC7044_CLKOUT_COUNT; i++) {
+                    if (config->output_freq[i].div != 0 && config->output_freq[i].freq_hz != 0 && (config->clkout & (1 << i))) {
+                        output_chan_divider = (fdist.freq_hz * config->output_freq[i].div) / (fdist.div * config->output_freq[i].freq_hz);
+                        if (output_chan_divider % 2 != 0) {
+                            if (output_chan_divider != 1 && output_chan_divider != 3 && output_chan_divider != 5) {
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            if (i == ADI_HMC7044_CLKOUT_COUNT) {
-                fvco_clk_hz.freq_hz = fdist.freq_hz;
-                fvco_clk_hz.div = fdist.div;
+                
+                if (i == ADI_HMC7044_CLKOUT_COUNT) {
+                    fvco_clk_hz.freq_hz = fdist.freq_hz;
+                    fvco_clk_hz.div = fdist.div;
+                    is_fvco_clk_valid = true;
+                    break;
+                }
+
+            } else if (fdist_dec >= vco_window_hi_limit[w]) {
                 break;
             }
         }
+
+        if (is_fvco_clk_valid) {
+            break;
+        }
+    }
+
+    if (!is_fvco_clk_valid) {
+        return API_CMS_ERROR_VCO_OUT_OF_RANGE;
     }
 
     fvco_clk_hz_dec = fvco_clk_hz.freq_hz / fvco_clk_hz.div;
@@ -231,8 +250,8 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
                 err = adi_hmc7044_device_int_vco_sel_set(hmc7044, ADI_HMC7044_HMC7044_INT_VCO_SEL_2GHZ);
                 ADI_HMC7044_CHECK_ERR_OK(err);
             }
-        } else { // Desired VCO freq. out-of-range.
-            return API_CMS_ERROR_ERROR;
+        } else {
+            return API_CMS_ERROR_VCO_OUT_OF_RANGE;
         }
     }
 

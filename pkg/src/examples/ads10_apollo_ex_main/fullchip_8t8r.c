@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo fullchip 8T8R loopback
  *
@@ -23,9 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -124,7 +121,7 @@ int32_t fullchip_8t8r(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     err = adi_ads10_apollo_ex_cals_run(device, profile, ADI_ADS10_APOLLO_CAL_CC | ADI_ADS10_APOLLO_CAL_ADC);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_incr_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, num_samples, tone_ratio_base, -tone_ratio_base/10.0, -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_incr_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, num_samples, tone_ratio_base, -tone_ratio_base/10.0, -1.0);
     ADI_CMS_ERROR_RETURN(err);
 
     /*** ADS10 FPGA simultaneous Rx/Tx link startup ***/
@@ -146,7 +143,7 @@ int32_t fullchip_8t8r(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     printf("%s\n", tmu_str);
 
     /* Read FPGA capture memory and write out i/q files */
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
     printf("Done with capture\n");
@@ -164,5 +161,3 @@ static int32_t tx_dp_reset(adi_apollo_device_t* device)
     err |= adi_apollo_txmisc_dp_reset(device, ADI_APOLLO_SIDE_ALL, 0);
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -150,6 +150,7 @@
 
 #define GT_RX_CAPTURE_LEN                                  0x0143 /* capture_size[31:0] */
 #define GT_RX_CAPTURE_LEN_H                                0x0144 /* capture_size[63:32] */
+#define GT_RX_CAPTURE_ADDR                                 0x0145 /* capture_addr[31:0] */
 
 #define GT_RX_PRBS_CTRL                                    0x0230
 #define GT_RX_PRBS_SEL_MASK                                0x0000000F
@@ -260,6 +261,11 @@
 #define GT_TX_PRBS_CTRL                                    0x0570
 #define GT_TX_PRBS_SEL_MASK                                0x000F
 
+#define TX_LINK_DATA_LEN                                   0x0588
+#define TX_LINK_DATA_LEN2                                  0x0590
+#define TX_LINK_DATA_ADDR                                  0x0598
+#define TX_LINK_DATA_ADDR2                                 0x05A0
+
 #define JESD204C_TX_E                                      0x0603
 
 #define CLK_SRC_SEL										   0x0942
@@ -319,6 +325,17 @@
 #define DELAY_FB_ENABLE_MASK                               0x00000040
 
 
+#define GT_RX_LANE_MAP_CTRL                                0x0126
+#define RX_LANE_MAP_CTRL_MASK                              0x00000001
+
+#define GT_RX_LANE_MAP_0                                   0x0127
+#define RX_LANE_MAP_0_MASK                                 0x0000001F
+
+#define GT_TX_LANE_MAP_CTRL                                0x0530
+#define TX_LANE_MAP_CTRL_MASK                              0x00000001
+
+#define GT_TX_LANE_MAP_0                                   0x0531
+#define TX_LANE_MAP_0_MASK                                 0x0000001F
 
 /*============= S T R U C T S ==============*/
 

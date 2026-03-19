@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -365,5 +364,3 @@ s32  XScuGic_SelfTest(XScuGic *InstancePtr);
 
 #endif            /* end of protection macro */
 /** @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */

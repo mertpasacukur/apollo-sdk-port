@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx/Tx Sample Repeat Dynamic Reconfig (DR) using manual (SPI) trigger.
  *
@@ -31,9 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -226,7 +223,7 @@ int32_t fullchip_sr_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fp
     err = adi_ads10_apollo_ex_cals_run(device, profile, ADI_ADS10_APOLLO_CAL_CC | ADI_ADS10_APOLLO_CAL_ADC);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
     ADI_CMS_ERROR_RETURN(err);
 
     // Dynamic Sync Serdes Links gradually in a sequence
@@ -262,7 +259,7 @@ int32_t fullchip_sr_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fp
         adi_ads10_ex_sr_dr_cfg_to_str(tx_sr_ratio_cfg, str_buff, str_buff_len);
         printf("Start TX: %s\n", str_buff);
 
-        /* TODO: Remove once FPGA supports xdrc > 2 */
+        /* FPGA doesn't support support xdrc > 2 */
         if (fpga_feature_flags.rx_hw_tl || fpga_feature_flags.tx_hw_tl) {
             if ((rx_sr_ratio_cfg->link_xdrc / rx_sr_ratio_cfg->base_xdrc) > 2 || (tx_sr_ratio_cfg->link_xdrc / tx_sr_ratio_cfg->base_xdrc) > 2) {
                 printf("HW Sample Repeat does not support XDRC > 2, skipping\n");
@@ -317,7 +314,7 @@ int32_t fullchip_sr_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fp
          * JRx IRQs are used to detect if Jrx links drop.
          */
         if (!fpga_feature_flags.tx_hw_tl) {
-            err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
+            err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
             ADI_CMS_ERROR_RETURN(err);
             if (fpga_device->state_info.design_id != ADI_FPGA_APOLLO_DESIGN_STD_EVAL) {
                 err = adi_fpga_apollo_core_ptn_play_start(fpga_device);
@@ -374,7 +371,7 @@ int32_t fullchip_sr_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fp
         }
         /* Read FPGA capture memory and write out i/q files */
         sprintf(cap_fname_base, "%s_%s", "fullchip_sr_dr", rx_sr_ratio_cfg->name);
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, interleaved);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, interleaved);
         ADI_CMS_ERROR_RETURN(err);
 
 #ifdef EXCTL_AUTOMATION
@@ -505,5 +502,3 @@ static int32_t tx_cfg_table_setup(adi_apollo_device_t *device, adi_ads10_apollo_
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

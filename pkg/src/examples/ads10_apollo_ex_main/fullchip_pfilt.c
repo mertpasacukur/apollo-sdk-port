@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Fullchip PFILT example code
  *
@@ -76,9 +75,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_gpio.h"
@@ -481,7 +478,7 @@ static int32_t capture(const fullchip_pfilt_exec_t *obj, char *cap_fname_base, b
     }
 
     /* Read FPGA capture memory and write out i/q files */
-    err = adi_ads10_apollo_ex_fpga_capture(obj->device, obj->profile, obj->fpga_device, num_samples, cap_fname_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(obj->device, obj->profile, obj->fpga_device, num_samples, cap_fname_base, true, interleaved);
 	ADI_CMS_ERROR_RETURN(err);
 
     printf("Done with capture. File base name: %s\n", cap_fname_base);
@@ -500,7 +497,7 @@ static int32_t play(const fullchip_pfilt_exec_t *obj, double tone_ratio, bool bd
     err = adi_fpga_apollo_core_feature_flags_get(obj->fpga_device, &fpga_feature_flags);
 	ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(obj->fpga_device, obj->profile, ADI_APOLLO_SIDE_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio, -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(obj->fpga_device, obj->profile, NULL, ADI_FPGA_APOLLO_LINK_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, tone_ratio, -1.0);
     ADI_CMS_ERROR_RETURN(err);
     
     if (bdir_start) {
@@ -559,5 +556,3 @@ static int32_t tx_dp_reset(adi_apollo_device_t *device, bool do_oneshot_sync)
     
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -41,7 +41,6 @@ int32_t adi_ltc2980_core_vout_set(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -50,6 +49,7 @@ int32_t adi_ltc2980_core_vout_set(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -68,7 +68,6 @@ int32_t adi_ltc2980_core_vout_measure(adi_ltc2980_device_t *ltc2980, adi_ltc2980
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -77,38 +76,12 @@ int32_t adi_ltc2980_core_vout_measure(adi_ltc2980_device_t *ltc2980, adi_ltc2980
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
 
         err = adi_pmbus_vout_read(smbus_hal, device_addr, &read_vout[i]);
-        ADI_CMS_ERROR_RETURN(err);
-    }
-    return API_CMS_ERROR_OK;
-}
-
-int32_t adi_ltc2980_core_mfr_config_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint8_t page[], uint16_t read_cfg[], uint32_t num_page_channels)
-{
-    int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr;
-    adi_smbus_hal_t *smbus_hal;
-    uint8_t i = 0;
-
-    ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
-    smbus_hal = &ltc2980->smbus;
-    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
-    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
-    ADI_CMS_NULL_PTR_CHECK(page);
-    ADI_CMS_NULL_PTR_CHECK(read_cfg);
-    ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
-    ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
-
-    for (i = 0; i < num_page_channels; ++i) {
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
-        ADI_CMS_ERROR_RETURN(err);
-
-        err = adi_pmbus_reg_read_word(smbus_hal, device_addr, 0xD0, &read_cfg[i]);
         ADI_CMS_ERROR_RETURN(err);
     }
     return API_CMS_ERROR_OK;
@@ -122,7 +95,6 @@ int32_t adi_ltc2980_core_ton_delay_set(adi_ltc2980_device_t *ltc2980, adi_ltc298
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -131,6 +103,7 @@ int32_t adi_ltc2980_core_ton_delay_set(adi_ltc2980_device_t *ltc2980, adi_ltc298
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -138,39 +111,6 @@ int32_t adi_ltc2980_core_ton_delay_set(adi_ltc2980_device_t *ltc2980, adi_ltc298
         err = adi_pmbus_ton_delay_set(smbus_hal, device_addr, ton_delay[i]);
         ADI_CMS_ERROR_RETURN(err);
     }
-    return API_CMS_ERROR_OK;
-}
-
-int32_t adi_ltc2980_core_device_id_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint16_t *device_id, uint8_t *is_ltc2980) 
-{
-    int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr;
-    adi_smbus_hal_t *smbus_hal;
-
-    ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
-    smbus_hal = &ltc2980->smbus;
-    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
-    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
-    ADI_CMS_NULL_PTR_CHECK(is_ltc2980);
-    ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
-
-    err = adi_pmbus_page_set(smbus_hal, device_addr, 0);
-    ADI_CMS_ERROR_RETURN(err);
-
-    err = adi_pmbus_reg_read_word(smbus_hal, device_addr, ADI_PMBUS_CMD_MFR_SPECIAL_ID, device_id);
-    ADI_CMS_ERROR_RETURN(err);
-
-    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_A) {
-        *is_ltc2980 = (*device_id == 0x80A1);
-    }
-    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_B) {
-        *is_ltc2980 = (*device_id == 0x80B1);
-    }
-    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_C) {
-        *is_ltc2980 = (*device_id == 0x80C1);
-    }
-    
     return API_CMS_ERROR_OK;
 }
 
@@ -182,7 +122,6 @@ int32_t adi_ltc2980_core_ton_rise_set(adi_ltc2980_device_t *ltc2980, adi_ltc2980
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -192,8 +131,6 @@ int32_t adi_ltc2980_core_ton_rise_set(adi_ltc2980_device_t *ltc2980, adi_ltc2980
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
     device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
-    smbus_hal = &ltc2980->smbus;
-
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -212,7 +149,6 @@ int32_t adi_ltc2980_core_toff_delay_set(adi_ltc2980_device_t *ltc2980, adi_ltc29
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -221,6 +157,7 @@ int32_t adi_ltc2980_core_toff_delay_set(adi_ltc2980_device_t *ltc2980, adi_ltc29
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -254,7 +191,6 @@ int32_t adi_ltc2980_core_enable_channels(adi_ltc2980_device_t *ltc2980, adi_ltc2
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -262,6 +198,7 @@ int32_t adi_ltc2980_core_enable_channels(adi_ltc2980_device_t *ltc2980, adi_ltc2
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     // Turn ON
     if (ch_enable == true) {
         // All channels programmed at once.
@@ -377,7 +314,6 @@ int32_t adi_ltc2980_core_fault_status_get(adi_ltc2980_device_t *ltc2980, adi_ltc
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
@@ -387,8 +323,6 @@ int32_t adi_ltc2980_core_fault_status_get(adi_ltc2980_device_t *ltc2980, adi_ltc
     ADI_CMS_NULL_PTR_CHECK(status);
 
     device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
-    smbus_hal = &ltc2980->smbus;
-
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -396,36 +330,20 @@ int32_t adi_ltc2980_core_fault_status_get(adi_ltc2980_device_t *ltc2980, adi_ltc
         err = adi_pmbus_status_word_read(smbus_hal, device_addr, &status[i].status_word);
         ADI_CMS_ERROR_RETURN(err);
 
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
-        ADI_CMS_ERROR_RETURN(err);
-
         err = adi_pmbus_status_vout_read(smbus_hal, device_addr, &status[i].status_vout);
-        ADI_CMS_ERROR_RETURN(err);
-
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
 
         err = adi_pmbus_status_input_read(smbus_hal, device_addr, &status[i].status_input);
         ADI_CMS_ERROR_RETURN(err);
 
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
-        ADI_CMS_ERROR_RETURN(err);
-
         err = adi_pmbus_status_temp_read(smbus_hal, device_addr, &status[i].status_temp);
-        ADI_CMS_ERROR_RETURN(err);
-
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
 
         err = adi_pmbus_status_cml_read(smbus_hal, device_addr, &status[i].status_cml);
         ADI_CMS_ERROR_RETURN(err);
 
-        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
-        ADI_CMS_ERROR_RETURN(err);
-
         err = adi_pmbus_status_mfr_read(smbus_hal, device_addr, &status[i].status_mfr);
         ADI_CMS_ERROR_RETURN(err);
-
     }
 
     return API_CMS_ERROR_OK;
@@ -436,20 +354,79 @@ int32_t adi_ltc2980_core_fault_status_clear(adi_ltc2980_device_t *ltc2980, adi_l
     int32_t err = API_CMS_ERROR_I2C_ERROR;
     uint32_t device_addr;
     adi_smbus_hal_t *smbus_hal;
-    uint8_t i;
+    uint8_t global_page = 0xFF;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
 
-    for (i = 0; i < 8; ++i) {
-        err = adi_pmbus_page_set(smbus_hal, device_addr, i);
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
+    err = adi_pmbus_page_set(smbus_hal, device_addr, global_page);
+    ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_pmbus_clear_faults(smbus_hal, device_addr);
+    ADI_CMS_ERROR_RETURN(err);
+
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ltc2980_core_device_id_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint16_t *device_id, uint8_t *is_ltc2980) 
+{
+    int32_t err = API_CMS_ERROR_I2C_ERROR;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+
+    ADI_CMS_NULL_PTR_CHECK(ltc2980);
+    smbus_hal = &ltc2980->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
+    ADI_CMS_NULL_PTR_CHECK(is_ltc2980);
+    ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
+
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
+    err = adi_pmbus_page_set(smbus_hal, device_addr, 0);
+    ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_pmbus_reg_read_word(smbus_hal, device_addr, ADI_PMBUS_CMD_MFR_SPECIAL_ID, device_id);
+    ADI_CMS_ERROR_RETURN(err);
+
+    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_A) {
+        *is_ltc2980 = (*device_id == 0x80A1);
+    }
+    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_B) {
+        *is_ltc2980 = (*device_id == 0x80B1);
+    }
+    if (sub_dev_id == ADI_LTC2980_SUB_DEVICE_C) {
+        *is_ltc2980 = (*device_id == 0x80C1);
+    }
+
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ltc2980_core_mfr_config_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint8_t page[], uint16_t read_cfg[], uint32_t num_page_channels)
+{
+    int32_t err = API_CMS_ERROR_I2C_ERROR;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+    uint8_t i = 0;
+
+    ADI_CMS_NULL_PTR_CHECK(ltc2980);
+    smbus_hal = &ltc2980->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
+    ADI_CMS_NULL_PTR_CHECK(page);
+    ADI_CMS_NULL_PTR_CHECK(read_cfg);
+    ADI_CMS_INVALID_PARAM_CHECK(sub_dev_id >= ADI_LTC2980_NUM_SUB_DEVICE);
+    ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
+
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
+    for (i = 0; i < num_page_channels; ++i) {
+        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
 
-        err = adi_pmbus_clear_faults(smbus_hal, device_addr);
+        err = adi_pmbus_reg_read_word(smbus_hal, device_addr, 0xD0, &read_cfg[i]);
         ADI_CMS_ERROR_RETURN(err);
     }
 

@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2009 - 2015 Xilinx, Inc.  All rights reserved.
@@ -590,5 +589,3 @@ extern "C" {
 #endif /* __cplusplus */
 
 #endif /* XREG_CORTEXA9_H */
-
-#endif /* !defined(VERSAL_PLATFORM) */

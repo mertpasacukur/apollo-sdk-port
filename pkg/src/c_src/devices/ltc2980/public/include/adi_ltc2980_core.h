@@ -182,8 +182,9 @@ int32_t adi_ltc2980_core_power_up(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub
  */
 int32_t adi_ltc2980_core_power_down(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint8_t page[], uint16_t toff_delay[], uint32_t num_page_channels, bool use_sequence_off, bool use_global_off);
 
+
 /**
- * \brief       Get 2-byte fault status value
+ * \brief       Read status commands that summarizes most critical faults or warnings
  *
  * \param[in]   ltc2980               Context variable - Pointer to the LTC2980 device data structure.
  * \param[in]   sub_dev_id            Sub-device selection ID. Select between sub-device A, B or C for configuration. \ref adi_ltc2980_sub_device_id_e.
@@ -196,8 +197,9 @@ int32_t adi_ltc2980_core_power_down(adi_ltc2980_device_t *ltc2980, adi_ltc2980_s
  */
 int32_t adi_ltc2980_core_fault_status_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id, uint8_t page[], adi_ltc2980_fault_status_t status[], uint32_t num_page_channels);
 
+
 /**
- * \brief       Clear fault status
+ * \brief       Clear fault status using global page command
  *
  * \param[in]   ltc2980        Context variable - Pointer to the LTC2980 device data structure.
  * \param[in]   sub_dev_id     Sub-device selection ID. Select between sub-device A, B or C for configuration. \ref adi_ltc2980_sub_device_id_e.
@@ -206,6 +208,7 @@ int32_t adi_ltc2980_core_fault_status_get(adi_ltc2980_device_t *ltc2980, adi_ltc
  * \return      < 0                 Failed. \ref adi_cms_error_e for details.
  */
 int32_t adi_ltc2980_core_fault_status_clear(adi_ltc2980_device_t *ltc2980, adi_ltc2980_sub_device_id_e sub_dev_id);
+
 
 /**
  * \brief       Checks that the chip at device address is an LTC2980
@@ -222,7 +225,7 @@ int32_t adi_ltc2980_core_device_id_get(adi_ltc2980_device_t *ltc2980, adi_ltc298
 
 
 /**
- * \brief       Reads ADC measured output voltage for selected pages/channels.
+ * \brief       Reads manufacture specific operating parameters for selected pages/channels.
  *
  * \param[in]   ltc2980             Context variable - Pointer to the LTC2980 device data structure.
  * \param[in]   sub_dev_id          Sub-device selection ID. Select between sub-device A, B or C for configuration. \ref adi_ltc2980_sub_device_id_e.

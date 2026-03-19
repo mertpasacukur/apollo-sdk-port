@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common HMC7044 functions
  *
@@ -40,6 +39,7 @@ int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, vo
  * \param[in]   ref_freq_hz             Reference Freq (in Hertz) provided to HMC7044.
  * \param[in]   sysref_hz               Sysref Freq (in Hertz) to output by HMC7044. \ref adi_hmc7044_device_rational_freq_t
  * \param[in]   fpga_ref_hz             FPGA Ref Freq (in Hertz) to output by HMC7044. \ref adi_hmc7044_device_rational_freq_t
+ * \param[in]   dev_ref_clk_hz          Apollo dev clk PLL ref (in Hertz). 0 if unused. \ref adi_hmc7044_device_rational_freq_t
  *
  * \return  API_CMS_ERROR_OK    API Completed Successfully
  * \return  <0                  Failed. \ref adi_cms_error_e for details.
@@ -47,7 +47,8 @@ int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, vo
 int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
-                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz);
+                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz,
+                                            adi_hmc7044_device_rational_freq_t *dev_ref_clk_hz);
 
 /**
  * \brief   Perform reset to all HMC7044 dividers and FMC and sync by running reseed.
@@ -64,5 +65,3 @@ int32_t adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc70
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_COMMON_HMC7044_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

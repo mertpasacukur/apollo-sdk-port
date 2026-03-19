@@ -324,23 +324,6 @@ int32_t adi_fpga_apollo_core_pattern_read_stop(adi_fpga_apollo_device_t *fpga);
 int32_t adi_fpga_apollo_core_memory_section_select (adi_fpga_apollo_device_t *fpga,
                                                     uint8_t section_start, uint8_t section_end);
 /**
- * \brief   Load FPGA pattern buffer
- *
- * \deprecated Use \ref adi_fpga_apollo_core_memory_write() instead.
- *             This may be removed in the future.
- *
- * \param[in]   fpga            Context variable
- * \param[in]   mem_addr        FPGA data memory address
- * \param[in]   tx_data         pattern data buffer byte array
- * \param[in]   tx_data_bytes   pattern data buffer array size
- *
- * \return      API_CMS_ERROR_OK   API Completed Successfully
- */
-int32_t adi_fpga_apollo_core_write_memory(adi_fpga_apollo_device_t *fpga,
-                                          uint32_t mem_addr, uint8_t tx_data[],
-                                          uint32_t tx_data_bytes);
-
-/**
  * \brief   Write data pattern to FPGA memory
  *
  * \param[in]   fpga            Context variable
@@ -455,17 +438,31 @@ int32_t adi_fpga_apollo_core_pattern_len_set(adi_fpga_apollo_device_t *fpga, uin
 int32_t adi_fpga_apollo_core_pattern_addr_set(adi_fpga_apollo_device_t *fpga, uint32_t addr);
 
 /**
- * \brief    Set FPGA transmit pattern address
+ * \brief    Set FPGA transmit pattern address per side
  *
  * \param[in]   fpga               Context variable
  * \param[in]   mem_addr           Transmit pattern address
+ * \param[in]   side_select        0x1 = A side or 0x2 = B side
  * \param[in]   len                Transmit pattern length
  * \param[in]   dual_link          Link type. 0:Single 1:Dual
  *
  * \return      API_CMS_ERROR_OK   API Completed Successfully
  */
 int32_t adi_fpga_apollo_core_transmit_link_config(adi_fpga_apollo_device_t *fpga,
-                                                  uint32_t mem_addr, uint32_t len, uint8_t dual_link);
+                                                  uint32_t mem_addr, uint32_t side_select, uint32_t len, uint8_t dual_link);
+
+/**
+ * \brief    Set FPGA transmit options
+ *
+ * \note Sets Tx to loop loaded vector repeatably, and optionally use all memory for single link use cases
+ *       Similar to adi_fpga_apollo_core_transmit_link_config(), but doesn't set memory start/len.
+ * 
+ * \param[in]   fpga               Context variable
+ * \param[in]   dual_link          Link type. 0:Single 1:Dual
+ *
+ * \return      API_CMS_ERROR_OK   API Completed Successfully
+ */
+int32_t adi_fpga_apollo_core_transmit_link_config2(adi_fpga_apollo_device_t *fpga, uint8_t dual_link);
 
 /**
  * \brief    Bidirectional (Data transmit and capture) Start
@@ -556,28 +553,6 @@ int32_t adi_fpga_apollo_core_jtx_link_cnt_get(adi_fpga_apollo_device_t *fpga, ui
  * \param[out]  link_count      Ptr to link count result. Usually 4 for Apollo, but can be 2 for some images
  */
 int32_t adi_fpga_apollo_core_jrx_link_cnt_get(adi_fpga_apollo_device_t *fpga, uint32_t* link_count);
-
-/**
- * \brief    Get flag indicating HW or SW JRx transport layer support
- *
- * \param[in]   fpga            Context variable
- * \param[out]  supports_hw_tl  Ptr to result flag. true indicates image supports HW transport, else SW
- *
- * \return      API_CMS_ERROR_OK   API Completed Successfully
- */
-//__attribute__ ((__deprecated__("INSTEAD USE: adi_fpga_apollo_core_feature_flags_get()")))
-int32_t adi_fpga_apollo_core_supports_hw_tl_get(adi_fpga_apollo_device_t *fpga, bool* supports_hw_tl);
-
-/**
- * \brief    Get flag indicating HW FSRC support
- *
- * \param[in]   fpga                Context variable
- * \param[out]  supports_hw_fsrc    Ptr to result flag. true indicates image supports HW FSRC (fractional sample rate conversion)
- *
- * \return      API_CMS_ERROR_OK   API Completed Successfully
- */
-//__attribute__ ((__deprecated__("INSTEAD USE: adi_fpga_apollo_core_feature_flags_get()")))
-int32_t adi_fpga_apollo_core_supports_hw_fsrc_get(adi_fpga_apollo_device_t *fpga, bool *supports_hw_fsrc);
 
 /**
  * \brief   Get FPGA feature flags.
@@ -745,7 +720,7 @@ int32_t adi_fpga_apollo_core_bidir_init(adi_fpga_apollo_device_t* fpga);
  * \note This function should only be used to bring up the rx links after cals.
  *
  * This sequence will reinitialize and maintain the rx links. Consecutive calls 
- * to adi_fpga_apollo_core_capture_start will not reinitilize the links.
+ * to adi_fpga_apollo_core_capture_start will not reinitialize the links.
  * 
  * \param[in]   fpga            Context variable
  *
@@ -758,7 +733,7 @@ int32_t adi_fpga_apollo_core_rx_links_init(adi_fpga_apollo_device_t* fpga);
  * \note This function should only be used to bring up the tx links after cals.
  *
  * This sequence will reinitialize and maintain the tx links. Consecutive calls
- * to adi_fpga_apollo_core_transmit_start will not reinitilize the links; 
+ * to adi_fpga_apollo_core_transmit_start will not reinitialize the links; 
  * however, it's recommended to use adi_fpga_apollo_core_ptn_play_start / stop.
  *
  * \param[in]   fpga            Context variable
@@ -768,16 +743,53 @@ int32_t adi_fpga_apollo_core_rx_links_init(adi_fpga_apollo_device_t* fpga);
 int32_t adi_fpga_apollo_core_tx_links_init(adi_fpga_apollo_device_t* fpga);
 
 /**
- * \brief    Setup the FPGA sysref counter
+ * \brief    Setup the FPGA internal sysref counter
  *
  * \param[in]   fpga                Context variable
+ * \param[in]   glbclk_ratio        The ratio of sysref period to the global clock period.
  *
  * \return API_CMS_ERROR_OK         API Completed Successfully
  * \return <0                       Failed. \ref adi_cms_error_e for details
  */
-int32_t adi_fpga_apollo_core_sysref_setup(adi_fpga_apollo_device_t *fpga);
+int32_t adi_fpga_apollo_core_internal_sysref_setup(adi_fpga_apollo_device_t *fpga, uint32_t glbclk_ratio);
+
+/**
+ * \brief    Set JRx lane mapping for dual link mode
+ * 
+ * \param[in]   fpga                Context variable
+ * \param[in]   terminal            Target terminal. \ref adi_fpga_apollo_jesd_e
+ * 
+ * \return API_CMS_ERROR_OK         API Completed Successfully
+ * \return <0                       Failed. \ref adi_cms_error_e for details
+ */
+int32_t adi_fpga_apollo_core_dual_link_lane_mapping_set(adi_fpga_apollo_device_t *fpga, uint16_t terminal);
 
 #ifndef CLIENT_IGNORE
+
+/**
+ * \brief    Set FPGA Tx pattern start address and len for links in a vector group
+ * 
+ * \note    This function would typically be called prior to playing a vector with adi_fpga_apollo_core_bidir_init() or 
+ *          adi_fpga_apollo_core_tx_links_init().
+ *
+ * \param[in]   fpga               Context variable
+ * \param[in]   vec_grp            Ptr to vector group object containing per link vector playback info \ref adi_fpga_apollo_vec_grp_t
+ * \param[in]   links              Link select mask. \ref adi_fpga_apollo_link_sel_e
+ *
+ * \return      API_CMS_ERROR_OK   API Completed Successfully
+ */
+int32_t adi_fpga_apollo_core_ptn_vec_group_load(adi_fpga_apollo_device_t *fpga, adi_fpga_apollo_vec_grp_t *vec_grp, uint16_t links);
+
+/**
+ * \brief    Set the FPGA Rx memory start address for data capture
+ *
+ * \param[in]   fpga               Context variable
+ *
+ * \return      API_CMS_ERROR_OK   API Completed Successfully
+ */
+int32_t adi_fpga_apollo_core_rx_mem_addr_set(adi_fpga_apollo_device_t *fpga);
+
+
 #endif /* CLIENT_IGNORE*/
 
 #ifdef __cplusplus

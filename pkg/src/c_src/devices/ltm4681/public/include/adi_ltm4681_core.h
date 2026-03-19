@@ -224,7 +224,7 @@ int32_t adi_ltm4681_core_power_down(adi_ltm4681_device_t *ltm4681, adi_ltm4681_c
 int32_t adi_ltm4681_core_reset(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id);
 
 /**
- * \brief       Get fault status registers
+ * \brief       Read status commands that summarizes most critical faults or warnings
  *
  * \param[in]   ltm4681             Context variable - Pointer to the LTM4681 device data structure.
  * \param[in]   chan_id             Channel pair selection ID. Select either channels 0 and 1 or channels 2 and 3 for configuration. \ref adi_ltm4681_chan_pair_id_e.

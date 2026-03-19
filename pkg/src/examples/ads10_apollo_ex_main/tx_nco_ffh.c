@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Tx data path Fast-Frequency Hopping
  *  
@@ -17,9 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_apollo_gpio.h"
@@ -63,13 +60,13 @@ int32_t tx_nco_ffh(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_d
     nco_hop_config.auto_mode = ADI_APOLLO_NCO_AUTO_HOP_DECR;
 
     adi_apollo_cnco_hop_enable(device, ADI_APOLLO_TX, ADI_APOLLO_CNCO_ALL, &nco_hop_config);
-    adi_apollo_trigts_mst_config(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_A, ADI_APOLLO_TRIG_MST_CNCO_0 | ADI_APOLLO_TRIG_MST_CNCO_1, &trig_config);
-    adi_apollo_trigts_mst_mute(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_A, ADI_APOLLO_TRIG_MST_CNCO_0 | ADI_APOLLO_TRIG_MST_CNCO_1, 1);
+    adi_apollo_trigts_mst_config(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_ALL, ADI_APOLLO_TRIG_MST_CNCO_0 | ADI_APOLLO_TRIG_MST_CNCO_1, &trig_config);
+    adi_apollo_trigts_mst_mute(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_ALL, ADI_APOLLO_TRIG_MST_CNCO_0 | ADI_APOLLO_TRIG_MST_CNCO_1, 1);
     adi_apollo_trigts_cdrc_trig_sel_mux_set(device, ADI_APOLLO_TX, ADI_APOLLO_CDDC_ALL, ADI_APOLLO_TRIG_MASTER);       // Trigger CDDC
 
     /* Configure timestamp reset for SYSREF based mode and execute a sync reset (required for timestamp triggered hopping) */
-    adi_apollo_trigts_ts_reset_mode_set(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_A, ADI_APOLLO_TRIG_TS_RESET_MODE_SYSREF);
-    adi_apollo_trigts_ts_reset(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_A, 1);
+    adi_apollo_trigts_ts_reset_mode_set(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_ALL, ADI_APOLLO_TRIG_TS_RESET_MODE_SYSREF);
+    adi_apollo_trigts_ts_reset(device, ADI_APOLLO_TX, ADI_APOLLO_SIDE_ALL, 1);
 
     adi_apollo_hal_delay_us(device, 3000000);  // 3 sec pause to see tone
 
@@ -252,5 +249,3 @@ static int32_t apollo_cnco_auto_hop(adi_apollo_device_t *device, adi_apollo_coar
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,5 @@
 /*!
- * \brief     ADF4382 Power Down Control Functionality
+ * \brief     ADF4382 Muxout Functionality
  *
  * \copyright copyright(c) 2022 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its
@@ -29,9 +29,9 @@ int32_t adi_adf4382_muxout_outputctrl_set(adi_adf4382_device_t *adf4382, adi_adf
     ADI_CMS_NULL_PTR_CHECK(adf4382);
 	ADI_CMS_RANGE_CHECK(muxout, ADI_ADF4382_MUXOUT_OUTPUTCTRL_HIGH_Z, ADI_ADF4382_MUXOUT_OUTPUTCTRL_ANALOG_TEST);
     int32_t err;
-	
+
 	err = adi_adf4382_bf___REG002e___MUXOUT_set(adf4382, muxout);
 	ADI_CMS_ERROR_RETURN(err);
-    
+
     return API_CMS_ERROR_OK;
 }

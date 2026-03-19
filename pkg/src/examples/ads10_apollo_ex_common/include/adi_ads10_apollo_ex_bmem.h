@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples BMEM functions
  *
@@ -48,6 +47,21 @@ int32_t adi_ads10_apollo_ex_bmem_awg_config(adi_apollo_device_t* device, uint16_
 int32_t adi_ads10_apollo_ex_bmem_awg_tone_write(adi_apollo_device_t* device, uint16_t bmem_sel, double tone_ratio, double backoff, bool debug);
 
 /**
+ * \brief  Write vector to BMEMs
+ *
+ * \param[in]  device        Context variable - Pointer to the APOLLO device data structure
+ * \param[in]  bmem_sel      Which BMEMs to target. \ref adi_apollo_bmem_sel_e for options
+ * \param[in]  tone_ratio    Ratio of the BMEM tone to write
+ * \param[in]  backoff       Backoff in dB [note: expects negative number]
+ * \param[in]  debug         If true, writes vector to a file for analysis
+ * \param[out] tone_ratio_out The actual coherent tone ratio used
+ *
+ * \return API_CMS_ERROR_OK                     API Completed Successfully.
+ * \return <0                                   Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_ads10_apollo_ex_bmem_awg_tone_write_v2(adi_apollo_device_t* device, uint16_t bmem_sel, double tone_ratio, double backoff, bool debug, double *tone_ratio_out);
+
+/**
  * \brief  Read BMEM
  *
  * \param[in] device        Context variable - Pointer to the APOLLO device data structure
@@ -64,5 +78,3 @@ int32_t adi_ads10_apollo_ex_bmem_capture(adi_apollo_device_t* device, uint8_t bm
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_BMEM_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

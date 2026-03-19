@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx PFILT ADC averaging
  * 
@@ -70,9 +69,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 
 static int32_t rx_mux1_config(adi_apollo_device_t *device);
 static double coherent_freq(double target, double fdata, uint32_t n_samples);
@@ -170,7 +167,7 @@ int32_t rx_adc_pave(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     /* Read FPGA capture memory and write out i/q files - Capture data w/ averaging */
     sprintf(file_name_base, "%s", "rx_adc_pave");
     printf("Writing captures to files: %s_*\n", file_name_base);
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 64 * 1024, file_name_base, true);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 64 * 1024, file_name_base, true, true);
     ADI_CMS_ERROR_GOTO(err, end);
 
 end:
@@ -225,5 +222,3 @@ static int32_t rx_mux1_config(adi_apollo_device_t *device)
 
     return (err == API_CMS_ERROR_OK ? API_CMS_ERROR_OK : API_CMS_ERROR_ERROR);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

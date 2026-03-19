@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common ADF4030 functions
  *
@@ -21,6 +20,8 @@
 #include "adi_adf4030_pdctrl.h"
 #include "adi_adf4030_pll.h"
 #include "adi_adf4030_tdc.h"
+
+#include "apollo_cpu_device_profile_types.h"
 
 #ifndef __ADI_ADS10_APOLLO_EX_COMMON_ADF4030_H__
 #define __ADI_ADS10_APOLLO_EX_COMMON_ADF4030_H__
@@ -119,10 +120,30 @@ int32_t adi_ads10_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf403
                                                     uint16_t bsync_out_ch_sel,
                                                     uint64_t bsync_out_freq_hz);
 
+
+/**
+ * \brief   Determine Apollo SYSREF BSYNC Source based on clk config from the profile.
+ *          Dual Clk.
+ *            | SYSREF Source Channel | Side A SYSREF | Side B SYSREF | Comment
+ *            | N/A                   |     False     |     False     | No external SYSREF fed to Apollo.
+ *            | BSYNC_CH_7            |     False     |     True      | Only Side B gets external SYSREF from BSYNC_7.
+ *            | BSYNC_CH_6            |     True      |     False     | Only Side A gets external SYSREF from BSYNC_6.
+ *            | BSYNC_CH_6 & 7        |     True      |     True      | Both Side A and B gets external SYSREF from BSYNC_6 and BSYNC_7 resp.
+ *          Single Clk.
+ *            SYSREF Source Channel: BSYNC_CH_5. SYSREF is fed to central SYSREF input from BSYNC_5
+ *
+ * \param[in]   profile                                 Apollo device profile \ref adi_apollo_top_t
+ * \param[out]  apollo_bsync_out_ch_sel                 Target BSYNC Channels for Apollo SYSREF - Each bit represent one bsync channel.  \ref adi_adf4030_channel_id_e.
+ *                                                      i.e. (1 << ADI_ADF4030_CHANNEL_ID_0) | (1 << ADI_ADF4030_CHANNEL_ID_1) | ...
+ *
+ * \return  API_CMS_ERROR_OK    API Completed Successfully
+ * \return  <0                  Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_ads10_apollo_ex_adf4030_apollo_bsync_out_ch_get(adi_apollo_top_t *profile, uint16_t *apollo_bsync_out_ch_sel);
+
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_COMMON_ADF4030_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

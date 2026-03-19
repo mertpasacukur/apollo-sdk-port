@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 #ifndef XPARAMETERS_H   /* prevent circular inclusions */
 #define XPARAMETERS_H   /* by using protection macros */
 
@@ -518,5 +517,3 @@
 /******************************************************************/
 
 #endif  /* end of protection macro */
-
-#endif /* !defined(VERSAL_PLATFORM) */

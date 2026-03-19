@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     PS7 ADS9CFG Header File
  *
@@ -57,5 +56,3 @@ int32_t ps7_ads9setup_resync(void);
 
 /*! @} */
 
-
-#endif /* !defined(VERSAL_PLATFORM) */

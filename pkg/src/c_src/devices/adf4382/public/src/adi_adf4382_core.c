@@ -47,13 +47,15 @@ int32_t adi_adf4382_core_init(adi_adf4382_device_t *adf4382)
         case ADI_ADF4382_CHIP_VER_U5_A:
         case ADI_ADF4382_CHIP_VER_U5_B:
         case ADI_ADF4382_CHIP_VER_U5_C:
+        case ADI_ADF4382_CHIP_VER_U5_D:
             err = adi_adf4382_hal_reg_default_set(adf4382, chip_ver_sel);
             ADI_CMS_ERROR_RETURN(err);
             break;
 
         default:
-            printf("Invalid ADF4382 Chip Version Selected: %d.\n", chip_ver_sel);
-            ADI_CMS_ERROR_RETURN(API_CMS_ERROR_INVALID_PARAM);
+            printf("Unknow ADF4382 Chip Rev ID=%d, load the SPI sequence as per die ID=18.\n", chip_ver_sel);
+            err = adi_adf4382_hal_reg_default_set(adf4382, (uint8_t)ADI_ADF4382_CHIP_VER_U5_D);
+            ADI_CMS_ERROR_RETURN(err);
             break;
     }
 

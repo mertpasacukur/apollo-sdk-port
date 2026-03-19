@@ -31,17 +31,19 @@ int32_t adi_ltc2977_core_version_get(adi_ltc2977_device_t *ltc2977, adi_ltc2977_
 int32_t adi_ltc2977_core_vout_set(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t vout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(vout);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -55,17 +57,19 @@ int32_t adi_ltc2977_core_vout_set(adi_ltc2977_device_t *ltc2977, uint8_t page[],
 int32_t adi_ltc2977_core_vout_measure(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t read_vout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(read_vout);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -79,17 +83,19 @@ int32_t adi_ltc2977_core_vout_measure(adi_ltc2977_device_t *ltc2977, uint8_t pag
 int32_t adi_ltc2977_core_ton_delay_set(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t ton_delay[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(ton_delay);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -103,17 +109,19 @@ int32_t adi_ltc2977_core_ton_delay_set(adi_ltc2977_device_t *ltc2977, uint8_t pa
 int32_t adi_ltc2977_core_ton_rise_set(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t ton_rise[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(ton_rise);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -127,17 +135,19 @@ int32_t adi_ltc2977_core_ton_rise_set(adi_ltc2977_device_t *ltc2977, uint8_t pag
 int32_t adi_ltc2977_core_toff_delay_set(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t toff_delay[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(toff_delay);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -164,18 +174,20 @@ int32_t adi_ltc2977_core_wait_ms(adi_ltc2977_device_t *ltc2977, uint32_t delay_m
 int32_t adi_ltc2977_core_enable_channels(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint32_t num_page_channels, bool ch_enable, bool use_sequence_off, bool use_global_page)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = ltc2977->device_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltc2977->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t global_page = 0xFF;
     uint8_t turn_off = (use_sequence_off == true) ? SOFT_OFF : TURN_OFF_IMMEDIATELY;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
 
+    device_addr = ltc2977->device_i2c_addr;
     // Turn ON
     if (ch_enable == true) {
         // All channels programmed at once.
@@ -281,18 +293,81 @@ int32_t adi_ltc2977_core_power_down(adi_ltc2977_device_t *ltc2977, uint8_t page[
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ltc2977_core_device_id_get(adi_ltc2977_device_t *ltc2977, uint16_t *device_id, uint8_t *is_ltc2977) {
+int32_t adi_ltc2977_core_fault_status_get(adi_ltc2977_device_t *ltc2977, uint8_t page[], adi_ltc2977_fault_status_t status[], uint32_t num_page_channels)
+{
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    adi_smbus_hal_t *smbus_hal;
     uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+    uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
+    ADI_CMS_NULL_PTR_CHECK(page);
+    ADI_CMS_NULL_PTR_CHECK(status);
+    ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
+
+    device_addr = ltc2977->device_i2c_addr;
+    for (i = 0; i < num_page_channels; ++i) {
+        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_word_read(smbus_hal, device_addr, &status[i].status_word);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_vout_read(smbus_hal, device_addr, &status[i].status_vout);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_input_read(smbus_hal, device_addr, &status[i].status_input);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_temp_read(smbus_hal, device_addr, &status[i].status_temp);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_cml_read(smbus_hal, device_addr, &status[i].status_cml);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_status_mfr_read(smbus_hal, device_addr, &status[i].status_mfr);
+        ADI_CMS_ERROR_RETURN(err);
+    }
+
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ltc2977_core_fault_status_clear(adi_ltc2977_device_t *ltc2977)
+{
+    int32_t err = API_CMS_ERROR_I2C_ERROR;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+    uint8_t global_page = 0xFF;
+
+    ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
+
+    device_addr = ltc2977->device_i2c_addr;
+    err = adi_pmbus_page_set(smbus_hal, device_addr, global_page);
+    ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_pmbus_clear_faults(smbus_hal, device_addr);
+    ADI_CMS_ERROR_RETURN(err);
+
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ltc2977_core_device_id_get(adi_ltc2977_device_t *ltc2977, uint16_t *device_id, uint8_t *is_ltc2977) {
+    int32_t err = API_CMS_ERROR_I2C_ERROR;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+
+    ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
     ADI_CMS_NULL_PTR_CHECK(ltc2977->smbus.user_data);
     ADI_CMS_NULL_PTR_CHECK(is_ltc2977);
 
     device_addr = ltc2977->device_i2c_addr;
-    smbus_hal = &ltc2977->smbus;
-
     err = adi_pmbus_page_set(smbus_hal, device_addr, 0);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -300,6 +375,33 @@ int32_t adi_ltc2977_core_device_id_get(adi_ltc2977_device_t *ltc2977, uint16_t *
     ADI_CMS_ERROR_RETURN(err);
 
     *is_ltc2977 = (*device_id == 0x0131);
+
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ltc2977_core_mfr_config_get(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t read_cfg[], uint32_t num_page_channels)
+{
+    int32_t err = API_CMS_ERROR_I2C_ERROR;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
+    uint8_t i = 0;
+
+    ADI_CMS_NULL_PTR_CHECK(ltc2977);
+    smbus_hal = &ltc2977->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
+    ADI_CMS_NULL_PTR_CHECK(page);
+    ADI_CMS_NULL_PTR_CHECK(read_cfg);
+    ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 8);
+
+    device_addr = ltc2977->device_i2c_addr;
+    for (i = 0; i < num_page_channels; ++i) {
+        err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
+        ADI_CMS_ERROR_RETURN(err);
+
+        err = adi_pmbus_reg_read_word(smbus_hal, device_addr, 0xD0, &read_cfg[i]);
+        ADI_CMS_ERROR_RETURN(err);
+    }
 
     return API_CMS_ERROR_OK;
 }

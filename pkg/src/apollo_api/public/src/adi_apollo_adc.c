@@ -29,8 +29,6 @@
 #include "adi_utils.h"
 
 /*============= D E F I N E S ==============*/
-#define ADI_APOLLO_4T4R_ADC_TIMEOUT                 60
-#define ADI_APOLLO_8T8R_ADC_TIMEOUT                 120
 #define ADC_OVR_SAMPLES_MIN                         1
 #define ADC_OVR_SAMPLES_MAX                         10000
 #define ADC_OVR_CYCLES_MIN                          1
@@ -72,18 +70,11 @@ int32_t adi_apollo_adc_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_t adc
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_apollo_adc_init_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_t adcs, adi_apollo_init_cal_cfg_e init_cal_cfg)
+int32_t adi_apollo_adc_init_cal_start(adi_apollo_device_t *device, adi_apollo_blk_sel_t adcs, adi_apollo_init_cal_cfg_e init_cal_cfg)
 {
     int32_t err;
-    uint8_t i;
-    uint8_t cal_complete = 0;
-    uint32_t max_delay_us = 0;
-    uint32_t poll_delay_us = 1000000;
-    uint32_t delay_us;
     adi_apollo_mailbox_cmd_run_init_t run_init_cmd = {0};
     adi_apollo_mailbox_resp_run_init_t run_init_resp = {0};
-    adi_apollo_mailbox_resp_run_init_get_completion_t run_init_complete_resp = {0};
-    adi_apollo_mailbox_resp_run_init_get_detailed_status_t run_init_cal_detailed_status_resp = {0};
 
     ADI_APOLLO_NULL_POINTER_RETURN(device);
     ADI_APOLLO_LOG_FUNC();
@@ -97,7 +88,6 @@ int32_t adi_apollo_adc_init_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_
     run_init_cmd.serdes_tx_pack_mask = 0;
     run_init_cmd.linearx_chan_mask = 0;
 
-    max_delay_us = (device->dev_info.is_8t8r ? ADI_APOLLO_8T8R_ADC_TIMEOUT : ADI_APOLLO_4T4R_ADC_TIMEOUT) * 1000000;
 
     /* Set ADC Init calibration config. Once enabled they can be started with mailbox commands */
     adi_apollo_hal_log_write(device, ADI_CMS_LOG_API, "ADC Init cal config: %d. ref: adi_apollo_init_cal_cfg_e\n", init_cal_cfg);
@@ -118,6 +108,28 @@ int32_t adi_apollo_adc_init_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_
         err = API_CMS_ERROR_MAILBOX_RESP_STATUS;
         goto end;
     }
+
+end:
+    return err;
+}
+
+int32_t adi_apollo_adc_init_cal_complete(adi_apollo_device_t *device, adi_apollo_blk_sel_t adcs)
+{
+    int32_t err;
+    uint8_t i;
+    uint8_t cal_complete = 0;
+    uint32_t max_delay_us = 0;
+    uint32_t poll_delay_us = 1000000;
+    uint32_t delay_us;
+    adi_apollo_mailbox_resp_run_init_get_completion_t run_init_complete_resp = {0};
+    adi_apollo_mailbox_resp_run_init_get_detailed_status_t run_init_cal_detailed_status_resp = {0};
+
+    ADI_APOLLO_NULL_POINTER_RETURN(device);
+    ADI_APOLLO_LOG_FUNC();
+    ADI_APOLLO_ADC_BLK_SEL_MASK(adcs);
+
+
+    max_delay_us = (device->dev_info.is_8t8r ? ADI_APOLLO_8T8R_ADC_TIMEOUT : ADI_APOLLO_4T4R_ADC_TIMEOUT) * 1000000;
 
     /* Wait for ADC Init cal to complete */
     for (delay_us = 0; delay_us < max_delay_us; delay_us += poll_delay_us) {
@@ -169,6 +181,16 @@ int32_t adi_apollo_adc_init_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_
 
 end:
     return err;
+}
+
+int32_t adi_apollo_adc_init_cal(adi_apollo_device_t *device, adi_apollo_blk_sel_t adcs, adi_apollo_init_cal_cfg_e init_cal_cfg)
+{
+    int32_t err;
+
+    err = adi_apollo_adc_init_cal_start(device, adcs, init_cal_cfg);
+    ADI_APOLLO_ERROR_RETURN(err);
+
+    return adi_apollo_adc_init_cal_complete(device, adcs);
 }
 
 int32_t adi_apollo_adc_tlines_offset_set(adi_apollo_device_t *device, int8_t offset, adi_apollo_side_select_e side_sel)

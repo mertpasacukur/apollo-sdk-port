@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo PRBS example running on ADS10 platform
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -365,5 +362,3 @@ static int32_t spo_sweep_prbs(adi_apollo_device_t *device, adi_apollo_serdes_ck_
 
 	return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

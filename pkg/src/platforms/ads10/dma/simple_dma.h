@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     SIMPLE DMA Header File
  *
@@ -66,5 +65,3 @@ uint8_t simple_dma_check_done(simple_dma_inst * inst, uint8_t is_write);
 #endif
 
 /*! @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo fullchip Rx/Tx subclass 1 with deterministic latency
  *
@@ -65,9 +64,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_utils.h"
@@ -178,7 +175,7 @@ int32_t fullchip_sc1_dl(adi_apollo_device_t *device, adi_fpga_apollo_device_t *f
      * NOTE: The FPGA must be transmitting (any data) for SERDES cal to function properly
      */
     /* Create test vector and download to FPGA memory - all zeros */
-    err = adi_ads10_apollo_ex_vec_constants_write(fpga_device, profile, ADI_APOLLO_SIDE_A | ADI_APOLLO_SIDE_B, 8192, 0);
+    err = adi_ads10_apollo_ex_vec_constants_incr_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, 8192, 0, 0);
     ADI_CMS_ERROR_GOTO(err, end);
 
     /* SYSREF alignment (HW method) */
@@ -215,7 +212,7 @@ int32_t fullchip_sc1_dl(adi_apollo_device_t *device, adi_fpga_apollo_device_t *f
 
     /* Create test vector and download to FPGA memory - square at SYSREF freq */
     sysref_per_div = (rxtx_dp_info.fdata * 1e9) / (sysref_freq * 1e9);
-    err = adi_ads10_apollo_ex_vec_square_write(fpga_device, profile, sysref_per_div, sysref_per_div, 1, 0.10, -3.0);
+    err = adi_ads10_apollo_ex_vec_square_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, EX_VEC_DEFAULT_SAMPLES_PER_VC, sysref_per_div, 1, 0.10, -3.0);
     ADI_CMS_ERROR_GOTO(err, end);
 
     if (interactive) {
@@ -241,7 +238,7 @@ int32_t fullchip_sc1_dl(adi_apollo_device_t *device, adi_fpga_apollo_device_t *f
         /* Read FPGA capture memory and write out i/q files. Used for HW FSRC and non-FSRC data */
         if (profile->jtx->tx_link_cfg[0].np_minus1 == 11) {
             /* Read FPGA capture memory and write out non-interleaved i/q files */
-            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 1024 * 64, "fullchip_sc1_dl_data12", false);
+            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 1024 * 64, "fullchip_sc1_dl_data12", true, false);
             ADI_CMS_ERROR_GOTO(err, end);
 
             /* Capture data into chan I/Q arrays */
@@ -249,7 +246,7 @@ int32_t fullchip_sc1_dl(adi_apollo_device_t *device, adi_fpga_apollo_device_t *f
             ADI_CMS_ERROR_GOTO(err, end);
         } else {
             /* Read FPGA capture memory and write out interleaved i/q files */
-            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 1024 * 64, "fullchip_sc1_dl_data16", false);
+            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, 1024 * 64, "fullchip_sc1_dl_data16", true, false);
             ADI_CMS_ERROR_GOTO(err, end);
 
             /* Capture data into chan I/Q arrays */
@@ -379,5 +376,3 @@ static uint16_t jrx_phase_adj_const_get(adi_apollo_top_t *profile)
         return 33;
     }
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

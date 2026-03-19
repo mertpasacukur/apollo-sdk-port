@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo FMCB Variable Gain Amplifiers config functions
  *
@@ -31,6 +30,10 @@
 /**
  * @brief Tx-VGA, ADL6331, Startup Config Struct.
  */
+
+#define FMCB_REV_B  0
+#define FMCB_REV_C  1
+
 typedef struct {
     adi_adl6331_amp_select_e amp;
     adi_adl6331_spi_init_t spi_init;
@@ -96,7 +99,7 @@ int32_t adi_ads10_apollo_ex_adl6332_hal_config(adi_adl6332_device_t *adl6332, vo
  * \param[in]   adl6332                 Context variable - Pointer to the ADL6332 device data structure
  * \param[in]   tx_vga_ids              Array of Target ADL6331 chip \ref adi_adl6331_chip_id_e
  * \param[in]   rx_vga_ids              Array of Target ADL6332 chip \ref adi_adl6332_chip_id_e
- * \param[in]   num_vgas                Total numbers of chip_id in above arrays
+ * \param[in]   num_vgas                Pointer to total numbers of chip_id in above arrays
  *
  * \return  API_CMS_ERROR_OK                     API Completed Successfully.
  * \return  <0                                   Failed. \ref adi_cms_error_e for details.
@@ -105,7 +108,7 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_startup(adi_adl6331_device_t *adl6331,
                                               adi_adl6332_device_t *adl6332,
                                               adi_adl6331_chip_id_e tx_vga_ids[],
                                               adi_adl6332_chip_id_e rx_vga_ids[],
-                                              uint8_t num_vgas);
+                                              uint8_t *num_vgas);
 
 /**
  * \brief   Performs startup initialization for ADL6331, Tx-VGA
@@ -141,5 +144,3 @@ int32_t adi_ads10_apollo_ex_adl6332_startup(adi_adl6332_device_t *adl6332,
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_COMMON_VGA_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

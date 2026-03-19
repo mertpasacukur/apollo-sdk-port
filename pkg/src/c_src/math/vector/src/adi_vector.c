@@ -42,21 +42,21 @@ static int32_t vector_buffer_generate(int16_t samples[], uint32_t sample_count, 
     num_vc = sample_count / vec_len;
 
     for (int i = 0; i < num_vc; i++) {
-        if (err = vec_gen[i%vec_count](&samples[i*vec_len], vec_len, config[i%vec_count]), err != 0) {
+        if (err = vec_gen[i % vec_count](&samples[i * vec_len], vec_len, config[i % vec_count]), err != 0) {
             return err;
         }
     }
 
     if (debug) {
-        FILE * fp = fopen("debug_vector.txt", "w+");
+        FILE *fp = fopen("debug_vector.txt", "w+");
         for (int i = 0; i < num_vc; i++) {
             fprintf(fp, "m%d\n", i);
             for (int j = 0; j < vec_len; j++) {
-                    fprintf(fp, "%d\n",samples[i*vec_len + j]);
+                fprintf(fp, "%d\n", samples[i * vec_len + j]);
             }
         }
         fclose(fp);
-        }
+    }
 
     return err;
 }

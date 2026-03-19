@@ -14,21 +14,24 @@
 /*============= I N C L U D E S ============*/
 #include "adi_fpga_apollo_transmit.h"
 #include "adi_fpga_apollo_core.h"
+#include "adi_fpga_apollo_vec_grp.h"
 #include "adi_fpga_apollo_fsrc.h"
 #include "adi_fpga_apollo_hw_fsrc.h"
 #include "adi_utils.h"
 
 /*============= D E F I N E S ==============*/
+#define TRANSFER_SIZE 128 * 1024    // FPGA mem write chunk size (bytes)
 
 static int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, adi_fpga_feature_flag_t flags, adi_fpga_jesd_param_t jtx, adi_fpga_sr_fsrc_param_t fsrc, uint8_t **buf, uint32_t *buf_size);
 static int32_t transmit_write_mem(adi_fpga_apollo_device_t* fpga_device, uint32_t side_select, uint8_t vec_buffer[], uint64_t vec_buffer_size);
+static int32_t transmit_write_mem2(adi_fpga_apollo_device_t *fpga_device, adi_fpga_apollo_vec_grp_t *vec_grp, uint16_t links, uint8_t vec_buffer[], uint64_t vec_buffer_size);
 static int32_t sw_tpl_pack(adi_fpga_jesd_param_t jtx, uint64_t vec_len, int16_t vecs[], uint64_t output_len, uint8_t output[]);
 static int32_t hw_tpl_pack(int32_t num_dacs, uint64_t vec_len, int16_t vecs[], uint8_t* buff, uint64_t buff_len);
 static int32_t jesd204_vecs_to_lanes(int32_t num_dacs, uint64_t vec_len, uint16_t vecs[], int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_output[num_lanes][octets_per_lane], adi_fpga_jesd_param_t jtx);
 static int32_t jesd204_linear_mapping(int32_t num_dacs, uint64_t vec_len, uint16_t vecs[], uint64_t output_len, uint8_t stepone_output[output_len], adi_fpga_jesd_param_t jtx);
 static int32_t jesd204_map_to_frames(uint64_t map_len, uint8_t linearmap[map_len], int32_t num_frames, int32_t octets_per_frame_per_lane, uint8_t steptwo_output[num_frames][octets_per_frame_per_lane], int32_t num_dacs, uint64_t vec_len, adi_fpga_jesd_param_t jtx);
 static int32_t jesd204_frames_to_lanes(int32_t num_frames, uint64_t octets_per_frame_per_lane, uint8_t framesmap[num_frames][octets_per_frame_per_lane], int32_t num_lanes, int32_t octets_per_lane, uint8_t stepthree_output[num_lanes][octets_per_lane], int32_t num_dacs, uint64_t vec_len, adi_fpga_jesd_param_t jtx);
-static int32_t jesd204_lanes_to_mem(int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_link0[num_lanes][octets_per_lane], int32_t num_lanes1, int32_t octets_per_lane1, uint8_t lanes_link1[num_lanes1][octets_per_lane1], uint64_t buffer_len, uint8_t buffer[buffer_len], int32_t num_links, adi_fpga_jesd_param_t jtx);
+static int32_t jesd204_lanes_to_mem(int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_link[num_lanes][octets_per_lane], uint64_t buffer_len, uint8_t buffer[buffer_len], adi_fpga_jesd_param_t jtx);
 /*============= D A T A ====================*/
 
 /*============= C O D E ====================*/
@@ -69,6 +72,38 @@ end:
     return err;
 }
 
+int32_t adi_fpga_apollo_transmit_write2(adi_fpga_apollo_device_t *fpga, adi_fpga_apollo_vec_grp_t *vec_grp, uint16_t links, int16_t input_vecs[], uint32_t input_vecs_length)
+{
+    int32_t err = API_CMS_ERROR_OK;
+    uint8_t *buff = NULL;
+    uint32_t buff_size = 0;
+    uint8_t link;
+    adi_fpga_feature_flag_t feature_flags;
+
+    err = adi_fpga_apollo_core_feature_flags_get(fpga, &feature_flags);
+    ADI_CMS_ERROR_RETURN(err);
+
+    for (link = 0; link < ADI_APOLLO_NUM_JRX_LINKS; link++) {
+        if ((1 << link) & links) {
+            ADI_CMS_CHECK(feature_flags.tx_hw_tl && fpga->state_info.jtx[link].jesd_np != 16, API_CMS_ERROR_NOT_SUPPORTED);
+
+            err = create_transmit_buffer(input_vecs, input_vecs_length, feature_flags, fpga->state_info.jtx[link], fpga->state_info.tx[link], &buff, &buff_size);
+            ADI_CMS_ERROR_GOTO(err, end);
+
+            err = transmit_write_mem2(fpga, vec_grp, (1 << link), buff, buff_size);
+            ADI_CMS_ERROR_GOTO(err, end);
+
+            ADI_CMS_MEM_ALLOC_FREE(buff);
+        }
+    }
+
+end:
+    ADI_CMS_MEM_ALLOC_FREE(buff);
+
+    return err;
+}
+
+
 /*============= S T A T I C S ==============*/
 
 static int32_t transmit_write_mem(adi_fpga_apollo_device_t* fpga_device, uint32_t side_select, uint8_t vec_buffer[], uint64_t vec_buffer_size)
@@ -91,12 +126,12 @@ static int32_t transmit_write_mem(adi_fpga_apollo_device_t* fpga_device, uint32_
 
     if (side_select == 1) {
         /* Select FPGA load section A-SIDE */
-        printf("Load mem A-side\n");
+        //printf("Load mem A-side\n");
         section_start = 0;
         section_end = (link_count > 2 && !fpga_device->state_info.jtx[0].jesd_dual_link) ? 1 : 0;
     } else {
         /* Select FPGA load section B-SIDE */
-        printf("Load mem B-side\n");
+        //printf("Load mem B-side\n");
         section_start = (link_count > 2 && !fpga_device->state_info.jtx[2].jesd_dual_link) ? 2 : 1;
         section_end = (link_count > 2 && !fpga_device->state_info.jtx[2].jesd_dual_link) ? 3 : 1;
     }
@@ -105,15 +140,82 @@ static int32_t transmit_write_mem(adi_fpga_apollo_device_t* fpga_device, uint32_
     err = adi_fpga_apollo_core_memory_section_select(fpga_device, section_start, section_end);
     ADI_CMS_ERROR_RETURN(err);
     /* Set JTX Link config params */
-    err = adi_fpga_apollo_core_transmit_link_config(fpga_device, address, vec_buffer_size, fpga_device->state_info.jrx[0].jesd_dual_link);
+    err = adi_fpga_apollo_core_transmit_link_config(fpga_device, address, side_select, vec_buffer_size, fpga_device->state_info.jrx[0].jesd_dual_link);
     ADI_CMS_ERROR_RETURN(err);
 
     /* Write transmit vector (in bytes) to FPGA memory. */
-    err = adi_fpga_apollo_core_write_memory(fpga_device, address, vec_buffer, vec_buffer_size);
+    err = adi_fpga_apollo_core_memory_write(fpga_device, address, vec_buffer, vec_buffer_size);
     ADI_CMS_ERROR_RETURN(err);
     
     return err;
 }
+
+static int32_t transmit_write_mem2(adi_fpga_apollo_device_t *fpga_device, adi_fpga_apollo_vec_grp_t *vec_grp, uint16_t links, uint8_t vec_buffer[], uint64_t vec_buffer_size)
+{
+    int32_t err;
+    uint32_t link_count;
+    uint8_t section_start;
+    uint8_t section_end;
+    uint32_t address;
+    uint64_t address64, len64;
+    uint64_t bytes_remaining = vec_buffer_size;
+    uint32_t write_size;
+    int link;
+    int side;
+
+    for (link = 0; link < ADI_APOLLO_NUM_JRX_LINKS; link++) {
+        if ((1 << link) & links) {
+
+            side = link / ADI_APOLLO_NUM_JRX_LINKS_PER_SIDE;
+
+            err = adi_fpga_apollo_vec_grp_start_addr_get(fpga_device, vec_grp, (1 << link), &address64);
+            ADI_CMS_ERROR_RETURN(err);
+            err = adi_fpga_apollo_vec_grp_len_get(fpga_device, vec_grp, (1 << link), &len64);
+            ADI_CMS_ERROR_RETURN(err);
+            address = (uint32_t)(address64 + len64);
+
+            err = adi_fpga_apollo_core_jtx_link_cnt_get(fpga_device, &link_count);
+            ADI_CMS_ERROR_RETURN(err);
+
+            if (side == 0) {
+                /* Select FPGA load section A-SIDE */
+                //printf("Load mem A-side\n");
+                section_start = link;
+                section_end = (link_count > 2 && !fpga_device->state_info.jtx[0].jesd_dual_link) ? 1 : link;
+            } else {
+                //printf("Load mem B-side\n");
+                section_start = link_count > 2 ? (!fpga_device->state_info.jtx[2].jesd_dual_link ? 2 : link) : 1;
+                section_end = link_count > 2 ? (!fpga_device->state_info.jtx[2].jesd_dual_link ? 3 : link) : 1;
+            }
+
+            /* Select link sections to be written */
+            err = adi_fpga_apollo_core_memory_section_select(fpga_device, section_start, section_end);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Set JTX pattern config params */
+            err = adi_fpga_apollo_core_transmit_link_config2(fpga_device, fpga_device->state_info.jtx[link].jesd_dual_link);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Write transmit vector (in bytes) to FPGA memory. */
+            while (bytes_remaining > 0) {
+                write_size = (bytes_remaining > TRANSFER_SIZE) ? TRANSFER_SIZE : (uint32_t)bytes_remaining;
+
+                //printf("Writing FPGA addr and len (0x%08x, 0x%08x)\n", address, write_size);
+
+                err = adi_fpga_apollo_core_memory_write(fpga_device, address, &vec_buffer[vec_buffer_size - bytes_remaining], write_size);
+                ADI_CMS_ERROR_RETURN(err);
+                bytes_remaining -= write_size;
+                address += write_size;
+            }
+
+            err = adi_fpga_apollo_vec_grp_len_incr(fpga_device, vec_grp, (1 << link), vec_buffer_size);
+            ADI_CMS_ERROR_RETURN(err);
+        }
+    }
+
+    return err;
+}
+
 
 int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, adi_fpga_feature_flag_t flags, adi_fpga_jesd_param_t jtx, adi_fpga_sr_fsrc_param_t fsrc, uint8_t **buf, uint32_t *buf_size)
 {
@@ -133,8 +235,9 @@ int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, 
     /* Software FSRC */
     if (flags.tx_hw_fsrc == 0 && fsrc.fsrc) {
         /* Determine the number of valid and invalid samples required for the FSRC ratio */
-        printf("ADS10 SW FSRC\n");
-        adi_fpga_apollo_fsrc_tx_vector_length_get(pre_tpl_buffer_size/num_dacs, fsrc.n, fsrc.m, &fsrc_vec_len);
+        //printf("ADS10 SW FSRC\n");
+        err = adi_fpga_apollo_fsrc_tx_vector_length_get(pre_tpl_buffer_size/num_dacs, fsrc.n, fsrc.m, &fsrc_vec_len);
+        ADI_CMS_ERROR_RETURN(err);
 
         /* Allocate memory for FSRC translated vector */
         fsrc_vecs = malloc(sizeof(int16_t) * fsrc_vec_len.num_total_samples * num_dacs);
@@ -150,7 +253,7 @@ int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, 
 
     if (fsrc.sr) {
         /* Determine the number of valid and invalid samples required for the FSRC ratio */
-        printf("ADS10 SW SR\n");
+        //printf("ADS10 SW SR\n");
 
         /* Allocate memory for FSRC translated vector */
         sr_vecs = malloc(sizeof(int16_t) * pre_tpl_buffer_size * fsrc.link_xdrc / fsrc.tot_xdrc);
@@ -190,7 +293,7 @@ int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, 
     if (!flags.tx_hw_tl) {
 
         /* Do JESD204 transport layer processing on sample data */
-        printf("ADS10 SW Transport\n");
+        //printf("ADS10 SW Transport\n");
         err = sw_tpl_pack(jtx, pre_tpl_buffer_size, pre_tpl_buffer, vec_buffer_size, vec_buffer);
         ADI_CMS_ERROR_RETURN(err);
 
@@ -198,7 +301,7 @@ int32_t create_transmit_buffer(int16_t input_vecs[], uint64_t input_vec_length, 
     else {
 
         /* Fill buffer with samples organized for ADS10 FPGA HW Transport format */
-        printf("ADS10 HW Transport\n");
+        //printf("ADS10 HW Transport\n");
         err = hw_tpl_pack(num_dacs, pre_tpl_buffer_size, pre_tpl_buffer, vec_buffer, vec_buffer_size);
         ADI_CMS_ERROR_RETURN(err);
     }
@@ -242,24 +345,29 @@ static int32_t hw_tpl_pack(int32_t num_dacs, uint64_t input_vec_len, int16_t inp
 
 static int32_t sw_tpl_pack(adi_fpga_jesd_param_t jtx, uint64_t vec_len, int16_t vecs[], uint64_t output_len, uint8_t output[])
 {
-    uint16_t num_links = jtx.jesd_dual_link ? 2 : 1;
+    int32_t err = API_CMS_ERROR_OK;
     uint16_t num_dacs = jtx.jesd_m;
     uint16_t num_lanes = jtx.jesd_l;
     uint32_t num_frames = (vec_len * (jtx.jesd_np / 8.0)) / jtx.jesd_f;
     uint32_t octets_per_lane = (num_frames / num_lanes) * jtx.jesd_f;
     uint8_t (*lanes_output)[octets_per_lane] = malloc(num_lanes * octets_per_lane * sizeof(uint8_t));
+    ADI_CMS_MEM_ALLOC_CHECK(lanes_output);
 
-    jesd204_vecs_to_lanes(num_dacs, vec_len, (uint16_t*)vecs, num_lanes, octets_per_lane, lanes_output, jtx);
+    err = jesd204_vecs_to_lanes(num_dacs, vec_len, (uint16_t*)vecs, num_lanes, octets_per_lane, lanes_output, jtx);
+    ADI_CMS_ERROR_RETURN(err);
 
-    jesd204_lanes_to_mem(num_lanes, octets_per_lane, lanes_output, num_lanes, octets_per_lane, NULL, output_len, output, num_links, jtx);
+    err = jesd204_lanes_to_mem(num_lanes, octets_per_lane, lanes_output, output_len, output, jtx);
+    ADI_CMS_ERROR_RETURN(err);
 
-    free(lanes_output);
+    ADI_CMS_MEM_ALLOC_FREE(lanes_output);
 
-    return API_CMS_ERROR_OK;
+    return err;
 }
 
 static int32_t jesd204_vecs_to_lanes(int32_t num_dacs, uint64_t vec_len,  uint16_t vecs[], int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_output[num_lanes][octets_per_lane], adi_fpga_jesd_param_t jtx)
 {
+    int32_t err = API_CMS_ERROR_OK;
+
     if (jtx.jesd_l != 0) {
         if (jtx.jesd_f != (jtx.jesd_m * jtx.jesd_s * jtx.jesd_np) / (8*jtx.jesd_l)) {
             ADI_CMS_ERROR_RETURN(API_CMS_ERROR_INVALID_PARAM);
@@ -271,21 +379,26 @@ static int32_t jesd204_vecs_to_lanes(int32_t num_dacs, uint64_t vec_len,  uint16
     double bytes_per_sample = jtx.jesd_np / 8.0;
     int32_t map_len = jtx.jesd_m * vec_len * bytes_per_sample;
     uint8_t (*linearoutput) = calloc(map_len, sizeof(uint8_t));
+    ADI_CMS_MEM_ALLOC_CHECK(linearoutput);
 
-    jesd204_linear_mapping(num_dacs, vec_len, vecs, map_len, linearoutput, jtx);
+    err = jesd204_linear_mapping(num_dacs, vec_len, vecs, map_len, linearoutput, jtx);
+    ADI_CMS_ERROR_RETURN(err);
 
     int32_t num_frames = (jtx.jesd_m * vec_len * (jtx.jesd_np / 8.0)) / jtx.jesd_f;
     int32_t octets_per_frame_per_lane = jtx.jesd_f;
     uint8_t (*frameoutput)[octets_per_frame_per_lane] = malloc(num_frames * octets_per_frame_per_lane * sizeof(uint8_t));
-    
-    jesd204_map_to_frames(map_len, linearoutput, num_frames, octets_per_frame_per_lane, frameoutput, jtx.jesd_m, vec_len, jtx);
+    ADI_CMS_MEM_ALLOC_CHECK(frameoutput);
 
-    jesd204_frames_to_lanes(num_frames, octets_per_frame_per_lane, frameoutput, num_lanes, octets_per_lane, lanes_output, jtx.jesd_m, vec_len, jtx);
+    err = jesd204_map_to_frames(map_len, linearoutput, num_frames, octets_per_frame_per_lane, frameoutput, jtx.jesd_m, vec_len, jtx);
+    ADI_CMS_ERROR_RETURN(err);
 
-    free(linearoutput);
-    free(frameoutput);
+    err = jesd204_frames_to_lanes(num_frames, octets_per_frame_per_lane, frameoutput, num_lanes, octets_per_lane, lanes_output, jtx.jesd_m, vec_len, jtx);
+    ADI_CMS_ERROR_RETURN(err);
 
-    return 0;
+    ADI_CMS_MEM_ALLOC_FREE(linearoutput);
+    ADI_CMS_MEM_ALLOC_FREE(frameoutput);
+
+    return err;
 }
 
 static int32_t jesd204_linear_mapping(int32_t num_dacs, uint64_t vec_len,  uint16_t vecs[], uint64_t output_len, uint8_t stepone_output[output_len], adi_fpga_jesd_param_t jtx)
@@ -358,7 +471,7 @@ static int32_t jesd204_frames_to_lanes(int32_t num_frames, uint64_t octets_per_f
     return 0;
 }
 
-static int32_t jesd204_lanes_to_mem(int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_link0[num_lanes][octets_per_lane], int32_t num_lanes1, int32_t octets_per_lane1, uint8_t lanes_link1[num_lanes1][octets_per_lane1], uint64_t buffer_len, uint8_t buffer[buffer_len], int32_t num_links, adi_fpga_jesd_param_t jtx)
+static int32_t jesd204_lanes_to_mem(int32_t num_lanes, int32_t octets_per_lane, uint8_t lanes_link[num_lanes][octets_per_lane], uint64_t buffer_len, uint8_t buffer[buffer_len], adi_fpga_jesd_param_t jtx)
 {
     int32_t ads10 = 128;
 
@@ -371,19 +484,12 @@ static int32_t jesd204_lanes_to_mem(int32_t num_lanes, int32_t octets_per_lane, 
 
     for(int32_t set = 0 ; set < total ; set++) {
         offset = set*ads10;
-        for (int32_t link = 0; link < num_links; link++) {
-            for (int32_t l = 0; l < jtx.jesd_l; l++) {
-                for (int32_t i = 0; i < ads10; i++) {
-                    if (i + offset < octets_per_lane) {
-                        if (link == 0) {
-                            buffer[count] = lanes_link0[l][i + offset];
-                        }
-                        else {
-                            buffer[count] = lanes_link1[l][i + offset];
-                        }
-                    }
-                    count++;
+        for (int32_t l = 0; l < num_lanes; l++) {
+            for (int32_t i = 0; i < ads10; i++) {
+                if (i + offset < octets_per_lane) {
+                    buffer[count] = lanes_link[l][i + offset];
                 }
+                count++;
             }
         }
     }

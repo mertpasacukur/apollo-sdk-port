@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     HAL CDMA Header File
  *
@@ -48,5 +47,3 @@ unsigned int Hal_CdmaDeinit(void);
 #endif /* end of protection macro */
 
 /*! @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */

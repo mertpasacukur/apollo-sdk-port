@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo fullchip Rx/Tx FSRC data path test using ADC as input source
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -23,6 +20,7 @@
 #include "adi_ads10_apollo_ex_inspect.h"
 #include "adi_fpga_apollo_fsrc.h"
 #include "adi_fpga_apollo_core.h"
+#include "adi_fpga_apollo_vec_grp.h"
 #include "adi_ads10_apollo_ex_cal.h"
 #include "adi_ads10_apollo_ex_ctl.h"
 
@@ -64,7 +62,7 @@ int32_t fullchip(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
     err = adi_ads10_apollo_ex_cals_run(device, profile, ADI_ADS10_APOLLO_CAL_CC | ADI_ADS10_APOLLO_CAL_ADC);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
     ADI_CMS_ERROR_RETURN(err);
 
     /*** ADS10 FPGA simultaneous Rx/Tx link startup ***/
@@ -85,14 +83,15 @@ int32_t fullchip(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
     EXCTL_SIGGEN_FREQ(adc_input_freq, interactive);
 
     /* Read FPGA capture memory and write out i/q files */
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, true);
     ADI_CMS_ERROR_RETURN(err);
 
 #ifdef EXCTL_AUTOMATION
     EXCTL_RX_MEAS_FREQ(0x33, cap_fname_base, adc_input_freq, 10);
 #else
-    adi_ads10_apollo_rx_channel_info_t channel;
-    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, &channel);
+    adi_ads10_apollo_channel_info_t channel;
+    adi_ads10_apollo_channel_selectors_t channel_selectors = { ADI_APOLLO_CDDC_A0, ADI_APOLLO_CNCO_A0, ADI_APOLLO_FNCO_A0, ADI_APOLLO_FDDC_A0, ADI_APOLLO_FSRC_A0};
+    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, channel_selectors, &channel);
     EXCTL_RX_MEAS_FREQ(0x33, cap_fname_base, (adc_input_freq - channel.nco_freq_hz/1e6), 10);
 #endif
 
@@ -100,5 +99,3 @@ int32_t fullchip(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

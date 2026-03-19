@@ -1,11 +1,8 @@
-#if !defined(VERSAL_PLATFORM)
 
 #ifndef __ADS10_FPGA__
 
 /*============= I N C L U D E S ============*/
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <stdint.h>
 #include "adi_apollo_common_types.h"
 
@@ -93,5 +90,3 @@ int32_t ads10_fpga_fmcb_aux_spi2_sdo_alt_enable_set(void* user_data, uint32_t du
 #endif
 
 #endif /* #define __ADS10_FPGA__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

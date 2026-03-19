@@ -29,13 +29,11 @@ int32_t adi_ltc2980_pmbus_send_byte(adi_ltc2980_device_t *ltc2980, adi_ltc2980_s
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_send_byte(smbus_hal, device_addr, send_byte);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -49,13 +47,11 @@ int32_t adi_ltc2980_pmbus_reg_write_byte(adi_ltc2980_device_t *ltc2980, adi_ltc2
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_reg_write_byte(smbus_hal, device_addr, command, data_byte);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -69,13 +65,11 @@ int32_t adi_ltc2980_pmbus_reg_write_word(adi_ltc2980_device_t *ltc2980, adi_ltc2
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_reg_write_word(smbus_hal, device_addr, command, data_word);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -89,13 +83,11 @@ int32_t adi_ltc2980_pmbus_reg_read_byte(adi_ltc2980_device_t *ltc2980, adi_ltc29
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_reg_read_byte(smbus_hal, device_addr, command, return_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -109,13 +101,11 @@ int32_t adi_ltc2980_pmbus_reg_read_word(adi_ltc2980_device_t *ltc2980, adi_ltc29
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_reg_read_word(smbus_hal, device_addr, command, return_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -129,13 +119,11 @@ int32_t adi_ltc2980_pmbus_l11_write(adi_ltc2980_device_t *ltc2980, adi_ltc2980_s
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_l11_write(smbus_hal, device_addr, command, l11_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -149,13 +137,11 @@ int32_t adi_ltc2980_pmbus_l11_read(adi_ltc2980_device_t *ltc2980, adi_ltc2980_su
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_l11_read(smbus_hal, device_addr, command, l11_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -169,13 +155,11 @@ int32_t adi_ltc2980_pmbus_l16_write(adi_ltc2980_device_t *ltc2980, adi_ltc2980_s
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_l16_write(smbus_hal, device_addr, command, l16_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -189,13 +173,11 @@ int32_t adi_ltc2980_pmbus_l16_read(adi_ltc2980_device_t *ltc2980, adi_ltc2980_su
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_l16_read(smbus_hal, device_addr, command, l16_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -209,13 +191,11 @@ int32_t adi_ltc2980_pmbus_page_set(adi_ltc2980_device_t *ltc2980, adi_ltc2980_su
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_page_set(smbus_hal, device_addr, page);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -229,13 +209,11 @@ uint8_t adi_ltc2980_pmbus_page_get(adi_ltc2980_device_t *ltc2980, adi_ltc2980_su
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_page_get(smbus_hal, device_addr, return_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -249,13 +227,11 @@ int32_t adi_ltc2980_pmbus_write_protect_enable(adi_ltc2980_device_t *ltc2980, ad
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_write_protect_enable(smbus_hal, device_addr);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -269,13 +245,11 @@ int32_t adi_ltc2980_pmbus_write_protect_disable(adi_ltc2980_device_t *ltc2980, a
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_write_protect_disable(smbus_hal, device_addr);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -289,13 +263,11 @@ int32_t adi_ltc2980_pmbus_vout_mode_get(adi_ltc2980_device_t *ltc2980, adi_ltc29
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_vout_mode_get(smbus_hal, device_addr, return_val);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -309,13 +281,11 @@ int32_t adi_ltc2980_pmbus_operation_set(adi_ltc2980_device_t *ltc2980, adi_ltc29
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-    
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_operation_set(smbus_hal, device_addr, operation);
     ADI_CMS_ERROR_RETURN(err);
 
@@ -329,13 +299,11 @@ int32_t adi_ltc2980_pmbus_operation_get(adi_ltc2980_device_t *ltc2980, adi_ltc29
     adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltc2980);
-
-    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     smbus_hal = &ltc2980->smbus;
-
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
 
+    device_addr = calc_sub_device_addr(ltc2980, sub_dev_id);
     err = adi_pmbus_operation_get(smbus_hal, device_addr, return_val);
     ADI_CMS_ERROR_RETURN(err);
 

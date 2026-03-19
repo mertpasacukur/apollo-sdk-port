@@ -243,6 +243,12 @@ int32_t adi_fpga_apollo_core_jesd_rx_config(adi_fpga_apollo_device_t *fpga,
         fpga->state_info.jrx[link] = jrx_param[link];
     }
 
+    if (fpga->state_info.jrx[0].jesd_dual_link == 1 || fpga->state_info.jrx[2].jesd_dual_link == 1) {
+        printf("Reconfigure FPGA for dual link\n");
+        err = adi_fpga_apollo_core_dual_link_lane_mapping_set(fpga, ADI_FPGA_APOLLO_JRX);
+        ADI_CMS_ERROR_RETURN(err);
+    }
+
     /*
      * Determine capture framing parameters.
      * These parameters are stored on the FPGA device context and are referenced during capture read back.
@@ -337,6 +343,13 @@ int32_t adi_fpga_apollo_core_jesd_tx_config(adi_fpga_apollo_device_t *fpga,
     for (uint8_t link = 0; link < length; link++){
         fpga->state_info.jtx[link] = jtx_param[link];
     }
+
+    if (fpga->state_info.jrx[0].jesd_dual_link == 1 || fpga->state_info.jrx[2].jesd_dual_link == 1) {
+        printf("Reconfigure FPGA for dual link\n");
+        err = adi_fpga_apollo_core_dual_link_lane_mapping_set(fpga, ADI_FPGA_APOLLO_JTX);
+        ADI_CMS_ERROR_RETURN(err);
+    }
+
     return err;
 }
 
@@ -475,18 +488,22 @@ int32_t adi_fpga_apollo_core_fifo_ready_get(adi_fpga_apollo_device_t* fpga, uint
 int32_t adi_fpga_apollo_core_not_running_wait(adi_fpga_apollo_device_t *fpga) {
     int32_t err = API_CMS_ERROR_OK;
     uint32_t val = 1;
-    uint8_t tries = 0;
+    uint32_t tries = 0;
 
     ADI_CMS_NULL_PTR_CHECK(fpga);
 
+    /* Min delay before reading datapath_running after transmit_start */
+    err = fpga->hal_info.delay_us(fpga, 5);
+    ADI_CMS_ERROR_RETURN(err);
+
     do {
-        err = adi_fpga_apollo_private_read32_bitfield(fpga, 0x948, 0x00000001, &val);
+        err = adi_fpga_apollo_private_read32_bitfield(fpga, DATAPATH_STATUS, DATAPATH_RUNNING_MASK, &val);
         ADI_CMS_ERROR_RETURN(err);
         if (val == 0) {
             return API_CMS_ERROR_OK;
         }
-        fpga->hal_info.delay_us(fpga, 500000);
-    } while (++tries < 20);
+        fpga->hal_info.delay_us(fpga, 5000);
+    } while (++tries < 2000);
 
     ADI_CMS_ERROR_RETURN(API_CMS_ERROR_OPERATION_TIMEOUT);
     return err;
@@ -518,8 +535,8 @@ int32_t adi_fpga_apollo_core_pattern_read_stop(adi_fpga_apollo_device_t *fpga)
     return err;
 }
 
-int32_t adi_fpga_apollo_core_memory_section_select (adi_fpga_apollo_device_t *fpga,
-                                                    uint8_t section_start, uint8_t section_end)
+int32_t adi_fpga_apollo_core_memory_section_select(adi_fpga_apollo_device_t *fpga,
+                                                   uint8_t section_start, uint8_t section_end)
 {
     int32_t err = API_CMS_ERROR_OK;
 
@@ -538,25 +555,37 @@ int32_t adi_fpga_apollo_core_memory_section_select (adi_fpga_apollo_device_t *fp
 }
 
 int32_t adi_fpga_apollo_core_transmit_link_config(adi_fpga_apollo_device_t *fpga,
-                                            uint32_t mem_addr, uint32_t len, uint8_t dual_link)
+                                            uint32_t mem_addr, uint32_t side_select, uint32_t len, uint8_t dual_link)
 {
     int32_t err = API_CMS_ERROR_OK;
+    uint8_t start_idx, end_idx;
+    uint8_t link = 0;
 
     ADI_CMS_NULL_PTR_CHECK(fpga);
+    ADI_CMS_RANGE_CHECK(side_select, 0x1, 0x2); /* 0x1 = A side, 0x2 = B side */
+    ADI_CMS_SINGLE_SELECT_CHECK(side_select);   /* Only one side can be selected at a time */
 
     err = adi_fpga_apollo_private_write32_bitfield(fpga, CTRL_TRANSMIT,
                     TRANSMIT_SKIP_DATA_MASK, 0);
     ADI_CMS_ERROR_RETURN(err);
 
+    if (side_select == 1) { // A side 
+        start_idx = 0;
+        end_idx = 1;
+    } else {                // B side
+        start_idx = 2;
+        end_idx = 3;
+    }
+
     /* Set address to all the links even though link is not enabled */
-    for(int i=0; i<4;i++) {
-        err = fpga->hal_info.reg_write(0x598 + i, mem_addr);
+    for(link = start_idx; link <= end_idx; link++) {
+        err = fpga->hal_info.reg_write(TX_LINK_DATA_ADDR + link, mem_addr);
         ADI_CMS_ERROR_RETURN(err);
     }
 
     /* Set length of all the links even though link is not enabled */
-    for(int i=0; i<4; i++) {
-        err = fpga->hal_info.reg_write(0x588 + i, len);
+    for(link = start_idx; link <= end_idx; link++) {
+        err = fpga->hal_info.reg_write(TX_LINK_DATA_LEN + link, len);
         ADI_CMS_ERROR_RETURN(err);
     }
 
@@ -564,6 +593,7 @@ int32_t adi_fpga_apollo_core_transmit_link_config(adi_fpga_apollo_device_t *fpga
     err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_TX_PATTERN_CTRL,
                     GT_TX_DATA_MODE_MASK, 0);
     ADI_CMS_ERROR_RETURN(err);
+
     /* All memory for link group if single link */
     err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_TX_PATTERN_CTRL,
                     TX_SINGLE_LINK_FULL_MEM_MASK, (dual_link == 0) ? 3 : 0);
@@ -571,17 +601,27 @@ int32_t adi_fpga_apollo_core_transmit_link_config(adi_fpga_apollo_device_t *fpga
     return err;
 }
 
-int32_t adi_fpga_apollo_core_write_memory(adi_fpga_apollo_device_t *fpga,
-                                            uint32_t mem_addr, uint8_t *tx_data,
-                                            uint32_t tx_data_bytes)
+int32_t adi_fpga_apollo_core_transmit_link_config2(adi_fpga_apollo_device_t *fpga, uint8_t dual_link)
 {
     int32_t err = API_CMS_ERROR_OK;
 
     ADI_CMS_NULL_PTR_CHECK(fpga);
-    ADI_CMS_NULL_PTR_CHECK(tx_data);
 
-    err = fpga->hal_info.mem_write(mem_addr, tx_data_bytes, tx_data);
+    err = adi_fpga_apollo_private_write32_bitfield(fpga, CTRL_TRANSMIT,
+                                                   TRANSMIT_SKIP_DATA_MASK, 0);
     ADI_CMS_ERROR_RETURN(err);
+
+    /* Set transmit data repeatedly */
+    err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_TX_PATTERN_CTRL,
+                                                   GT_TX_DATA_MODE_MASK, 0);
+    ADI_CMS_ERROR_RETURN(err);
+
+    /* All memory for link group if single link */
+    err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_TX_PATTERN_CTRL,
+                                                   TX_SINGLE_LINK_FULL_MEM_MASK, (dual_link == 0) ? 3 : 0);
+                                                
+    ADI_CMS_ERROR_RETURN(err);
+
     return err;
 }
 
@@ -623,6 +663,10 @@ int32_t adi_fpga_apollo_core_transmit_start(adi_fpga_apollo_device_t *fpga)
     err = adi_fpga_apollo_private_write32_bitfield(fpga, CTRL_TRANSMIT,
                     TRANSMIT_START_MASK, 1);
     ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_fpga_apollo_core_not_running_wait(fpga); /* Wait for FPGA datapath not running */
+    ADI_CMS_ERROR_RETURN(err);
+    
     return err;
 }
 
@@ -636,6 +680,10 @@ int32_t adi_fpga_apollo_core_transmit_stop(adi_fpga_apollo_device_t *fpga)
     err = adi_fpga_apollo_private_write32_bitfield(fpga, CTRL_TRANSMIT,
                     TRANSMIT_STOP_MASK, 1);
     ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_fpga_apollo_core_not_running_wait(fpga); /* Wait for FPGA datapath not running */
+    ADI_CMS_ERROR_RETURN(err);
+    
     return err;
 }
 
@@ -756,27 +804,6 @@ int32_t adi_fpga_apollo_core_jesd_rx_phy_prbs_init(adi_fpga_apollo_device_t *fpg
     /* Select the FPGA PRBS pattern */
     err = adi_fpga_apollo_private_jesd_rx_phy_prbs_pat_set(fpga, prbs);
     ADI_CMS_ERROR_RETURN(err);
-
-    /* Enable lanes on FPGA */
-    err = adi_fpga_apollo_private_jesd_rx_phy_prbs_lanes_set(fpga);
-    ADI_CMS_ERROR_RETURN(err);
-
-    /* Enable Links A-link0, B-link0. Disable links A-link1, B-link1 */
-    if (fpga->state_info.jrx_link_count == 4) {
-        err = adi_fpga_apollo_private_write32_bitfield(fpga,
-            JESD204B_RX_PWR_CTRL,
-            JESD204B_RX_LINK_PD_MASK,
-            0x0A);
-        ADI_CMS_ERROR_RETURN(err);
-    } else if (fpga->state_info.jrx_link_count == 2) {
-        err = adi_fpga_apollo_private_write32_bitfield(fpga,
-            JESD204B_RX_PWR_CTRL,
-            JESD204B_RX_LINK_PD_MASK,
-            0x0C);
-        ADI_CMS_ERROR_RETURN(err);
-    } else {
-		printf("Number of links: %d not supported\n", fpga->state_info.jrx_link_count);
-	}
 
     /* Start PRBS capture (needed after setting prbs sel) */
     err = adi_fpga_apollo_private_jesd_rx_phy_prbs_start(fpga);
@@ -913,13 +940,11 @@ int32_t adi_fpga_apollo_core_jesd_tx_phy_prbs_start(adi_fpga_apollo_device_t *fp
         /* Power up Link0 and Link1 */
         err = fpga->hal_info.reg_write(JESD204B_TX_PWR_CTRL, 0x0C);
         ADI_CMS_ERROR_RETURN(err);
-	} else {
-		printf("Number of links: %d not supported\n", fpga->state_info.jrx_link_count);
-	}
-    err = adi_fpga_apollo_private_write32_bitfield(fpga,
-        CTRL_TRANSMIT,
-        TRANSMIT_START_MASK,
-        1);
+    } else {
+        printf("Number of links: %d not supported\n", fpga->state_info.jrx_link_count);
+    }
+
+    err = adi_fpga_apollo_core_transmit_start(fpga);
     ADI_CMS_ERROR_RETURN(err);
 
     return err;
@@ -976,6 +1001,10 @@ int32_t adi_fpga_apollo_core_bidir_start(adi_fpga_apollo_device_t *fpga)
     ADI_CMS_NULL_PTR_CHECK(fpga);
     err = adi_fpga_apollo_core_reg_set(fpga, BIDIR_CTRL, BIDIR_START_MASK);
     ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_fpga_apollo_core_not_running_wait(fpga); /* Wait for FPGA datapath not running */
+    ADI_CMS_ERROR_RETURN(err);
+
     return err;
 }
 
@@ -986,6 +1015,10 @@ int32_t adi_fpga_apollo_core_bidir_stop(adi_fpga_apollo_device_t *fpga)
     err = adi_fpga_apollo_core_reg_set(fpga, BIDIR_CTRL, BIDIR_STOP_MASK);
     if (err != API_CMS_ERROR_OK)
     ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_fpga_apollo_core_not_running_wait(fpga); /* Wait for FPGA datapath not running */
+    ADI_CMS_ERROR_RETURN(err);
+
     return err;
 }
 
@@ -1041,56 +1074,6 @@ int32_t adi_fpga_apollo_core_jrx_link_cnt_get(adi_fpga_apollo_device_t *fpga, ui
     err = adi_fpga_apollo_private_read32_bitfield(fpga, JESD204B_RX_LINK_COUNT, JESD204B_RX_LINK_COUNT_MASK, link_count);   // get link_cnt-1
 
     *link_count += 1;
-
-    return err;
-}
-
-
-int32_t adi_fpga_apollo_core_supports_hw_tl_get(adi_fpga_apollo_device_t *fpga, bool* supports_hw_tl)
-{
-    int32_t err;
-    uint32_t vid;
-    uint32_t vid2;
-
-    ADI_CMS_NULL_PTR_CHECK(fpga);
-    ADI_CMS_NULL_PTR_CHECK(supports_hw_tl);
-
-    err = fpga->hal_info.reg_read(VERSION_ID, &vid); // version id
-    ADI_CMS_ERROR_RETURN(err);
-    err = fpga->hal_info.reg_read(VERSION_ID2, &vid2); // version id2
-    ADI_CMS_ERROR_RETURN(err);
-
-    // Note: Until a bitfield is provided to indicate hw_tl support status, use well-known absolute fpga date codes.
-    *supports_hw_tl = ( ( (vid == 0x2208) && (vid2 == 0x3000))
-        || ((vid == 0x2205) && (vid2 == 0x2700))
-        || ((vid == 0x2210) && (vid2 == 0x0300))
-        || ((vid == 0x2210) && (vid2 == 0x0500))
-        || ((vid == 0x2309) && (vid2 == 0x2100))
-        );
-
-    return err;
-}
-
-int32_t adi_fpga_apollo_core_supports_hw_fsrc_get(adi_fpga_apollo_device_t *fpga, bool* supports_hw_fsrc)
-{
-    int32_t err;
-    uint32_t vid;
-    uint32_t vid2;
-
-    ADI_CMS_NULL_PTR_CHECK(fpga);
-    ADI_CMS_NULL_PTR_CHECK(supports_hw_fsrc);
-
-    err = fpga->hal_info.reg_read(VERSION_ID, &vid); // version id
-    ADI_CMS_ERROR_RETURN(err);
-    err = fpga->hal_info.reg_read(VERSION_ID2, &vid2); // version id2
-    ADI_CMS_ERROR_RETURN(err);
-
-    // Note: Until a bitfield is provided to indicate hw fsrc support status, use well-known absolute fpga date codes.
-    *supports_hw_fsrc = (((vid == 0x2208) && (vid2 == 0x3000))
-        || ((vid == 0x2210) && (vid2 == 0x0300))
-        || ((vid == 0x2210) && (vid2 == 0x0500))
-        || ((vid == 0x2309) && (vid2 == 0x2100))
-        );
 
     return err;
 }
@@ -1373,12 +1356,6 @@ int32_t adi_fpga_apollo_core_bidir_init(adi_fpga_apollo_device_t* fpga)
 	err = adi_fpga_apollo_core_bidir_start(fpga);                  /* Init the tx and rx links - sends 3 triggers */
     ADI_CMS_ERROR_RETURN(err);
 
-    err = fpga->hal_info.delay_us(fpga, 100000);                    /* Allow FPGA state to advance */
-    ADI_CMS_ERROR_RETURN(err);
-
-	err = adi_fpga_apollo_core_not_running_wait(fpga);              /* Wait for rx not running */
-    ADI_CMS_ERROR_RETURN(err);
-
 	err = adi_fpga_apollo_core_skip_rx_link_init_set(fpga, 0x1);     /* Enable skip-init to prevent Tx link from reinitializing during capture_start. */
     ADI_CMS_ERROR_RETURN(err);
 
@@ -1460,31 +1437,165 @@ int32_t adi_fpga_apollo_core_tx_links_init(adi_fpga_apollo_device_t* fpga)
     err = adi_fpga_apollo_core_transmit_start(fpga);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = fpga->hal_info.delay_us(fpga, 100000);                    /* Important delay based on experiments (will confirm) */
-    ADI_CMS_ERROR_RETURN(err);
-
-	err = adi_fpga_apollo_core_tx_keep_link_mask_set(fpga, (~jtx_link_pd & 0xf));  /* GroupA jtx main link, don't stop or re-start the link after init */
+    err = adi_fpga_apollo_core_tx_keep_link_mask_set(fpga, (~jtx_link_pd & 0xf));  /* GroupA jtx main link, don't stop or re-start the link after init */
     ADI_CMS_ERROR_RETURN(err);
 
     return err;
 }
 
-int32_t adi_fpga_apollo_core_sysref_setup(adi_fpga_apollo_device_t *fpga)
+int32_t adi_fpga_apollo_core_internal_sysref_setup(adi_fpga_apollo_device_t *fpga, uint32_t glbclk_ratio)
 {
     int32_t err;
 
     ADI_CMS_NULL_PTR_CHECK(fpga);
+    ADI_CMS_INVALID_PARAM_CHECK(glbclk_ratio > 2048);
 
     /*
     * Setup FPGA SYSREF clocking
     */
-    err = adi_fpga_apollo_private_write32_bitfield(fpga, SYSREF_GLBLCLK_RATIO, SYSREF_GLBLCLK_RATIO_MASK, 32);
+    err = adi_fpga_apollo_private_write32_bitfield(fpga, SYSREF_GLBLCLK_RATIO, SYSREF_GLBLCLK_RATIO_MASK, glbclk_ratio);
     ADI_CMS_ERROR_RETURN(err);
     err = adi_fpga_apollo_private_write32_bitfield(fpga, SYSREF_COUNT, SYSREF_GLBLCLK_RATIO_SET_MASK, 1);
     ADI_CMS_ERROR_RETURN(err);
     err = adi_fpga_apollo_private_write32_bitfield(fpga, SYSREF_COUNT, SYSREF_COUNT_EN_MASK, 1);
     ADI_CMS_ERROR_RETURN(err);
     err = adi_fpga_apollo_private_write32_bitfield(fpga, SYSREF_COUNT, SYSREF_COUNT_START_MASK, 1);
+    ADI_CMS_ERROR_RETURN(err);
+
+    return err;
+}
+
+int32_t adi_fpga_apollo_core_ptn_vec_group_load(adi_fpga_apollo_device_t *fpga, adi_fpga_apollo_vec_grp_t *vec_grp, uint16_t links)
+{
+    int32_t err = API_CMS_ERROR_OK;
+    uint8_t link_idx;
+    uint8_t reg_link_idx = 0;
+
+    ADI_CMS_NULL_PTR_CHECK(fpga);
+    ADI_CMS_NULL_PTR_CHECK(vec_grp);
+
+    for (link_idx = 0; link_idx < MAX_JESD_LINKS; link_idx++) {
+        if ((1 << link_idx) & links) {
+
+            reg_link_idx = (fpga->state_info.jtx_link_count == 2) ? link_idx / 2 : link_idx;
+
+            err = fpga->hal_info.reg_write(TX_LINK_DATA_ADDR + reg_link_idx, vec_grp->vec[link_idx].base_addr);
+            ADI_CMS_ERROR_RETURN(err);
+            err = fpga->hal_info.reg_write(TX_LINK_DATA_ADDR2 + reg_link_idx, vec_grp->vec[link_idx].base_addr >> 32);
+            ADI_CMS_ERROR_RETURN(err);
+
+            err = fpga->hal_info.reg_write(TX_LINK_DATA_LEN + reg_link_idx, vec_grp->vec[link_idx].len);
+            ADI_CMS_ERROR_RETURN(err);
+            err = fpga->hal_info.reg_write(TX_LINK_DATA_LEN2 + reg_link_idx, vec_grp->vec[link_idx].len >> 32);
+            ADI_CMS_ERROR_RETURN(err);
+        }
+    }
+
+    return err;
+}
+
+int32_t adi_fpga_apollo_core_dual_link_lane_mapping_set(adi_fpga_apollo_device_t *fpga, uint16_t terminal)
+{
+    int32_t err = API_CMS_ERROR_OK;
+    uint32_t logical_idx = 0, dut_phy_lane = 0;
+    uint32_t link_pair_idx = 0, base_lanes = 0, skip_lanes = 0;
+    uint8_t num_lanes = 0, link, lane;
+    adi_fpga_jesd_param_t *link_info;
+    
+    ADI_CMS_NULL_PTR_CHECK(fpga);
+    ADI_CMS_RANGE_CHECK(terminal, ADI_FPGA_APOLLO_JRX, ADI_FPGA_APOLLO_JTX);
+
+    /* Enable lane mapping control */
+    if (terminal == ADI_FPGA_APOLLO_JTX) {
+        err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_TX_LANE_MAP_CTRL, TX_LANE_MAP_CTRL_MASK, 1);
+        ADI_CMS_ERROR_RETURN(err);
+    } else {
+        err = adi_fpga_apollo_private_write32_bitfield(fpga, GT_RX_LANE_MAP_CTRL, RX_LANE_MAP_CTRL_MASK, 1);
+        ADI_CMS_ERROR_RETURN(err);    
+    }
+
+    /**
+     * Steps to map FPGA logical lanes to Apollo phy lanes:
+     * 1) base_lane_id determines which lane each link starts from
+     * 2) calc number of lanes allocated per link 
+     *    2.1) if dual link:
+     *          - even links (0,2) number of lanes = base_lane_id of odd links (1,3)
+     *          - odd links (1,3) number of lanes = total lanes - even link lanes
+     *    2.2) if single link: link gets all lanes
+     * 3) loop through number of lanes per link and map to dut_phy_lane
+     * 4) skip unused lanes to next link based on number of lanes allocated
+     *    - even link: skip 12 - num_lanes
+     *    - odd link: skip 6 - num_lanes
+     * 
+     * Warning: num_lanes refers to lanes allocated to link, not jesd_l param
+     */
+    for (link = 0; link < MAX_JESD_LINKS; link++) {
+        link_info = terminal ? &fpga->state_info.jtx[link] : &fpga->state_info.jrx[link];
+        if (link_info->jesd_dual_link == 0) {
+            /* Single link - map all lanes */
+            num_lanes = MAX_JESD_LANES_PER_LINK;
+            skip_lanes = 6; /* skip 6 logical lanes dedicated to odd link */
+            link++; /* skip odd link */
+        } else {
+            link_pair_idx = (link / 2) * 2 + 1;  /* Index to odd link in pair (1 or 3) */
+            base_lanes = terminal ? fpga->state_info.jtx[link_pair_idx].base_lane_id 
+                                  : fpga->state_info.jrx[link_pair_idx].base_lane_id;
+            num_lanes = (link % 2) ? (MAX_JESD_LANES_PER_LINK - base_lanes) : base_lanes;
+            skip_lanes = (link % 2) ? ((MAX_JESD_LANES_PER_LINK / 2) - num_lanes) 
+                                    : (MAX_JESD_LANES_PER_LINK - num_lanes);
+        }
+
+        if (num_lanes < link_info->jesd_l) {
+            printf("ERROR: Not enough lanes allocated for link %d\n", link);
+            return API_CMS_ERROR_INVALID_PARAM;
+        }
+        
+        /* Map all lanes for this link */
+        for (lane = 0; lane < num_lanes; lane++) {
+            err = adi_fpga_apollo_private_write32_bitfield(fpga,
+                (terminal ? GT_TX_LANE_MAP_0 : GT_RX_LANE_MAP_0) + logical_idx / 4,
+                (terminal ? TX_LANE_MAP_0_MASK : RX_LANE_MAP_0_MASK) << ((logical_idx % 4) * 8),
+                dut_phy_lane);
+            ADI_CMS_ERROR_RETURN(err);
+            logical_idx++;
+            dut_phy_lane++;
+        }
+        
+        /* Skip unused lanes - add offset based on link type */
+        logical_idx += skip_lanes;
+    }
+
+    /* DEBUG - print lane mapping */
+    //for (int j = 0; j < 9; j++)
+    //{
+    //    uint32_t data = 0;
+    //    err = adi_fpga_apollo_core_reg_get(fpga, (terminal ? GT_TX_LANE_MAP_0 : GT_RX_LANE_MAP_0) + j, &data);
+    //    ADI_CMS_ERROR_RETURN(err);
+    //    printf("GT_%s_LANE_MAP_%d: 0x%08X\n", (terminal ? "TX" : "RX"), j, data);
+    //}
+
+    return err;
+}
+
+int32_t adi_fpga_apollo_core_rx_mem_addr_set(adi_fpga_apollo_device_t *fpga) {
+
+    int32_t err = API_CMS_ERROR_OK;
+    uint32_t addr = 0;
+    uint8_t is_single_mem = 0;
+
+    ADI_CMS_NULL_PTR_CHECK(fpga);
+
+    is_single_mem = (fpga->state_info.jrx[0].jesd_dual_link || fpga->state_info.jrx[2].jesd_dual_link);
+
+    /* Update FPGA RX Capture Address */
+    if (fpga->state_info.design_id == ADI_FPGA_APOLLO_DESIGN_VCU128 ||
+        fpga->state_info.design_id == ADI_FPGA_APOLLO_DESIGN_MM_REF) {
+        addr = is_single_mem ? BLOCK_RAM_RX_CAP_ADDR_SINGLE_MEM : BLOCK_RAM_RX_CAP_ADDR_FULL_MEM;
+    } else {
+        addr = is_single_mem ? HBM_MEM_RX_CAP_ADDR_SINGLE_MEM : HBM_MEM_RX_CAP_ADDR_FULL_MEM;
+    }
+
+    err = fpga->hal_info.reg_write(GT_RX_CAPTURE_ADDR, addr);
     ADI_CMS_ERROR_RETURN(err);
 
     return err;

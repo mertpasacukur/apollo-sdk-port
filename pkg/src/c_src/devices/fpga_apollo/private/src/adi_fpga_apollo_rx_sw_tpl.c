@@ -27,28 +27,42 @@ int32_t rx_jesd204_sw_tpl(adi_fpga_apollo_state_t *state_info, uint8_t raw_data[
     uint32_t data_per_link;
     uint8_t *link_data = NULL;
     uint32_t offset = 0;
-    uint32_t links;
+    uint32_t link;
 
-    link_data = malloc(sizeof(uint8_t) * data_length);
-    ADI_CMS_MEM_ALLOC_CHECK(link_data);
-
-    // Parse the raw data into individual links
-    err = rx_sw_tpl_parse_raw_link(capture_frame, raw_data, link_data, data_length);
-    ADI_CMS_ERROR_GOTO(err, end);
-
-    // For each link convert from lane data to samples
-    for (links = 0; links < MAX_JESD_LINKS; links++) {
-        if (capture_frame->link_enabled[links]) {
-            offset = (data_length / 4) * links;
-            data_per_link = (capture_frame->fpga_link_bits[links] == 4096 ? data_length / 2 : data_length / 4);
-            err = rx_sw_tpl_lane_to_samps(state_info->jrx[links], &link_data[offset], data_per_link);
-            ADI_CMS_ERROR_GOTO(err, end);
-        }
+    if (capture_frame->num_links_in_use == 0) {
+        return API_CMS_ERROR_PLATFORM_CAPTURE_INVALID_CONFIG;
+    } else if (capture_frame->num_links_in_use == 3) {
+        return API_CMS_ERROR_NOT_IMPLEMENTED;
     }
 
-    // Interleave sample data by link 
-    err = rx_sw_tpl_pack_link_data(capture_frame, raw_data, link_data, data_length);
-    ADI_CMS_ERROR_GOTO(err, end);
+    if (capture_frame->num_links_in_use == 1) {
+        for (link = 0; link < MAX_JESD_LINKS; link++) {
+            if (capture_frame->link_enabled[link]) {
+                err = rx_sw_tpl_lane_to_samps(state_info->jrx[link], raw_data, data_length);
+                ADI_CMS_ERROR_RETURN(err);
+            }
+        }
+    } else {
+        link_data = malloc(sizeof(uint8_t) * data_length);
+        ADI_CMS_MEM_ALLOC_CHECK(link_data);
+
+        // Parse the raw data into individual links
+        err = rx_sw_tpl_parse_raw_link(capture_frame, raw_data, link_data, data_length);
+        ADI_CMS_ERROR_GOTO(err, end);
+
+        // For each link convert from lane data to samples
+        for (link = 0; link < MAX_JESD_LINKS; link++) {
+            if (capture_frame->link_enabled[link]) {
+                offset = (data_length / 4) * link;
+                data_per_link = data_length / capture_frame->num_links_in_use;
+                err = rx_sw_tpl_lane_to_samps(state_info->jrx[link], &link_data[offset], data_per_link);
+                ADI_CMS_ERROR_GOTO(err, end);
+            }
+        }
+
+        // Interleave sample data by link 
+        err = rx_sw_tpl_pack_link_data(capture_frame, raw_data, link_data, data_length);
+    }
 
 end:
     ADI_CMS_MEM_ALLOC_FREE(link_data);

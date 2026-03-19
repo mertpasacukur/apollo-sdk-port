@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx PFILT data path test using ADCs as input source
  *
@@ -25,9 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -187,7 +184,7 @@ int32_t rx_adc_pfilt(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
         /* Read FPGA capture memory and write out i/q files */
         sprintf(file_name_base, "%s_%02d", "rx_adc_pfilt", i);
         printf("Writing captures to files: %s_*\n", file_name_base);
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
         ADI_CMS_ERROR_RETURN(err);
     }
 
@@ -202,5 +199,3 @@ static double coherent_freq(double target, double fdata, uint32_t n_samples)
     }
     return ((m_cycles * fdata) / n_samples);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

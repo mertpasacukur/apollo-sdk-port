@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo example program main
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -36,13 +33,19 @@
 #include "id00_uc04_f.h"        /* Sample Repeat for lane rate matching */
 #include "id00_uc06a.h"         /* 10Gsps, jesd: 10.3125Gbps */
 #include "id00_uc06.h"          /* 20Gsps, jesd: 10.3125Gbps */
+#include "id00_uc06_U.h"        /* 20Gsps, jesd: 10.3125Gbps */
 #include "id00_uc06sc1_lb.h"    /* 20Gsps, jesd: 10.3125Gbps, subclass 1, FPGA JESD loopback */
 #include "id00_uc06sc1.h"       /* 20Gsps, jesd: 10.3125Gbps, subclass 1 */
 #include "id00_uc06lb.h"        /* 20Gsps, jesd: 10.3125Gbps, loopback 3 */
 #include "id00_uc06_P.h"        /* 20Gsps, jesd: 10.3125Gbps, PFILT */
+#include "id00_uc06_smon.h"     /* 20Gsps, jesd: 10.3125Gbps, SMON 5-bit framer */
+#include "id00_uc06_smon_10b.h" /* 20Gsps, jesd: 10.3125Gbps, SMON 10-bit framer */
 #include "id00_uc06a_T.h"       /* 10Gsps, NCO test */
 #include "id00_uc06_T.h"        /* 20Gsps, NCO test */
 #include "id00_uc06a_PT.h"      /* 10Gsps, NCO test, PFILT */
+#include "id00_uc06a_Q.h"       /* 10Gsps, Clk PLL 200MHz, for ext ref */
+#include "id00_uc06a_FQ250.h"   /* 10Gsps, Clk PLL 250MHz, for hmc7044 ref, FSRC N = 15625 M = 12288 */
+#include "id00_uc06a_Q250.h"    /* 10Gsps, Clk PLL 250MHz, for hmc7044 ref */
 #include "id00_uc06_PT.h"       /* 20Gsps, NCO test, PFILT */
 #include "id00_uc06_C.h"        /* 20Gsps, jesd: 10.3125Gbps, CFIR */
 #include "id00_uc06xA2.h"       /* 20Gsps, jesd: 10.3125Gbps */
@@ -58,19 +61,26 @@
 #include "id00_uc06j1_F.h"      /* 20Gsps, jesd: 10.3125Gbps, FSRC 100/99 */
 #include "id00_uc13.h"          /* 20Gsps, jesd: 20.635Gbps, Np12, 1x4x */
 #include "id00_uc13_sc1.h"      /* 20Gsps, jesd: 20.635Gbps, Np12, 1x4x, Subclass 1 */
+#include "id00_uc13_sc1_DTT.h"  /* 20Gsps, jesd: 20.635Gbps, Np12, 1x4x, Subclass 1. Dual Clock. Sysref Present at C: F, A: T, B: T */
 #include "id00_uc14_sc1.h"      /* 19.6608Gsps, jesd: 20.2752Gbps, Np16, 2x4x, Subclass 1 */
 #include "id00_uc15_sc1.h"      /* 19.2000Gsps, jesd: 19.8Gbps, Np12, 1x4x, Subclass 1 */
 #include "id01_uc05.h"          /* 14/28Gsps, jesd: 14.4375Gbps, Np12, 1x8x */
+#include "id01_uc05_Q.h"        /* 14/28Gsps, jesd: 14.4375Gbps, Np12, 1x8x, Clk PLL */
 #include "id98_uc05.h"          /* 8/8GSPS, jesd: 10.000Gbps, 8t8r, JESD204B */
 #include "id98_uc05lb.h"        /* 8/8GSPS, jesd: 10.000Gbps, 8t8r, JESD204B, mapping for loopback */
 #include "id01_uc66.h"          /* 20Gsps, jesd: 10.3125Gbps, lane adapt: 1 */
 #include "id99_uc00.h"          /* 10Gsps PRBS 20.6250 Gbps (24 lanes) */
 #include "id99_uc02.h"          /* 20Gsps, jesd: 27.5Gbps, full bandwidth 1x1x mode. PRBS 27.5 Gbps (24 lanes)*/
 #include "id99_uc02c_sc1.h"     /* 19660.0Gsps, jesd: 27.0336Gbps, full bandwidth 1x1x mode, SC1 */
-#include "id81_uc28.h"          /* 8Gsps, jesd: 16.5Gbps, 8t8r, JESD204C */ 
+#include "id99_uc02c_sc1_DTT.h" /* 19660.0Gsps, jesd: 27.0336Gbps, full bandwidth 1x1x mode, SC1. Dual Clock. Sysref Present at C: F, A: T, B: T */
+#include "id81_uc28.h"          /* 8Gsps, jesd: 16.5Gbps, 8t8r, JESD204C */
 #include "id81_uc28_sc1.h"      /* 8Gsps, jesd: 16.5Gbps, 8t8r, JESD204C, sc1 */
+#include "id81_uc28_smon.h"     /* 8Gsps, jesd: 16.5Gbps, 8t8r, JESD204C, SMON 5-bit framer */
+#include "id81_uc28_smon_10b.h" /* 8Gsps, jesd: 16.5Gbps, 8t8r, JESD204C, SMON 10-bit framer */
 #include "id99_uc09.h"          /* 20Gsps, jesd: 27.5Gbps, Np8 (24 lanes) */
-#include "id00_uc08.h"          /* 20Gsps, jesd: 25Gbps, TX FSRC N = 3125 M = 1872, RX FSRC N = 3125 M = 2496, tot_dcm != link_dcm */      
+#include "id00_uc08.h"          /* 20Gsps, jesd: 25Gbps, TX FSRC N = 3125 M = 1872, RX FSRC N = 3125 M = 2496, tot_dcm != link_dcm */
+#include "id02_uc34.h"          /* 20Gsps, jesd 20.635Gbps, 1T1R */
+#include "id99_uc07.h"          /* Quad Link */
 
 static int32_t parse_cli_args(int argc, char *argv[], adi_apollo_ex_test_t *ex_func, adi_apollo_top_t **profile, adi_ads10_apollo_clk_mode_e *clk_mode, int* argc_ofst);
 static void print_usage();
@@ -95,7 +105,7 @@ int32_t main(int argc, char *argv[])
     uint32_t ltc6955_clk_khz = 125e3;
     adi_apollo_hal_protocol_e protocol;
     bool enable_hsci = false;
-    bool enable_rmw = false;
+    bool enable_rmw = true;
     bool is_fmcb_eval = false;      // Set 'true' when using an FMCB Eval Brd
 
     /* Command line */
@@ -114,6 +124,13 @@ int32_t main(int argc, char *argv[])
             printf("Unknown test or profile. err=%d\n\n", err);
             print_usage();
             goto end;
+        }
+    }
+
+    // Use strlen(flag) + 1 in strncmp() to include the null terminator for exact string matching
+    for (uint8_t i = argc_ofst; i < argc; ++i) {
+        if (strncmp(argv[i], "-hsci", 6) == 0) {
+            enable_hsci = true;
         }
     }
 
@@ -342,13 +359,15 @@ static int32_t parse_cli_args(int argc, char *argv[], adi_apollo_ex_test_t *ex_f
         {"lb0_bmem_delay_hop",          lb0_bmem_delay_hop},
         {"tx_nco_mod",                  tx_nco_mod},
         {"rx_adc_fd",                   rx_adc_fd},
+        {"rx_adc_smon",                 rx_adc_smon},
         {"jesd_loopback",               jesd_loopback},
         {"rx_adc_bmem",                 rx_adc_bmem},
         {"fullchip_sparse_cfir",        fullchip_sparse_cfir},
         {"mcs_cal",                     mcs_cal},
         {"fmcb_aux",                    fmcb_aux},
         {"bsync_tof",                   bsync_tof},
-        {"jrx_eye_sweep",               jrx_eye_sweep}
+        {"jrx_eye_sweep",               jrx_eye_sweep},
+        {"power_readback",              power_readback}
     };
     int n_funcs = sizeof(name_funcs)/sizeof(name_funcs[0]);
 
@@ -376,12 +395,18 @@ static int32_t parse_cli_args(int argc, char *argv[], adi_apollo_ex_test_t *ex_f
         {"id00_uc04_f",         &id00_uc04_f_0},
         {"id00_uc06a",          &id00_uc06a_0},
         {"id00_uc06",           &id00_uc06_0},
+        {"id00_uc06_U",         &id00_uc06_U_0},
         {"id00_uc06sc1",        &id00_uc06sc1_0},
         {"id00_uc06sc1_lb",     &id00_uc06sc1_lb_0},
         {"id00_uc06_P",         &id00_uc06_P_0},
+        {"id00_uc06_smon",      &id00_uc06_smon_0},
+        {"id00_uc06_smon_10b",  &id00_uc06_smon_10b_0},
         {"id00_uc06a_T",        &id00_uc06a_T_0},
         {"id00_uc06_T",         &id00_uc06_T_0},
         {"id00_uc06a_PT",       &id00_uc06a_PT_0},
+        {"id00_uc06a_Q",        &id00_uc06a_Q_0},
+        {"id00_uc06a_FQ250",    &id00_uc06a_FQ250_0},
+        {"id00_uc06a_Q250",     &id00_uc06a_Q250_0},
         {"id00_uc06_PT",        &id00_uc06_PT_0},
         {"id00_uc06_C",         &id00_uc06_C_0},
         {"id00_uc06xA2",        &id00_uc06xA2_0},
@@ -398,19 +423,26 @@ static int32_t parse_cli_args(int argc, char *argv[], adi_apollo_ex_test_t *ex_f
         {"id00_uc06j1_F",       &id00_uc06j1_F_0},
         {"id00_uc13",           &id00_uc13_0},
         {"id00_uc13_sc1",       &id00_uc13_sc1_0},
+        {"id00_uc13_sc1_DTT",   &id00_uc13_sc1_DTT_0},
         {"id00_uc14_sc1",       &id00_uc14_sc1_0},
         {"id00_uc15_sc1",       &id00_uc15_sc1_0},
         {"id01_uc05",           &id01_uc05_0},
+        {"id01_uc05_Q",         &id01_uc05_Q_0},
         {"id01_uc66",           &id01_uc66_0},
         {"id98_uc05lb",         &id98_uc05lb_0},
         {"id98_uc05",           &id98_uc05_0},
         {"id99_uc00",           &id99_uc00_0},
         {"id99_uc02",           &id99_uc02_0},
         {"id99_uc02c_sc1",      &id99_uc02c_sc1_0},
+        {"id99_uc02c_sc1_DTT",  &id99_uc02c_sc1_DTT_0},
         {"id81_uc28",           &id81_uc28_0},
         {"id81_uc28_sc1",       &id81_uc28_sc1_0},
+        {"id81_uc28_smon",      &id81_uc28_smon_0},
+        {"id81_uc28_smon_10b",  &id81_uc28_smon_10b_0},
         {"id99_uc09",           &id99_uc09_0},
         {"id00_uc08",           &id00_uc08_0},
+        {"id02_uc34",           &id02_uc34_0},
+        {"id99_uc07",           &id99_uc07_0},
     };
     int n_profiles = sizeof(name_ucs)/sizeof(name_ucs[0]);
 
@@ -430,6 +462,8 @@ static int32_t parse_cli_args(int argc, char *argv[], adi_apollo_ex_test_t *ex_f
         {"-devclk=ext_center",   ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER},
         {"-devclk=ext_dual",     ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL},
         {"-devclk=adf4382",      ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_ADF4382},
+        {"-devclk=ext_pll",      ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_PLL},
+        {"-devclk=hmc7044_pll",  ADI_ADS10_APOLLO_CLK_MODE_DEV_CLK_HMC7044_PLL},
     };
 
     name_clk_t name_fpga_clks[] = {
@@ -493,7 +527,7 @@ void print_usage()
     printf("    fullchip_sr_dr             id00_uc06 | id00_uc08_f [-i]\n");
     printf("    lb0_bmem_delay_hop         id00_uc06 [-i]\n");
     printf("    loopback0                  id00_uc06 | id00_uc08a [-i]\n");
-    printf("    loopback1_2                id00_uc06lb | id98_uc05lb\n");
+    printf("    loopback1_2                id00_uc06lb | id98_uc05lb [-i]\n");
     printf("    jesd_loopback              id00_uc06lb\n");
     printf("    rx_adc_cc                  id00_uc06\n");
     printf("    rx_adc_deep                id00_uc06 | id01_uc05\n");
@@ -504,6 +538,7 @@ void print_usage()
     printf("    rx_adc_mux2                id00_uc06 | id98_uc05\n");
     printf("    rx_adc_pave                id00_uc06, id98_uc05\n");
     printf("    rx_adc_pfilt               id00_uc06_P | id98_uc05\n");
+    printf("    rx_adc_smon                id00_uc06_smon | id00_uc06_smon_10b | id81_uc28_smon | id81_uc28_smon_10b | ... [-i][-c][-v]\n");
     printf("    rx_bmem_cfir               id00_uc06_C\n");
     printf("    rx_bmem_ddc                id00_uc06\n");
     printf("    rx_jesd {-b for BMEM AWG}  id00_uc06_F | id00_uc08a | id00_uc08a1\n");
@@ -516,55 +551,68 @@ void print_usage()
     printf("    tx_nco_ffh                 id00_uc06_T\n");
     printf("    tx_nco_mod                 id00_uc06_T\n");
     printf("    tx_nco_pfilt               id00_uc06_PT | id00_uc06a_PT\n");
-    printf("    tx_jesd_file               id00_uc06 | id00_uc13 {-a | -f i_file q_file [cnco]}\n");
+    printf("    tx_jesd_file               id00_uc06 | id00_uc13 {-a | -al | -f i_file q_file [cnco]}\n");
     printf("    mcs_cal                    id00_uc13_sc1 | id99_uc02c_sc1\n");
     printf("    prbs                       id00_uc06a_T | id99_uc00 | id99_uc02\n");
     printf("    gpio_toggle                id00_uc06\n");
     printf("    fmcb_aux                   id00_uc06\n");
     printf("    bsync_tof                  id00_uc13_sc1 | id99_uc02c_sc1\n");
     printf("    jrx_eye_sweep              id00_uc06a_T | id99_uc00 | id99_uc02\n");
+    printf("    power_readback             id00_uc06 | <any profile>\n");
 
     printf("\n");
     printf("DEVICE_PROFILE summary:\n");
-    printf("    Dev Profile         Fclk (MHz)  FPGA (MHz)  DR (MHz)  LR (Gbps)  FSRC        PFILT    CFIR         Note         \n");
-    printf("    ===========         ==========  ==========  ========  ========   ====        =====    ====         =============\n");
-    printf("    id00_uc06           20000.0     156.25      1250      10.3125    no          bypass                             \n");
-    printf("    id00_uc06_C         20000.0     156.25      1250      10.3125    no          no       non-sparse                \n");
-    printf("    id00_uc06_F         20000.0     156.25      983.04    10.3125    15625/12288 bypass                             \n");
-    printf("    id00_uc06_F_sc1     20000.0     156.25      983.04    10.3125    15625/12288 bypass                FSRC w/ SC1, trig sync\n");
-    printf("    id00_uc06lb         20000.0     156.25      1250      10.3125    no          bypass                Muxing for loopback \n");
-    printf("    id00_uc06j1_F       20000.0     156.25      1237.5    10.3125    100/99      bypass                             \n");
-    printf("    id00_uc06sc1        20000.0     156.25      1250      10.3125    no          bypass                Subclass 1 testing\n");
-    printf("    id00_uc06sc1_lb     20000.0     161.1328125 1250      10.3125    no          bypass                Subclass 1 testing. Requires loopback fpga image\n");
-    printf("    id00_uc06_P         20000.0     156.25      1250      10.3125    no          real n/2                           \n");
-    printf("    id00_uc06_PT        20000.0     n/a         n/a       n/a        no          real n/2              NCO test mode\n");
-    printf("    id00_uc06_T         20000.0     n/a         n/a       n/a        no          bypass                NCO test mode\n");
-    printf("    id00_uc06xA2        20000.0     156.25      1250      10.3125    no          bypass                ADC 0/1, DAC 0/1 through same datapath\n");
-    printf("    id00_uc06a          10000.0     156.25      1250      10.3125    no          bypass                             \n");
-    printf("    id00_uc06a_PT       10000.0     n/a         n/a       n/a        no          real n/2              NCO test mode\n");
-    printf("    id00_uc06a_T        10000.0     n/a         n/a       n/a        no          bypass                NCO test mode\n");
-    printf("    id00_uc06_204B      20000.0     312.5       1250      12.500     no          bypass    no          4T4R, JESD204B\n");
-    printf("    id00_uc08_f         20000.0     312.5       2500      20.625     no          bypass                             \n");
-    printf("    id00_uc08sc1_f      20000.0     312.5       2500      20.625     no          bypass                Subclass 1   \n");
-    printf("    id00_uc08a          20000.0     312.5       1966.08   20.625     15625/12288 bypass                             \n");
-    printf("    id00_uc08a_sc1      20000.0     312.5       1966.08   20.625     15625/12288 bypass                FSRC w/ SC1, trig sync\n");
-    printf("    id00_uc08a1         20000.0     312.5       1497.6    20.625     3125/1872   bypass                             \n");
-    printf("    id00_uc08a1_sc1     20000.0     312.5       1497.6    20.625     3125/1872   bypass                FSRC w/ SC1, trig sync\n");
-    printf("    id00_uc13           20000.0     312.5       5000      20.625     no          bypass                Np=12, 4G IBW\n");
-    printf("    id00_uc13_sc1       20000.0     312.5       5000      20.625     no          bypass                Np=12, 4G IBW, SC1\n");
-    printf("    id00_uc14_sc1       19660.8     307.2       2457.6    20.2752    no          bypass                Np=16, SC1\n");
-    printf("    id00_uc15_sc1       19200.0     300.0       4800      19.800     no          bypass                Np=12, L=12, SC1\n");
-    printf("    id01_uc05           14000.0     218.75      3500      10.3125    no          bypass                Np=12, 14/28 \n");
-    printf("    id98_uc05           8000.0      250.0       125.0     10.000     no          bypass                8T8R, JESD204B \n");
-    printf("    id98_uc05lb         8000.0      250.0       125.0     10.000     no          bypass                8T8R, JESD204B, loopback muxes \n");
-    printf("    id01_uc66           20000.0     156.25      625       10.3125    no          bypass                Lane_Adapt=1 \n");
-    printf("    id99_uc00           10000.0     312.5       2500      20.625     no          bypass                PRBS \n");
-    printf("    id99_uc02           20000.0     416.667     20000.0   27.5       no          bypass                PRBS, Full BW, 1x1x mode, L=12, Np=16\n");
-    printf("    id99_uc02c_sc1      19660.8     409.6       19660.8   27.0336    no          bypass                1x1x mode, L=12, Np=16, SC1\n");
-    printf("    id81_uc28           8000.0      250.0       250       16.5       no          bypass                8T8R, JESD204C\n");
-    printf("    id81_uc28_sc1       8000.0      250.0       250       16.5       no          bypass                8T8R, JESD204C SC1\n");
-    printf("    id99_uc09           20000.0     416.667     20000.0   27.5       no          bypass                NP=8\n");
-    printf("    id00_uc08           20000.0     250         2500      16.5    (3125/1872):(3125/2496)  bypass      Np=16, JESD204C, tot_dcm != link_dcm \n");
+    printf("    Dev Profile         Fclk (MHz)  FPGA (MHz)  DR (MHz)  LR (Gbps)  FSRC                     PFILT    CFIR        Note\n");
+    printf("    ===========         ==========  ==========  ========  ========   =======================  =======  ==========  ================================================\n");
+    printf("    id00_uc06           20000.0     156.25      1250      10.3125    no                       bypass                                                               \n");
+    printf("    id00_uc06_U         20000.0     156.25      1250      10.3125    no                       bypass               Dual-Clk scheme                                 \n");
+    printf("    id00_uc06_C         20000.0     156.25      1250      10.3125    no                       bypass   non-sparse                                                  \n");
+    printf("    id00_uc06_F         20000.0     156.25      983.04    10.3125    15625/12288              bypass                                                               \n");
+    printf("    id00_uc06_F_sc1     20000.0     156.25      983.04    10.3125    15625/12288              bypass               FSRC w/ SC1, trig sync                          \n");
+    printf("    id00_uc06lb         20000.0     156.25      1250      10.3125    no                       bypass               Muxing for loopback                             \n");
+    printf("    id00_uc06j1_F       20000.0     156.25      1237.5    10.3125    100/99                   bypass                                                               \n");
+    printf("    id00_uc06sc1        20000.0     156.25      1250      10.3125    no                       bypass               Subclass 1 testing                              \n");
+    printf("    id00_uc06sc1_lb     20000.0     161.1328125 1250      10.3125    no                       bypass               Subclass 1 testing. Requires loopback fpga image\n");
+    printf("    id00_uc06_P         20000.0     156.25      1250      10.3125    no                       real n/2                                                             \n");
+    printf("    id00_uc06_PT        20000.0     n/a         n/a       n/a        no                       real n/2             NCO test mode                                   \n");
+    printf("    id00_uc06_smon      20000.0     156.25      1250      10.3125    no                       bypass               SMON 5-bit framer                               \n");
+    printf("    id00_uc06_smon_10b  20000.0     156.25      1250      10.3125    no                       bypass               SMON 10-bit framer                              \n");
+    printf("    id00_uc06_T         20000.0     n/a         n/a       n/a        no                       bypass               NCO test mode                                   \n");
+    printf("    id00_uc06xA2        20000.0     156.25      1250      10.3125    no                       bypass               ADC 0/1, DAC 0/1 through same datapath          \n");
+    printf("    id00_uc06a          10000.0     156.25      1250      10.3125    no                       bypass                                                               \n");
+    printf("    id00_uc06a_PT       10000.0     n/a         n/a       n/a        no                       real n/2             NCO test mode                                   \n");
+    printf("    id00_uc06a_Q        10000.0     156.25      1250      10.3125    no                       bypass               Clk PLL 200MHz ext ref, 10/10                   \n");
+    printf("    id00_uc06a_FQ250    10000.0     156.25      1250      10.3125    no                       bypass               Clk PLL 250MHz hmc7044 ref, 10/10, FSRC         \n");
+    printf("    id00_uc06a_Q250     10000.0     156.25      1250      10.3125    no                       bypass               Clk PLL 250MHz hmc7044 ref, 10/10               \n");
+    printf("    id00_uc06a_T        10000.0     n/a         n/a       n/a        no                       bypass               NCO test mode                                   \n");
+    printf("    id00_uc06_204B      20000.0     312.5       1250      12.500     no                       bypass               4T4R, JESD204B                                  \n");
+    printf("    id00_uc08_f         20000.0     312.5       2500      20.625     no                       bypass                                                               \n");
+    printf("    id00_uc08sc1_f      20000.0     312.5       2500      20.625     no                       bypass               Subclass 1                                      \n");
+    printf("    id00_uc08a          20000.0     312.5       1966.08   20.625     15625/12288              bypass                                                               \n");
+    printf("    id00_uc08a_sc1      20000.0     312.5       1966.08   20.625     15625/12288              bypass               FSRC w/ SC1, trig sync                          \n");
+    printf("    id00_uc08a1         20000.0     312.5       1497.6    20.625     3125/1872                bypass                                                               \n");
+    printf("    id00_uc08a1_sc1     20000.0     312.5       1497.6    20.625     3125/1872                bypass               FSRC w/ SC1, trig sync                          \n");
+    printf("    id00_uc13           20000.0     312.5       5000      20.625     no                       bypass               Np=12, 4G IBW                                   \n");
+    printf("    id00_uc13_sc1       20000.0     312.5       5000      20.625     no                       bypass               Np=12, 4G IBW, SC1                              \n");
+    printf("    id00_uc13_sc1_DTT   20000.0     312.5       5000      20.625     no                       bypass               Np=12, 4G IBW, SC1. Dual-Clk A/B SYSREF Present \n");
+    printf("    id00_uc14_sc1       19660.8     307.2       2457.6    20.2752    no                       bypass               Np=16, SC1                                      \n");
+    printf("    id00_uc15_sc1       19200.0     300.0       4800      19.800     no                       bypass               Np=12, L=12, SC1                                \n");
+    printf("    id01_uc05           14000.0     218.75      3500      10.3125    no                       bypass               Np=12, 14/28                                    \n");
+    printf("    id01_uc05_Q         14000.0     218.75      3500      10.3125    no                       bypass               Clk PLL 250MHz, Np=12, 14/28                    \n");
+    printf("    id98_uc05           8000.0      250.0       125.0     10.000     no                       bypass               8T8R, JESD204B                                  \n");
+    printf("    id98_uc05lb         8000.0      250.0       125.0     10.000     no                       bypass               8T8R, JESD204B, loopback muxes                  \n");
+    printf("    id01_uc66           20000.0     156.25      625       10.3125    no                       bypass               Lane_Adapt=1                                    \n");
+    printf("    id99_uc00           10000.0     312.5       2500      20.625     no                       bypass               PRBS                                            \n");
+    printf("    id99_uc02           20000.0     416.667     20000.0   27.5       no                       bypass               PRBS, Full BW, 1x1x mode, L=12, Np=16           \n");
+    printf("    id99_uc02c_sc1      19660.8     409.6       19660.8   27.0336    no                       bypass               1x1x mode, L=12, Np=16, SC1                     \n");
+    printf("    id99_uc02c_sc1_DTT  19660.8     409.6       19660.8   27.0336    no                       bypass               1x1x mode, L=12, Np=16, SC1. Dual-Clk A/B SYSREF Present \n");
+    printf("    id81_uc28           8000.0      250.0       250       16.5       no                       bypass               8T8R, JESD204C                                  \n");
+    printf("    id81_uc28_sc1       8000.0      250.0       250       16.5       no                       bypass               8T8R, JESD204C SC1                              \n");
+    printf("    id81_uc28_smon      8000.0      250.0       250       16.5       no                       bypass               8T8R, JESD204C, SMON 5-bit framer               \n");
+    printf("    id81_uc28_smon_10b  8000.0      250.0       250       16.5       no                       bypass               8T8R, JESD204C, SMON 10-bit framer              \n");
+    printf("    id99_uc09           20000.0     416.667     20000.0   27.5       no                       bypass               NP=8                                            \n");
+    printf("    id00_uc08           20000.0     250         2500      16.5       (3125/1872):(3125/2496)  bypass               Np=16, JESD204C, tot_dcm != link_dcm            \n");
+    printf("    id02_uc34           20000.0     312.5       2500      20.625     no                       bypass               Np=16, 1T1R - Low Power                         \n");
     printf("\n");
 
     printf("\n");
@@ -572,6 +620,8 @@ void print_usage()
     printf("    ext_center          Use external sig gen to clock Apollo -- CLK_C (default)\n");
     printf("    ext_dual            Use external sig gen to clock Apollo -- CLK_A + CLK_B\n");
     printf("    adf4382             Use ADF4382 to clock Apollo\n");
+    printf("    ext_pll             Use external sig gen for Apollo clock PLL ref\n");
+    printf("    hmc7044_pll         Use HMC7044 for Apollo clock PLL ref\n");
 
     printf("\n");
     printf("FPGA_CLK_SRC summary:\n");
@@ -582,5 +632,3 @@ void print_usage()
     emb_test_usage_print();
 #endif /*ADI_EMB_TESTS*/
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

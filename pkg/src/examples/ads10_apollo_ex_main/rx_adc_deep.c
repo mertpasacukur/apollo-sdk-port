@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx deep capture example
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -22,7 +19,7 @@
 #include "adi_ads10_apollo_ex_cal.h"
 #include "adi_fpga_apollo_capture.h"
 
-static int32_t verify_ramp(adi_fpga_apollo_device_t* fpga_device, uint32_t link, uint32_t vc, char* cap_fname_base, bool interleaved, adi_ads10_apollo_rx_channel_info_t *channel);
+static int32_t verify_ramp(adi_fpga_apollo_device_t* fpga_device, uint32_t link, uint32_t vc, char* cap_fname_base, bool interleaved, adi_ads10_apollo_channel_info_t *channel);
 
 int32_t rx_adc_deep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst)
 {
@@ -33,7 +30,8 @@ int32_t rx_adc_deep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     uint32_t num_samples = 1024*1024;             /* min num samples per virt conv */
     char* cap_fname_base = "apollo_deep_cap";
     adi_fpga_apollo_capture_frame_t *cap_frame_info;
-    adi_ads10_apollo_rx_channel_info_t channel;
+    adi_ads10_apollo_channel_info_t channel;
+    adi_ads10_apollo_channel_selectors_t channel_selectors = { ADI_APOLLO_CDDC_A0, ADI_APOLLO_CNCO_A0, ADI_APOLLO_FNCO_A0, ADI_APOLLO_FDDC_A0, ADI_APOLLO_FSRC_A0};
 
     /* Inspect the JTx link states */
     err = adi_ads10_apollo_ex_inspect_jtx_link_all(device);
@@ -64,10 +62,10 @@ int32_t rx_adc_deep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     ADI_CMS_ERROR_RETURN(err);
 
     /* Read FPGA capture memory and write out i/q files */
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, &channel);
+    err = adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, channel_selectors, &channel);
     ADI_CMS_ERROR_RETURN(err);
 
     /* If running with TMODE generated ramp data, verify samples from files */
@@ -107,7 +105,7 @@ int32_t rx_adc_deep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     return err;
 }
 
-static int32_t verify_ramp(adi_fpga_apollo_device_t* fpga_device, uint32_t link, uint32_t vc, char* cap_fname_base, bool interleaved, adi_ads10_apollo_rx_channel_info_t *channel)
+static int32_t verify_ramp(adi_fpga_apollo_device_t* fpga_device, uint32_t link, uint32_t vc, char* cap_fname_base, bool interleaved, adi_ads10_apollo_channel_info_t *channel)
 {
     int32_t err = API_CMS_ERROR_OK;
     adi_fpga_apollo_capture_frame_t *cap_frame_info;
@@ -174,5 +172,3 @@ end:
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

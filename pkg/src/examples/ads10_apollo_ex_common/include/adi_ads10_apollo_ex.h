@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common functions
  *
@@ -11,9 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
+#include <ctype.h>
 
 #include "adi_apollo.h"
 #include "ads10_hal.h"
@@ -183,7 +181,7 @@ int32_t adi_ads10_apollo_ex_cnco_set(adi_apollo_device_t *device, adi_apollo_ter
 /**
  * \brief Set the cnco frequency. fs and fo can be any units as long as they match (ratio is what matters)
  * 
- * \note  Does not handle negative frequency shifts TODO: Add support for negative ratio
+ * \note  Does not handle negative frequency shifts
  *
  * \param[in] device        Context variable - Pointer to the APOLLO device data structure
  * \param[in] terminal      Target terminal \ref adi_apollo_terminal_e
@@ -322,28 +320,30 @@ int32_t adi_ads10_apollo_ex_jesd_rx_status(adi_apollo_device_t* device, uint16_t
 
 /**
  * \brief  Reads FPGA capture data and writes to file based on profile
- * \note   This function will produce a number of capture files based on the number of converters(M). 
- *         If interleaved=true, M/2 files will be generated and contain data from two converters 
- *         interleaved (I/Q) in the same file; moreover, the files will have the naming format: 
- *         `ex_func_L<link_idx>_IQ<vc_idx>_NP<bits>_DR<freq>_CR<freq>`. If interleaved=false, M files 
- *         will be generated and contain data from a single converter with the naming format: 
- *         `ex_func_L<link_idx>_m<vc_idx>_NP<bits>_DR<freq>_CR<freq>`. 
- *         Also note num_samples is the minimum number of samples per converter; the actual number 
- *         may be greater depending on jesd params and the jesd mode of other links. 
+ * \note   This function will produce a number of capture files based on the number of converters(M).
+ *         If interleaved=true, M/2 files will be generated and contain data from two converters
+ *         interleaved (I/Q) in the same file; moreover, the files will have the naming format:
+ *         `ex_func_L<link_idx>_IQ<vc_idx>_NP<bits>_DR<freq>_CR<freq>`. If interleaved=false, M files
+ *         will be generated and contain data from a single converter with the naming format:
+ *         `ex_func_L<link_idx>_m<vc_idx>_NP<bits>_DR<freq>_CR<freq>`.
+ *         Also note num_samples is the minimum number of samples per converter; the actual number
+ *         may be greater depending on jesd params and the jesd mode of other links.
  *
  * \param[in] device            Context variable - Pointer to the Apollo device data structure
  * \param[in] profile           Pointer to profile
  * \param[in] fpga_device       Context variable - Pointer to the FPGA device data structure
  * \param[in] num_samples       Num samples to capture (may result in more than requested)
  * \param[in] file_name_base    Specifier for file names to write data
- * \param[in] interleaved       Decides if files are interleaved or seperated
+ * \param[in] long_fname        Indicates whether to append meta data to file name
+ * \param[in] interleaved       Decides if files are interleaved or separated
  *
  *
  * \return API_CMS_ERROR_OK                     API Completed Successfully
  * \return <0                                   Failed. \ref adi_cms_error_e for details.
  */
 
-int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_device_t *fpga_device, uint32_t num_samples, char *file_name_base, bool interleaved);
+int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_device_t *fpga_device, 
+                                         uint32_t num_samples, char *file_name_base, bool long_fname, bool interleaved);
 
 
 #ifdef __cplusplus
@@ -351,5 +351,3 @@ int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_COMMON_EX_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

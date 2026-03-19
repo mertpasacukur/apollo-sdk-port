@@ -240,3 +240,12 @@ int32_t adi_adl6331_core_spi_reg_test(adi_adl6331_device_t *adl6331, adi_adl6331
     return API_CMS_ERROR_OK;
 }
 
+int32_t adi_adl6331_core_eval_board_rev_get(adi_adl6331_device_t *adl6331, uint8_t *rev)
+{
+    ADI_CMS_NULL_PTR_CHECK(adl6331);
+    ADI_CMS_NULL_PTR_CHECK(rev);
+
+    *rev = adl6331->rev;
+
+    return API_CMS_ERROR_OK;
+}

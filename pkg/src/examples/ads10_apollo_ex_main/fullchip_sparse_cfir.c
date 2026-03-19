@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Sparse CFIR example
  *
@@ -17,9 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_types.h"
@@ -122,7 +119,7 @@ int32_t fullchip_sparse_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device
     for (int i = 0; i < 3; i++) {
         // Transmit
         /* Load FPGA transmit memory */
-        err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, num_samples, tone_ratio[i], -1.0);
+        err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, num_samples, tone_ratio[i], -1.0);
         ADI_CMS_ERROR_RETURN(err);
 
         /*** ADS10 FPGA simultaneous Rx/Tx link startup ***/
@@ -141,7 +138,7 @@ int32_t fullchip_sparse_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device
         ADI_CMS_ERROR_RETURN(err);
         printf("Freq %f\n", fs_mhz/cddc_dcm);
         sprintf(str_buff, "cfir_enabled_%s", i == 0 ? "PASSBAND" : (i==1) ? "TRANSITION" : "STOPBAND");
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, str_buff, 1);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, str_buff, true, 1);
         ADI_CMS_ERROR_RETURN(err);
 
         printf("Expect signal in %s\n", i == 0 ? "PASSBAND" : (i==1) ? "TRANSITION" : "STOPBAND");
@@ -157,10 +154,8 @@ int32_t fullchip_sparse_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device
     err = adi_apollo_cfir_mode_enable_set(device, ADI_APOLLO_RX, ADI_APOLLO_CFIR_ALL, ADI_APOLLO_CFIR_BYPASS);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, "cfir_bypassed", 1);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, "cfir_bypassed", true, 1);
     ADI_CMS_ERROR_RETURN(err);
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

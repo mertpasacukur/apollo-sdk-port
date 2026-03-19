@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2009 - 2016 Xilinx, Inc. All rights reserved.
@@ -194,5 +193,3 @@ void Xil_AssertSetCallback(Xil_AssertCallback Routine);
 /**
 * @} End of "addtogroup common_assert_apis".
 */
-
-#endif /* !defined(VERSAL_PLATFORM) */

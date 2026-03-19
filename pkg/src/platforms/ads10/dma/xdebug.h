@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -87,5 +86,3 @@
 #endif /* defined(DEBUG) && !defined(NDEBUG) */
 
 #endif /* _XDEBUG_H */
-
-#endif /* !defined(VERSAL_PLATFORM) */

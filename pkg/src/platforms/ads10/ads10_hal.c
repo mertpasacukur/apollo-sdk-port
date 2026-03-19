@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     ADS10 platform configuration and control source file.
  *
@@ -18,26 +17,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <fcntl.h>
-#endif
 #include <time.h>
 #include <errno.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <setjmp.h>
-#if defined(__linux__)
 #include <signal.h>
-#endif
 
-#if defined(__linux__)
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#endif
 #include <byteswap.h>
 #include "ads10_hal.h"
 #include "platform.h"
+#include "hal_uio.h"
 
 
 /*============= D E F I N E S ==============*/
@@ -48,37 +40,6 @@
 
 /* sysbuf length for spi init */
 #define SYSFS_DATALEN           32
-
-/* definition of uio devices' path, name and memory size */
-// FPGA Registers
-#define FPGA_REGISTERS_DEV          "/dev/uio0"
-#define FPGA_REGISTERS_SYSNAME      "/sys/class/uio/uio0/name"
-#define FPGA_REGISTERS_NAME         "uio_fpga_registers"
-#define FPGA_REGISTERS_MEM_SIZE     0x10000
-
-// FPGA Scratch Memory
-#define FPGA_SCRATCH_MEM_DEV        "/dev/uio1"
-#define FPGA_SCRATCH_MEM_SYSNAME    "/sys/class/uio/uio1/name"
-#define FPGA_SCRATCH_MEM_NAME       "uio_fpga_scratch_mem"
-#define FPGA_SCRATCH_MEM_SIZE       0x08000
-
-// SPI Controller
-#define SPI_CONTROLLER_DEV          "/dev/uio2"
-#define SPI_CONTROLLER_SYSNAME      "/sys/class/uio/uio2/name"
-#define SPI_CONTROLLER_NAME         "uio_spi_controller"
-#define SPI_CONTROLLER_SIZE         0x30000
-
-// I2C Controller
-#define I2C_CONTROLLER_DEV          "/dev/uio3"
-#define I2C_CONTROLLER_SYSNAME      "/sys/class/uio/uio3/name"
-#define I2C_CONTROLLER_NAME         "uio_i2c_controller"
-#define I2C_CONTROLLER_SIZE         0x010000
-
-// HSCI Controller
-#define HSCI_CONTROLLER_DEV          "/dev/uio4"
-#define HSCI_CONTROLLER_SYSNAME      "/sys/class/uio/uio4/name"
-#define HSCI_CONTROLLER_NAME         "uio_hsci_controller"
-#define HSCI_CONTROLLER_SIZE_FILE    "/sys/class/uio/uio4/maps/map0/size"
 
 /* definition of register offset for base address of peripheral interfaces stored within FPGA Registers. */
 #define SPI_CHIP_SEL                    0x0901
@@ -171,14 +132,6 @@
 )
 
 /*============= D A T A ====================*/
-/* definition of device handler file descriptor */
-static int      g_fpga_reg_fd;          // File Descriptor for FPGA Registers @ 0x20000000.
-static int      g_fpga_scratch_fd;      // File Descriptor for FPGA Scratch Memory @ 0x44a80000.
-static int      g_spi_ctrl_fd;          // File Descriptor for SPI Master Memory @ 0x44C00000.
-static int      g_i2c_ctrl_fd;          // File Descriptor for I2C Master Memory @ 0x44A10000.
-static int      g_hsci_ctrl_fd;         // File Descriptor for HSCI Master Memory @ 0x44D00000.
-static int      g_hsci_size;            // Size of HSCI Controller.
-
 
 /* definition of device memory base for register access */
 static void*    g_fpga_reg_mem;         // g_axi_jesd204_mem
@@ -215,32 +168,6 @@ static int32_t ads10_hsci_write_rmw(void *user_data, const uint8_t tx_data[], ui
  * @return      <0                  Failed. @ref adi_cms_error_e for details.
  */
 static int32_t uz_ads10_c2c_bridge_detect(void);
-
-
-/**
- * @brief   Checks if all the required UIO devices are present and accessible.
- *
- * @return      API_CMS_ERROR_OK    API Completed Successfully.
- * @return      <0                  Failed. @ref adi_cms_error_e for details.
- */
-static int32_t uz_linux_uio_detect(void);
-
-
-/**
- * @brief   Maps ADS10 register memory into a virtual address space.
- *
- * @return      API_CMS_ERROR_OK    API Completed Successfully.
- * @return      <0                  Failed. @ref adi_cms_error_e for details.
- */
-static int32_t uz_linux_uio_init(void);
-
-
-/**
- * @brief   Deallocates mapped memory for UIO devices which maps ADS10 register memory.
- *
- * @return      API_CMS_ERROR_OK    API Completed Successfully.
- */
-static int32_t uz_linux_uio_close(void);
 
 
 /**
@@ -544,235 +471,109 @@ static int32_t uz_ads10_c2c_bridge_detect(void)
     return err;
 }
 
-/*******************************************************************************************/
-
-static int32_t uz_linux_uio_detect(void)
-{
-      int32_t sysfd0, sysfd1, sysfd2, sysfd3, sysfd4;
-    char    sysbuf0[SYSFS_DATALEN], sysbuf1[SYSFS_DATALEN], sysbuf2[SYSFS_DATALEN], sysbuf3[SYSFS_DATALEN], sysbuf4[SYSFS_DATALEN];
-    int32_t err = API_CMS_ERROR_ERROR;
-
-    g_fpga_reg_mem = NULL;
-    g_fpga_scratch_mem = NULL;
-    g_spi_ctrl_mem = NULL;
-    g_i2c_ctrl_mem    = NULL;
-    g_hsci_ctrl_mem = NULL;
-
-    memset(sysbuf0, 0, sizeof(sysbuf0));
-    memset(sysbuf1, 0, sizeof(sysbuf1));
-    memset(sysbuf2, 0, sizeof(sysbuf2));
-    memset(sysbuf3, 0, sizeof(sysbuf3));
-    memset(sysbuf4, 0, sizeof(sysbuf4));
-
-    if ((access(FPGA_REGISTERS_DEV,   F_OK) == 0) &&
-        (access(FPGA_SCRATCH_MEM_DEV, F_OK) == 0) &&
-        (access(SPI_CONTROLLER_DEV,   F_OK) == 0) &&
-        (access(I2C_CONTROLLER_DEV,   F_OK) == 0) &&
-        (access(HSCI_CONTROLLER_DEV,   F_OK) == 0))
-    {
-        sysfd0 = open(FPGA_REGISTERS_SYSNAME,   O_RDONLY);
-        sysfd1 = open(FPGA_SCRATCH_MEM_SYSNAME, O_RDONLY);
-        sysfd2 = open(SPI_CONTROLLER_SYSNAME,   O_RDONLY);
-        sysfd3 = open(I2C_CONTROLLER_SYSNAME,   O_RDONLY);
-        sysfd4 = open(HSCI_CONTROLLER_SYSNAME,   O_RDONLY);
-
-        if ((sysfd0 > 0) && (sysfd1 > 0) && (sysfd2 > 0) && (sysfd3 > 0) && (sysfd4 > 0))
-        {
-            read(sysfd0, sysbuf0, strlen(FPGA_REGISTERS_NAME));
-            read(sysfd1, sysbuf1, strlen(FPGA_SCRATCH_MEM_NAME));
-            read(sysfd2, sysbuf2, strlen(SPI_CONTROLLER_NAME));
-            read(sysfd3, sysbuf3, strlen(I2C_CONTROLLER_NAME));
-            read(sysfd4, sysbuf4, strlen(HSCI_CONTROLLER_NAME));
-
-            if ((strcmp(sysbuf0, FPGA_REGISTERS_NAME)   == 0) &&
-                (strcmp(sysbuf1, FPGA_SCRATCH_MEM_NAME) == 0) &&
-                (strcmp(sysbuf2, SPI_CONTROLLER_NAME)   == 0) &&
-                (strcmp(sysbuf3, I2C_CONTROLLER_NAME)    == 0) &&
-                (strcmp(sysbuf4, HSCI_CONTROLLER_NAME)    == 0))
-            {
-                printf("UIO devices found: %s, %s, %s, %s, %s.\r\n", sysbuf0, sysbuf1, sysbuf2, sysbuf3, sysbuf4);
-                err = API_CMS_ERROR_OK;
-            }
-
-            else
-            {
-                printf("UIO devices name is wrong: %s, %s, %s, %s, %s.\r\n", sysbuf0, sysbuf1, sysbuf2, sysbuf3, sysbuf4);
-            }
-            close(sysfd0);
-            close(sysfd1);
-            close(sysfd2);
-            close(sysfd3);
-            close(sysfd4);
-        }
-
-        else
-        {
-            printf("UIO SysFS doesn't work.\r\n");
-        }
-    }
-
-    else
-    {
-        printf("UIO device doesn't exist.\r\n");
-    }
-
-    return err;
-}
-
-/*******************************************************************************************/
-
-static int32_t uz_linux_uio_init(void)
-{
-    int32_t err = API_CMS_ERROR_ERROR;
-    int32_t sysfd4_size;
-    char    sysbuf4_size[SYSFS_DATALEN];
-    memset(sysbuf4_size, 0, sizeof(sysbuf4_size));
-
-    g_fpga_reg_fd       = open(FPGA_REGISTERS_DEV,   O_RDWR);
-    g_fpga_scratch_fd   = open(FPGA_SCRATCH_MEM_DEV, O_RDWR);
-    g_spi_ctrl_fd       = open(SPI_CONTROLLER_DEV,   O_RDWR);
-    g_i2c_ctrl_fd       = open(I2C_CONTROLLER_DEV,    O_RDWR);
-    g_hsci_ctrl_fd      = open(HSCI_CONTROLLER_DEV,  O_RDWR);
-
-    sysfd4_size = open(HSCI_CONTROLLER_SIZE_FILE,   O_RDONLY);
-    if (sysfd4_size > 0)
-    {
-        read(sysfd4_size, sysbuf4_size, strlen(HSCI_CONTROLLER_SIZE_FILE));
-
-    }
-    else
-    {
-        printf("UIO HSCI SIZE SysFS doesn't work.\r\n");
-    }
-    g_hsci_size = strtoul(sysbuf4_size, NULL, 16);
-
-    if((g_fpga_reg_fd > 0) && (g_fpga_scratch_fd > 0) && (g_spi_ctrl_fd > 0) && (g_i2c_ctrl_fd > 0) && (g_hsci_ctrl_fd > 0))
-    {
-        g_fpga_reg_mem      = mmap(NULL, FPGA_REGISTERS_MEM_SIZE,   PROT_READ | PROT_WRITE, MAP_SHARED, g_fpga_reg_fd,      0);
-        g_fpga_scratch_mem  = mmap(NULL, FPGA_SCRATCH_MEM_SIZE,     PROT_READ | PROT_WRITE, MAP_SHARED, g_fpga_scratch_fd,  0);
-        g_spi_ctrl_mem      = mmap(NULL, SPI_CONTROLLER_SIZE,       PROT_READ | PROT_WRITE, MAP_SHARED, g_spi_ctrl_fd,      0);
-        g_i2c_ctrl_mem      = mmap(NULL, I2C_CONTROLLER_SIZE,       PROT_READ | PROT_WRITE, MAP_SHARED, g_i2c_ctrl_fd,      0);
-        g_hsci_ctrl_mem     = mmap(NULL, g_hsci_size,      PROT_READ | PROT_WRITE, MAP_SHARED, g_hsci_ctrl_fd,     0);
-
-        if ((g_fpga_reg_mem == MAP_FAILED) || (g_fpga_scratch_mem == MAP_FAILED) || (g_spi_ctrl_mem == MAP_FAILED) || (g_i2c_ctrl_mem == MAP_FAILED) || (g_hsci_ctrl_mem == MAP_FAILED))
-        {
-            printf("UIO mmap error.\r\n");
-        }
-
-        else
-        {
-            printf("UIO mapping address: 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X.\r\n", (uintptr_t)g_fpga_reg_mem, (uintptr_t)g_fpga_scratch_mem, (uintptr_t)g_spi_ctrl_mem, (uintptr_t)g_i2c_ctrl_mem, (uintptr_t)g_hsci_ctrl_mem);
-
-			/* Test access to FPGA spi. If FPGA isn't loaded then this will result in a SIGBUS signal. */
-            err = probe_reg((uint32_t *)((uintptr_t)g_spi_ctrl_mem + 0x00), "SPI Master Rev");
-            err = probe_reg((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 0x00), "HSCI Master Rev");
-        }
-    }
-
-    else
-    {
-        printf("UIO device cannot be opened.\r\n");
-    }
-
-    return err;
-}
-
-/*******************************************************************************************/
-
-static int32_t uz_linux_uio_close(void)
-{
-    if (g_fpga_reg_mem != NULL) {
-        munmap(g_fpga_reg_mem, FPGA_REGISTERS_MEM_SIZE);
-        g_fpga_reg_mem = NULL;
-    }
-    if (g_fpga_scratch_mem != NULL) {
-        munmap(g_fpga_scratch_mem, FPGA_SCRATCH_MEM_SIZE);
-        g_fpga_scratch_mem = NULL;
-    }
-    if (g_spi_ctrl_mem != NULL) {
-        munmap(g_spi_ctrl_mem, SPI_CONTROLLER_SIZE);
-        g_spi_ctrl_mem = NULL;
-    }
-    if (g_i2c_ctrl_mem != NULL) {
-        munmap(g_i2c_ctrl_mem, I2C_CONTROLLER_SIZE);
-        g_i2c_ctrl_mem = NULL;
-    }
-    if (g_hsci_ctrl_mem != NULL) {
-        munmap(g_hsci_ctrl_mem, g_hsci_size);
-        g_hsci_ctrl_mem = NULL;
-    }
-
-    close(g_fpga_reg_fd);
-    close(g_fpga_scratch_fd);
-    close(g_spi_ctrl_fd);
-    close(g_i2c_ctrl_fd);
-    close(g_hsci_ctrl_fd);
-
-    return API_CMS_ERROR_OK;
-}
 
 /*******************************************************************************************/
 
 static int32_t ads10_scratch_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = *((uint32_t *)((uintptr_t)g_fpga_scratch_mem + 4 * reg_offset));
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_fpga_scratch_mem != NULL) {
+        *out_data = *((uint32_t *)((uintptr_t)g_fpga_scratch_mem + 4*reg_offset));
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_scratch_write32(uint32_t reg_offset, uint32_t data)
 {
-    *((uint32_t *)((uintptr_t)g_fpga_scratch_mem  +  4 * reg_offset)) = data;
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_fpga_scratch_mem != NULL) {
+        *((uint32_t *)((uintptr_t)g_fpga_scratch_mem  +  4*reg_offset)) = data;
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_spi_reg_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = *((uint32_t *)((uintptr_t)g_spi_ctrl_mem + reg_offset));
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_spi_ctrl_mem != NULL) {
+        *out_data = *((uint32_t *)((uintptr_t)g_spi_ctrl_mem + reg_offset));
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_spi_reg_write32(uint32_t reg_offset, uint32_t data)
 {
-    *((uint32_t *)((uintptr_t)g_spi_ctrl_mem + reg_offset)) = data;
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_spi_ctrl_mem != NULL) {
+        *((uint32_t *)((uintptr_t)g_spi_ctrl_mem + reg_offset)) = data;
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_i2c_reg_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = *((uint32_t *)((uintptr_t)g_i2c_ctrl_mem + 4 * reg_offset));
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_i2c_ctrl_mem != NULL) {
+        *out_data = *((uint32_t *)((uintptr_t)g_i2c_ctrl_mem + 4*reg_offset));
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_i2c_reg_write32(uint32_t reg_offset, uint32_t data)
 {
-   *((uint32_t *)((uintptr_t)g_i2c_ctrl_mem + 4 * reg_offset)) = data;
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_i2c_ctrl_mem != NULL) {
+        *((uint32_t *)((uintptr_t)g_i2c_ctrl_mem + 4*reg_offset)) = data;
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_hsci_reg_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = *((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 4 * reg_offset));
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_hsci_ctrl_mem != NULL) {
+        *out_data = *((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 4*reg_offset));
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 static int32_t ads10_hsci_reg_write32(uint32_t reg_offset, uint32_t data)
 {
-   *((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 4 * reg_offset)) = data;
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_hsci_ctrl_mem != NULL) {
+        *((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 4*reg_offset)) = data;
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
@@ -819,6 +620,10 @@ static int32_t ads10_hscim_wait_done(void)
 
         if ((status & 0x1) == 1) {
             err = API_CMS_ERROR_OK;
+        }
+        // Add delay every 100 iterations *except the 0th*
+        if ((cnt != 0) && ((cnt % 100) == 0)) {
+            ads10_wait_us(NULL, 100);   // adjust delay to your needs
         }
     }while ((cnt++ < 1000) && (err != 0));
 
@@ -1246,11 +1051,28 @@ int32_t ads10_hw_open(const char *log_file)
     printf("We're on VCU128!!!\n");
 #endif /* VCU128 */
 
-    /* check and initialize UIOs. */
-    if (err = uz_linux_uio_detect(), err != API_CMS_ERROR_OK)
-        return err;
-    if (err = uz_linux_uio_init(), err != API_CMS_ERROR_OK)
-        return err;
+	err = adi_uio_devices_init();
+    ADI_CMS_ERROR_RETURN(err);
+
+    size_t name_size = sizeof(FPGA_REGISTERS_NAME);
+    g_fpga_reg_mem = adi_uio_device_mem_get(FPGA_REGISTERS_NAME, name_size);
+    name_size = sizeof(FPGA_SCRATCH_MEM_NAME);
+    g_fpga_scratch_mem = adi_uio_device_mem_get(FPGA_SCRATCH_MEM_NAME, name_size);
+    name_size = sizeof(SPI_CONTROLLER_NAME);
+    g_spi_ctrl_mem = adi_uio_device_mem_get(SPI_CONTROLLER_NAME, name_size);
+    name_size = sizeof(I2C_CONTROLLER_NAME);
+    g_i2c_ctrl_mem = adi_uio_device_mem_get(I2C_CONTROLLER_NAME, name_size);
+    name_size = sizeof(HSCI_CONTROLLER_NAME);
+    g_hsci_ctrl_mem = adi_uio_device_mem_get(HSCI_CONTROLLER_NAME, name_size);
+
+    if (g_fpga_reg_mem == NULL || g_spi_ctrl_mem == NULL) {
+        ADI_CMS_ERROR_RETURN(API_CMS_ERROR_HW_OPEN);
+    }
+
+    /* Test access to FPGA spi. If FPGA isn't loaded then this will result in a SIGBUS signal. */
+    err = probe_reg((uint32_t *)((uintptr_t)g_spi_ctrl_mem + 0x00), "SPI Master Rev");
+    if (g_hsci_ctrl_mem != NULL)
+        err = probe_reg((uint32_t *)((uintptr_t)g_hsci_ctrl_mem + 0x00), "HSCI Master Rev");
 
     /* Enable SPI and HSCI, configure spim */
     return ads10_hw_spi_hsci_en();
@@ -1278,18 +1100,15 @@ int32_t ads10_hw_close(void)
     ads10_log_write(NULL, ADI_CMS_LOG_MSG, msg, argp);
 
     /* close log file */
-    if (err = ads10_log_close(), err != API_CMS_ERROR_OK)
-        return err;
+    err = ads10_log_close();
 
     /* Disable ADS10 SPI Master. */
-    if (err = ads10_axi_reg_write32(SPI_CHIP_SEL, 0x000), err != API_CMS_ERROR_OK)
-        return err;
+    err |= ads10_axi_reg_write32(SPI_CHIP_SEL, 0x000);
 
-    /* close spi device */
-    if (err = uz_linux_uio_close(), err != API_CMS_ERROR_OK)
-        return err;
+    /* Unmap UIOs and release memory */
+    err |= adi_uio_device_close();
 
-    return API_CMS_ERROR_OK;
+    return err;
 }
 
 /*******************************************************************************************/
@@ -1368,8 +1187,16 @@ int32_t ads10_log_write(void *user_data, int32_t log_type, const char *message, 
     err = snprintf(log_msg + strlen(log_msg), MAX_LOG_LINE_LENGTH, "%03d.%06d: %s ", (int)ts_now.tv_sec, (int)(ts_now.tv_nsec/1e3), log_type_str);
     if (err < 0)
        return API_CMS_ERROR_LOG_WRITE;
-    if (vsprintf(log_msg + strlen(log_msg), message, argp) < 0)
+
+    size_t offset = strlen(log_msg);
+    va_list argp_copy;
+    va_copy(argp_copy, argp);
+    if (vsnprintf(log_msg + offset, MAX_LOG_LINE_LENGTH, message, argp_copy) < 0) {
+        va_end(argp_copy);
         return API_CMS_ERROR_LOG_WRITE;
+    }
+    va_end(argp_copy);
+
     if (fprintf(g_log_fd, "%s\n", log_msg) < 0)
         return API_CMS_ERROR_LOG_WRITE;
     if (fflush(g_log_fd) < 0)
@@ -1416,16 +1243,26 @@ int32_t ads10_user_data_free(void **user_data)
 
 int32_t ads10_axi_reg_read32(uint32_t reg_offset, uint32_t *out_data)
 {
-    *out_data = *((uint32_t *)((uintptr_t)g_fpga_reg_mem + 4 * reg_offset));
-    return API_CMS_ERROR_OK;
+    int32_t err = API_CMS_ERROR_NOT_SUPPORTED;
+
+    if (g_fpga_reg_mem != NULL) {
+        *out_data = *((uint32_t *)((uintptr_t)g_fpga_reg_mem + 4 * reg_offset));
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
 
 int32_t ads10_axi_reg_write32(uint32_t reg_offset, uint32_t data)
 {
-    *((uint32_t *)((uintptr_t)g_fpga_reg_mem  +  4 * reg_offset)) = data;
-    return API_CMS_ERROR_OK;
+    int err = API_CMS_ERROR_NOT_SUPPORTED;;
+
+    if (g_fpga_reg_mem != NULL) {
+        *((uint32_t *)((uintptr_t)g_fpga_reg_mem  +  (4 * reg_offset))) = data;
+        err = API_CMS_ERROR_OK;
+    }
+    return err;
 }
 
 /*******************************************************************************************/
@@ -1813,8 +1650,6 @@ int32_t ads10_hsci_read(void *user_data, const uint8_t tx_data[], uint8_t rx_dat
 
         ads10_hsci_reg_write32(HSCIM_RUN, 1); //Start transaction
 
-        // Delay before checking wait done.
-        usleep(1 * 1000);
 
         if (ads10_hscim_wait_done() == 0) {
         //Read BRAM
@@ -1882,10 +1717,14 @@ int32_t ads10_hsci_read(void *user_data, const uint8_t tx_data[], uint8_t rx_dat
 
             }
         }
+        else {
+            err = API_CMS_ERROR_HSCI_REGIO_XFER;
+            printf("HSCI Master busy. Inner Transaction Failed!\n");
+        }
     }
     else {
         err = API_CMS_ERROR_HSCI_REGIO_XFER;
-        printf("HSCI Master busy. Transaction Failed!\n");
+        printf("HSCI Master busy. Outer Transaction Failed!\n");
     }
 
     return err;
@@ -2097,9 +1936,9 @@ static int32_t ads10_hsci_write_rmw(void *user_data, const uint8_t tx_data[], ui
             {
                 wrData = (tx_data[7] << 24) + ((tx_data[6]) << 16) + (tx_data[5] << 8) + (tx_data[4]);      // mask [4], data [5], mask [6], mask [7]
                 ads10_hsci_reg_write32(bram_addr, wrData);
-                
+
                 bram_addr++;
-                
+
                 wrData = (tx_data[11] << 24) + ((tx_data[10]) << 16) + (tx_data[9] << 8) + (tx_data[8]);    // mask [8], data [9], mask [10], mask [11]
                 ads10_hsci_reg_write32(bram_addr, wrData);
             } else {
@@ -2382,5 +2221,3 @@ static int32_t fmcb_level_shifter_disable_all(void *sdo_en_context, hal_spi_sdo_
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Tx data path NCO test
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -44,5 +41,3 @@ int32_t tx_nco_mod(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_d
     
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

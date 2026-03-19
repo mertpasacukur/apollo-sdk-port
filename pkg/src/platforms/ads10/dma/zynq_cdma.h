@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 
 
 /******************************************************************************
@@ -131,5 +130,3 @@ void DisableIntrSystem(XScuGic *IntcInstancePtr, u32 IntrId);
 
 
 #endif /* __ZYNQ_CDMA_H_ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

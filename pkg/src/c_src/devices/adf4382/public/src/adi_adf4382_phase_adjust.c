@@ -1,5 +1,5 @@
 /*!
- * \brief     ADF4382 Lock Detect Control Functionality
+ * \brief     ADF4382 Phase Adjustment Functionality
  *
  * \copyright copyright(c) 2022 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its
@@ -44,13 +44,13 @@ int32_t adi_adf4382_phase_adjust_config_set(adi_adf4382_device_t *adf4382, adi_a
     phase_adj_fs = abs(config->phase_value_fs); // need to add 10^-15 to this value since floating points are dangerous, its been used as femto seconds.
 
     if (ADI_ADF4382_PHASE_ADJ_BLEED_CURRENT == config->phase_mode) { // enable phase adjust
-        
+
         err = adi_adf4382_bf___REG0032___DEL_MODE_set(adf4382, config->phase_mode);
         ADI_CMS_ERROR_RETURN(err);
 
         err = adi_adf4382_bf___REG001F___EN_BLEED_set(adf4382, 1);
         ADI_CMS_ERROR_RETURN(err);
-        
+
         /* Checking Phase Limit */
         /* #Warning: This value could exceed 32 bit. It may create bugs in some machines. */
         phase_adj_degree = config->rfout_freq_hz * phase_adj_fs;
@@ -146,7 +146,7 @@ int32_t adi_adf4382_phase_adjust_resync_enable(adi_adf4382_device_t *adf4382, ui
 int32_t adi_adf4382_phase_adjust_auto_align_enable(adi_adf4382_device_t *adf4382, uint8_t en_auto_align)
 {
     int32_t err;
-    
+
     ADI_CMS_NULL_PTR_CHECK(adf4382);
     ADI_CMS_RANGE_CHECK(en_auto_align, 0, 1);
 

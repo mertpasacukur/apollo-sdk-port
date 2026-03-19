@@ -1,4 +1,3 @@
-#if defined(__linux__)
 /*
     smbus.h - SMBus level access helper functions
 
@@ -17,10 +16,8 @@
 
 #define I2C_API_VERSION		0x100
 
-#if defined(__linux__)
 #include <linux/types.h>
 #include <linux/i2c.h>
-#endif
 
 extern __s32 i2c_smbus_access(int file, char read_write, __u8 command,
 			      int size, union i2c_smbus_data *data);
@@ -53,5 +50,3 @@ extern __s32 i2c_smbus_block_process_call(int file, __u8 command, __u8 length,
 					  __u8 *values);
 
 #endif /* LIB_I2C_SMBUS_H */
-
-#endif /* defined(__linux__) */

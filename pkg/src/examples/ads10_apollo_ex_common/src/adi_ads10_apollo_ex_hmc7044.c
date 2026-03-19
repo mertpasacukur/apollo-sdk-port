@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common HMC7044 functions
  *
@@ -80,7 +79,8 @@ int32_t adi_ads10_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, vo
 int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
-                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz)
+                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz,
+                                            adi_hmc7044_device_rational_freq_t *dev_ref_clk_hz)
 {
     int32_t err = 0;
     uint64_t fpga_ref_freq_hz = fpga_ref_hz->freq_hz / fpga_ref_hz->div;
@@ -90,7 +90,7 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     ADI_CMS_NULL_PTR_CHECK(hmc7044);
     ADI_CMS_NULL_PTR_CHECK(sysref_hz);
     ADI_CMS_NULL_PTR_CHECK(fpga_ref_hz);
-
+    ADI_CMS_NULL_PTR_CHECK(dev_ref_clk_hz);
 
     if (fpga_ref_freq_hz < ADI_ADF4030_REF_FREQ_MAX) {
         adf4030_ref_hz.freq_hz = fpga_ref_hz->freq_hz;
@@ -105,6 +105,9 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     // printf("sysref_hz: %lld.\n", sysref_hz->freq_hz / sysref_hz->div);
     // printf("fpga_ref_hz: %lld \t freq_hz: %lld \t div: %lld.\n", fpga_ref_freq_hz, fpga_ref_hz->freq_hz, fpga_ref_hz->div);
     // printf("adf4030_ref_hz: %lld \t freq_hz: %lld \t div: %lld.\n", (adf4030_ref_hz.freq_hz / adf4030_ref_hz.div), adf4030_ref_hz.freq_hz, adf4030_ref_hz.div);
+    //  printf("clk_ref_hz: %lld \t freq_hz: %lld \t div: %lld.\n",
+    //         dev_ref_clk_hz->div ? (dev_ref_clk_hz->freq_hz / dev_ref_clk_hz->div) : 0,
+    //         dev_ref_clk_hz->freq_hz, dev_ref_clk_hz->div);
 
     adi_hmc7044_device_rational_freq_t sclkout_1 = (is_fmcb_brd == true) ? *sysref_hz : adf4030_ref_hz;
 
@@ -137,7 +140,8 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     };
     adi_hmc7044_device_clkout_config_t device_clkout = {
         .clkin                 = ADI_HMC7044_CLKIN0,
-        .clkout                = ADI_HMC7044_SCLKOUT1
+        .clkout                = (dev_ref_clk_hz->freq_hz != 0 ? ADI_HMC7044_CLKOUT0 : 0) 
+                               | ADI_HMC7044_SCLKOUT1
                                | ADI_HMC7044_CLKOUT2
                                | ADI_HMC7044_SCLKOUT3
                                | ADI_HMC7044_SCLKOUT5
@@ -156,20 +160,20 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
             ADI_HMC7044_CLKIN3
         },
         .output_freq           = {
+            *dev_ref_clk_hz,    // CLKOUT0    Apollo PLL ref clock
+            sclkout_1,          // SCLKOUT1   ADF4030_REF_IN(FMCA) APOLLO_SYSREF(FMCB)
+            *fpga_ref_hz,       // CLKOUT2    FPGA_REFCLK_5
+            *sysref_hz,         // SCLKOUT3   ADF4030_BSYNC0_INPUT(FMCA) FPGA_SYSREF(FMCB)
             { 0 },
-            sclkout_1,      // SCLKOUT1   ADF4030_REF_IN(FMCA) APOLLO_SYSREF(FMCB)
-            *fpga_ref_hz,   // CLKOUT2    FPGA_REFCLK_5
-            *sysref_hz,     // SCLKOUT3   ADF4030_BSYNC0_INPUT(FMCA) FPGA_SYSREF(FMCB)
-            { 0 },
-            *fpga_ref_hz,   // SCLKOUT5   FPGA_REFCLK_4
+            *fpga_ref_hz,       // SCLKOUT5   FPGA_REFCLK_4
             { 0 },
             { 0 },
-            *fpga_ref_hz,   // CLKOUT8    FPGA_GBCLK0
-            *fpga_ref_hz,   // SCLKOUT9   FPGA_GBCLK1
-            *fpga_ref_hz,   // CLKOUT10   FPGA_REFCLK_0
-            *fpga_ref_hz,   // SCLKOUT11  FPGA_REFCLK_1
-            *fpga_ref_hz,   // CLKOUT12   FPGA_REFCLK_2
-            *fpga_ref_hz    // SCLKOUT13  FPGA_REFCLK_3
+            *fpga_ref_hz,       // CLKOUT8    FPGA_GBCLK0
+            *fpga_ref_hz,       // SCLKOUT9   FPGA_GBCLK1
+            *fpga_ref_hz,       // CLKOUT10   FPGA_REFCLK_0
+            *fpga_ref_hz,       // SCLKOUT11  FPGA_REFCLK_1
+            *fpga_ref_hz,       // CLKOUT12   FPGA_REFCLK_2
+            *fpga_ref_hz        // SCLKOUT13  FPGA_REFCLK_3
         },
         .clkout_config         = {
             .ch_div            = 0,
@@ -204,6 +208,11 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
         err = adi_hmc7044_device_gpo_config_set(hmc7044, ADI_HMC7044_DEVICE_GPO3, &gpo_config);
         ADI_CMS_ERROR_RETURN(err);
     }
+    
+    // Reuse gpo_config for GPIO2 to set output to indicate PLL1/2 lock/unlock
+    gpo_config.mode = ADI_HMC7044_DEVICE_GPO_MODE_PLL12_LD_LOCKED;    
+    err = adi_hmc7044_device_gpo_config_set(hmc7044, ADI_HMC7044_DEVICE_GPO2, &gpo_config);
+    ADI_CMS_ERROR_RETURN(err);
 
     err = adi_hmc7044_device_init(hmc7044);
     ADI_CMS_ERROR_RETURN(err);
@@ -213,13 +222,12 @@ int32_t adi_ads10_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
 
     err = adi_hmc7044_clkout_config_set(hmc7044, ADI_HMC7044_OUTPUT_ALL, &clkout);
     ADI_CMS_ERROR_RETURN(err);
-
+ 
     err = adi_hmc7044_pll_clkin_config_set(hmc7044,
                                            ADI_HMC7044_CLKIN0 | ADI_HMC7044_CLKIN1,
                                            ADI_CMS_INTERNAL_RESISTOR_100_OHM | ADI_HMC7044_PLL_IPBUFFER_AC_COUPLED_MODE,
                                            1);
     ADI_CMS_ERROR_RETURN(err);
-
 
     err = adi_hmc7044_pll_los_config_set(hmc7044, &los_config);
     ADI_CMS_ERROR_RETURN(err);
@@ -265,5 +273,3 @@ int32_t adi_ads10_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc70
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

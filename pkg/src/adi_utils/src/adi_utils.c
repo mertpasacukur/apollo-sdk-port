@@ -97,11 +97,15 @@ uint64_t adi_api_utils_lcm_64(uint64_t p, uint64_t q)
             gcd = i;
             break;
         }
-#endif        
+#endif
         i--;
     }
 
+#ifdef __KERNEL__
+    lcm = div64_u64(p * q, gcd);
+#else
     lcm = (p * q) / gcd;
+#endif
     return lcm;
 }
 

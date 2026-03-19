@@ -153,7 +153,7 @@ int32_t adi_fpga_apollo_clk_line_rate_div_calc(adi_fpga_apollo_device_t* fpga, u
 int32_t adi_fpga_apollo_clk_line_rate_div_pgm(adi_fpga_apollo_device_t* fpga)
 {
     int32_t err;
-    uint32_t link_count, div_ratio, rate_ratio;
+    uint32_t link_count, div_sel, rate_ratio;
     uint16_t link_sel, link_idx; 
     adi_fpga_clk_div_t link_info;
 
@@ -184,10 +184,22 @@ int32_t adi_fpga_apollo_clk_line_rate_div_pgm(adi_fpga_apollo_device_t* fpga)
         rate_ratio = fpga->state_info.clk_info.max_link_rate_khz / link_info.line_rate;
         ADI_CMS_SINGLE_SELECT_CHECK(rate_ratio);
         ADI_CMS_RANGE_CHECK(rate_ratio, 1, 8);
-        div_ratio = rate_ratio >> 1;
-        if ((link_info.link_div >> fpga->state_info.clk_info.min_link_div) != div_ratio) {
-            link_info.link_div = link_info.link_div << (div_ratio >> fpga->state_info.clk_info.min_link_div);
+        
+        /* Convert rate ratio to divider select (0-3) */
+        if (rate_ratio == 1) {
+            div_sel = ADI_FPGA_APOLLO_DIV_1;
+        } else if (rate_ratio == 2) {
+            div_sel = ADI_FPGA_APOLLO_DIV_2;
+        } else if (rate_ratio == 4) {
+            div_sel = ADI_FPGA_APOLLO_DIV_4;
+        } else if (rate_ratio == 8) {
+            div_sel = ADI_FPGA_APOLLO_DIV_8;
+        } else {
+            ADI_CMS_ERROR_RETURN(API_CMS_ERROR_INVALID_PARAM);
         }
+        
+        /* Adjust link divider relative to minimum divider */
+        link_info.link_div = fpga->state_info.clk_info.min_link_div + div_sel;
 
         err = adi_fpga_apollo_clk_line_rate_div_set(fpga, link_sel, link_info.terminal, link_info.link_div);
         ADI_CMS_ERROR_RETURN(err);

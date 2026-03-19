@@ -1,14 +1,32 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx Mux2 Reconfig
- * 
+ *
  * This example demonstrates that the relative phase between ADC channels is maintained
- * when alternating CNCO selections via the RX Mux2 crossbar.
- * 
+ * when alternating CNCO selections via the RX Mux2 crossbar. Basic flow for 4T4R, side A. Similar
+ * for side B and 8T8R devices.
+ *
+ *            ADC            MUX1                        AVG         PFILT           CNCO           MUX2           FNCO
+ *                       +--------+                                +--------+                    +--------+     +--------+
+ *                       |        |                    +------+    |        |     +--------+     |   |----|---->|   A0   |---> L0 m0(I), m1(Q)
+ *                       |        |                |-->+ PAVE +--->|-|------|---->|   A0   |---->|---|    |     +--------+     (Fixed FNCO-A0 to CNCO-A0)
+ *        +--------+     |        |                |   + +/-  +    | |      |     |  CNCO  |     |   |    |     +--------+
+ *  []----| ADC-A0 |---->|        |----[CBOUT0]----|   +------+    | |      |     +--------+     |   |    |     |   A1   |
+ *        +--------+     |  MUX1  |                       ^        | |PFILT |                    |  MUX2  |     +--------+
+ *                       |        |                       |        | |      |                    |   | 0  |     +--------+
+ *  *     +--------+     |        |                       |        | |      |     +--------+     |   ?----|---->|   A2   |---> L0 m2(I), m3(Q)
+ *  []----| ADC-A1 |---->|        |----[CBOUT1]-----------|------->| |------|---->|   A1   |---->|---| 1  |     +--------+     (mux-pos 0, FNC0-A2 to CNCO-A0)
+ *        +--------+     |        |                                |        |     |  CNCO  |     |        |     +--------+     (mux-pos 1, FNCO-A2 to CNCO-A1)
+ *                       |        |                                |        |     +--------+     |        |     |   A3   |
+ *                       +--------+                                +--------+                    +--------+     +--------+
+ *                                                                 cmplx mode                 mux-pos = 0 or 1
  * This example supports 4T4R and 8T8R devices
  *      4T4R: id00_uc06     (Fclk: 20000.0, FPGA Ref: 156.25, JESD204C)
  *      8T8R: id98_uc05     (Fclk:  8000.0, FPGA Ref: 250.0,  JESD204B)
- * 
+ *
+ * ADC Input connections:
+ *  4T4R: ADC-A0 and ADC-A1, ADC-B0 and ADC-B1 => SigGen
+ *  8T8R: ADC-A0 and ADC-A1, ADC-B0 and ADC-B1 => SigGen
+ *
  * Basic program flow:
  *  - Configure the Rx CNCO/FNCO freqs for two mux2 positions
  *  - Configure Rx Mux1 for ADC selection
@@ -20,12 +38,12 @@
  *      - Execute DFT on all cap files (phase, freq, pwr)
  *      - Calculate phase delta across channels
  *      - Print phase info
- *      - Verify overall phase deltas 
+ *      - Verify overall phase deltas
  *      - Print Pass/Fail status
- *  
+ *
  *
  * Channel Configuration:
- *  FNCOs     => A0/B0   A4/B4   A1/B1   A5/B5       A2/B2   A6/B6     A3/B3     A7/B7     
+ *  FNCOs     => A0/B0   A4/B4   A1/B1   A5/B5       A2/B2   A6/B6     A3/B3     A7/B7
  *  Virt Conv => m0/m1   m2/m3   m4/m5   m6/m7       m8/m9   m11/m12   m13/m14   m15/m16
  *  Mux-Pos      -----   -----   -----   -----       -----   -------   --------  -------
  *     0         F0      F0      f0      f0          f0      f0        f0        f0
@@ -33,34 +51,34 @@
  *
  *     1         F0      F0      f1      f1          f1      f1        f1        f1
  *     1         F1      F1      f1      f1          f1      f1        f1        f1
- *      
+ *
  *  F0 is mux pos 0 ref chan (fixed)
  *  F1 is mux pos 1 ref chan (fixed)
- *  
+ *
  *  f0 is mux pos 0 chan
  *  f1 is mux pos 1 chan
- * 
+ *
  *
  * Capture File naming convention:
  *  rx_adc_mux2_0000_L0_m0_data16.txt
  *              |||| || ||-------------------------- VC in link
  *              |||| ||----------------------------- Link (L0=A0, L2=B0)
  *              ||||-------------------------------- Capture #. Even is mux pos 0, Odd is mux pos 1 (cap set = cap # / 2)
- * 
+ *
  *  Examples
  *      Cap #0, cap set 0, mux position 0, link A0, I/Q pair from FNCO-A0
  *          rx_adc_mux2_0000_L0_m0_data16.txt
  *          rx_adc_mux2_0000_L0_m1_data16.txt
- *  
+ *
  *      Cap #19, cap set 9, mux position 1, link B0, I/Q pair from FNCO-B7
  *          rx_adc_mux2_0019_L2_m15_data16.txt
  *          rx_adc_mux2_0019_L2_m16_data16.txt
- *  
+ *
  *
  * Note:
  * - Baseband freqs for mux position 0 and 1 must be equal for phase calculation
  * - This example currently supports SC0 only. Cross link phase requires SC1.
- * - For non-SC1 profiles, the baseband freq can be set equal to a multiple of SYREF (lmfc/lemc per) to 
+ * - For non-SC1 profiles, the baseband freq can be set equal to a multiple of SYREF (lmfc/lemc per) to
  *   mitigate FPGA cross-link alignment.
  *
  * \copyright copyright(c) 2018 analog devices, inc. all rights reserved.
@@ -81,9 +99,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 
 #define NUM_MUX_POS 2
 #define DFT_LEN 512
@@ -98,7 +114,7 @@
         if ((j > 0) && (j % (num_vcs_per_link) == 0)) {                          \
             printf("\n%4d %24s-%d  ", (cap_set), (label), (m));                  \
         }                                                                        \
-        printf("%10.3f ", ph_delta_mtx[m][(cap_set)][j].field);                  \
+        printf("%10.6f ", ph_delta_mtx[m][(cap_set)][j].field);                  \
     }                                                                            \
     printf("\n");
 
@@ -108,7 +124,7 @@
         if ((j > 0) && (j % (num_vcs_per_link) == 0)) {           \
             printf("\n%24s-%d  ", (label), (m));                  \
         }                                                         \
-        printf("%10.3f ", net_result_mtx[m][j].field);            \
+        printf("%10.6f ", net_result_mtx[m][j].field);            \
     }                                                             \
     printf("\n");
 
@@ -168,12 +184,11 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     double overall_ph_delta_ps[MAX_VCS];
     double max_ph_delta_ps[NUM_MUX_POS];
     adi_fpga_apollo_capture_frame_t *cap_frame_info;
-    adi_ads10_apollo_rx_channel_info_t channel;
-
+    adi_ads10_apollo_channel_info_t channel;
+    adi_ads10_apollo_channel_selectors_t channel_selectors = { ADI_APOLLO_CDDC_A0, ADI_APOLLO_CNCO_A0, ADI_APOLLO_FNCO_A0, ADI_APOLLO_FDDC_A0, ADI_APOLLO_FSRC_A0};
     uint32_t num_vcs = (profile->jtx[0].tx_link_cfg[0].m_minus1 + 1) * 2; // assume 2 links
     uint32_t num_vcs_per_link = num_vcs / 2;  // assume two links
-    uint8_t pave_en = 1;    // 1 to use ADC averaging.
-
+    adi_apollo_pfilt_ave_mode_e pave_mode = ADI_APOLLO_PFILT_AVE_DISABLE; // use SUB if ADCs have opposite polarity
 
     /* Device block selects for 4t4r or 8t8r device */
     uint16_t fncos = (device->dev_info.is_8t8r) ? ADI_APOLLO_FNCO_ALL : ADI_APOLLO_FNCO_ALL_4T4R;
@@ -184,7 +199,7 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
                               ((device->dev_info.is_8t8r) ? ADI_APOLLO_CNCO_A3 | ADI_APOLLO_CNCO_B3 : 0);
 
     uint8_t is_sc1 = profile->jtx[0].common_link_cfg.subclass == ADI_APOLLO_SUBCLASS_1;
-    
+
     if (is_sc1) {
         EXCTL_FAIL("SC1 profiles not supported");
         ADI_CMS_ERROR_RETURN(API_CMS_ERROR_NOT_SUPPORTED);
@@ -207,7 +222,7 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     double f_adc_in_mhz = cnco_freq + f_bb_mhz;
     double cnco_freq_0 = cnco_freq;
     double cnco_freq_1 = cnco_freq;
-    
+
     printf("f_bb_mhz= %f\n", f_bb_mhz);
 
     /* Set the CNCOs and FNCOs */
@@ -216,11 +231,11 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
 
     err = adi_ads10_apollo_ex_cnco_set(device, ADI_APOLLO_RX, cncos_mux_pos1, rx_dp_info.adc_sample_rate, cnco_freq_1);
     ADI_CMS_ERROR_RETURN(err);
-    
+
     err = adi_ads10_apollo_ex_fnco_set(device, ADI_APOLLO_RX, fncos, rx_dp_info.adc_sample_rate / rx_dp_info.cdrc, 0.0);
     ADI_CMS_ERROR_RETURN(err);
 
-   
+
     /* Set the ADC analog input frequency */
     EXCTL_SIGGEN_ON(0x33, false);
     EXCTL_SIGGEN_LEVEL(3.0, false);
@@ -231,7 +246,7 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     ADI_CMS_ERROR_RETURN(err);
 
     /* Optionally enable the PFILT ADC averaging block */
-    err = adi_apollo_pfilt_ave_mode_set(device, pfilts, pave_en ? ADI_APOLLO_PFILT_AVE_ENABLE_ADD : ADI_APOLLO_PFILT_AVE_DISABLE);
+    err = adi_apollo_pfilt_ave_mode_set(device, pfilts, pave_mode);
     ADI_CMS_ERROR_RETURN(err);
 
     /* Bypass the Rx filter (after ADC ave block) */
@@ -258,7 +273,6 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
     err = adi_fpga_apollo_core_rx_links_init(fpga_device);
     ADI_CMS_ERROR_RETURN(err);
 
-    
     /* Alternate CNCO selection and write capture data to files */
     printf("Capturing samples...\n");
     for (int i = 0; i < num_mux_pos * num_cap_sets; i++) {
@@ -269,12 +283,12 @@ int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_
 
         /* Read FPGA capture memory and write out individual virtual converter files (non-interleaved) */
         sprintf(file_name_base, "%s%04d", CAP_FILENAME_PREFIX, i);
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, DFT_LEN, file_name_base, false);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, DFT_LEN, file_name_base, true, false);
 
         ADI_CMS_ERROR_RETURN(err);
     }
 
-    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, &channel);    
+    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, channel_selectors, &channel);
     cap_frame_info = &fpga_device->state_info.capture_info.capture_frame;
 
     /* Determine the absolute phases of all captured channels. */
@@ -392,7 +406,7 @@ static int32_t find_phase_cmplx(adi_apollo_device_t *device, char *file_path_i, 
     adi_ads10_apollo_extras_arr1d_double_max_get(mag_sqr, len, &max, &max_bin);
 
     freq = (max_bin < (len / 2)) ? (fs / len) * max_bin : -(fs / len) * (len - max_bin);
-    
+
     dft_result->fund = max_bin;
     dft_result->mag = mag_sqr[max_bin];
     dft_result->fund_pwr_dbfs = 20 * log10(ADI_UTILS_MAX(-140.0, sqrt(dft_result->mag) / pow(2, 15)));  // ref to 16-bits
@@ -418,7 +432,7 @@ end:
     if (phase != NULL) {
         free(phase);
     }
-    
+
     return err;
 }
 
@@ -473,8 +487,8 @@ static int32_t rx_mux1_config(adi_apollo_device_t *device)
     } else {
         err |= adi_apollo_rxmux_xbar1_set(device, ADI_APOLLO_SIDE_A, cbout_to_adc_4t4r_a, ADI_APOLLO_RX_MUX0_NUM_4T4R);
         err |= adi_apollo_rxmux_xbar1_set(device, ADI_APOLLO_SIDE_B, cbout_to_adc_4t4r_b, ADI_APOLLO_RX_MUX0_NUM_4T4R);
-    }  
-    
+    }
+
     return err;
 }
 
@@ -485,7 +499,7 @@ static int32_t rx_mux2_config(adi_apollo_device_t *device, int mux_sel)
 {
     int32_t err = API_CMS_ERROR_OK;
 
-    /* 
+    /*
      * 4T4R
      *  CNCO-A0 reference mux pos 0
      *  CNCO-B1 reference mux pos 1
@@ -501,9 +515,9 @@ static int32_t rx_mux2_config(adi_apollo_device_t *device, int mux_sel)
         {ADI_APOLLO_CB_4T4R_C0_TO_F0, ADI_APOLLO_CB_4T4R_C1_TO_F1, ADI_APOLLO_CB_4T4R_C1_TO_F2, ADI_APOLLO_CB_4T4R_C1_TO_F3}, // side A
         {ADI_APOLLO_CB_4T4R_C1_TO_F0, ADI_APOLLO_CB_4T4R_C1_TO_F1, ADI_APOLLO_CB_4T4R_C1_TO_F2, ADI_APOLLO_CB_4T4R_C1_TO_F3}, // side B
     };
-    
 
-    /* 
+
+    /*
      * 8T8R
      *  CNCO-A0 reference mux pos 0
      *  CNCO-B3 reference mux pos 1
@@ -513,13 +527,13 @@ static int32_t rx_mux2_config(adi_apollo_device_t *device, int mux_sel)
         {ADI_APOLLO_CB_8T8R_C0_TO_F0_F4, ADI_APOLLO_CB_8T8R_C0_TO_F1_F5, ADI_APOLLO_CB_8T8R_C0_TO_F2_F6, ADI_APOLLO_CB_8T8R_C0_TO_F3_F7},   // side A
         {ADI_APOLLO_CB_8T8R_C3_TO_F0_F4, ADI_APOLLO_CB_8T8R_C0_TO_F1_F5, ADI_APOLLO_CB_8T8R_C0_TO_F2_F6, ADI_APOLLO_CB_8T8R_C0_TO_F3_F7},   // side B
     };
-    
+
     /* mux pos 1 */
     static adi_apollo_rx_mux2_sel_e coarse_to_fine_xbar_8t8r_sel_1[2][4] = {
         {ADI_APOLLO_CB_8T8R_C0_TO_F0_F4, ADI_APOLLO_CB_8T8R_C3_TO_F1_F5, ADI_APOLLO_CB_8T8R_C3_TO_F2_F6, ADI_APOLLO_CB_8T8R_C3_TO_F3_F7},   // side A
         {ADI_APOLLO_CB_8T8R_C3_TO_F0_F4, ADI_APOLLO_CB_8T8R_C3_TO_F1_F5, ADI_APOLLO_CB_8T8R_C3_TO_F2_F6, ADI_APOLLO_CB_8T8R_C3_TO_F3_F7},   // side B
     };
-    
+
     if (device->dev_info.is_8t8r) {
         err = adi_apollo_rxmux_xbar2_set(device, ADI_APOLLO_SIDE_A, mux_sel == 0 ? coarse_to_fine_xbar_8t8r_sel_0[0] : coarse_to_fine_xbar_8t8r_sel_1[0], 4);
         err = adi_apollo_rxmux_xbar2_set(device, ADI_APOLLO_SIDE_B, mux_sel == 0 ? coarse_to_fine_xbar_8t8r_sel_0[1] : coarse_to_fine_xbar_8t8r_sel_1[1], 4);
@@ -579,15 +593,15 @@ void print_net_result_info(net_result_struct_t net_result_mtx[][MAX_VCS],
         printf("%s-%d\n", "MUXPOS", m);
 
         PRINT_VC_DATA("freq_mhz_min", m, num_vcs, num_vcs_per_link, freq_mhz.min);
-        PRINT_VC_DATA("freq_mhz_min", m, num_vcs, num_vcs_per_link, freq_mhz.max);
+        PRINT_VC_DATA("freq_mhz_max", m, num_vcs, num_vcs_per_link, freq_mhz.max);
         PRINT_VC_DATA("freq_mhz_delta", m, num_vcs, num_vcs_per_link, freq_mhz.delta);
         printf("\n");
-        
+
         PRINT_VC_DATA("net_ph_delta_min", m, num_vcs, num_vcs_per_link, ph_delta_rads.min);
         PRINT_VC_DATA("net_ph_delta_max", m, num_vcs, num_vcs_per_link, ph_delta_rads.max);
         PRINT_VC_DATA("net_ph_delta", m, num_vcs, num_vcs_per_link, ph_delta_rads.delta);
         printf("\n");
-    }    
+    }
 }
 
 /*
@@ -606,13 +620,13 @@ int32_t calc_net_result(phase_info_struct_t ph_delta_mtx[][MAX_CAP_SETS][MAX_VCS
             for (int i = 0; i < num_cap_sets; i++) {
                 col[i] = ph_delta_mtx[m][i][j].ph_delta_rads;
             }
-            
+
             err = adi_ads10_apollo_extras_arr1d_double_delta_get(col, num_cap_sets,
                                                                  &net_result_mtx[m][j].ph_delta_rads.min,
                                                                  &net_result_mtx[m][j].ph_delta_rads.max,
                                                                  &net_result_mtx[m][j].ph_delta_rads.delta);
             ADI_CMS_ERROR_RETURN(err);
-            
+
             for (int i = 0; i < num_cap_sets; i++) {
                 col[i] = ph_delta_mtx[m][i][j].freq_mhz;
             }
@@ -626,5 +640,3 @@ int32_t calc_net_result(phase_info_struct_t ph_delta_mtx[][MAX_CAP_SETS][MAX_VCS
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

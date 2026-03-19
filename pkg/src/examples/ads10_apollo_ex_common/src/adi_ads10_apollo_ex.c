@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common function implementation
  *
@@ -41,7 +40,8 @@ static int32_t get_fpga_jrx_params_from_profile(adi_fpga_jesd_param_t fpga_jesd_
 
 static int32_t check_link_status_capture_mem(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_device, uint8_t *cap_buffer, uint32_t bytes_to_capture);
 
-static int32_t adi_ads10_apollo_frames_to_files_setup(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_capture_frame_t *frame, char *file_name_base, FILE ** file_ptrs[], bool interleaved);
+static int32_t adi_ads10_apollo_frames_to_files_setup(adi_apollo_device_t *device, adi_apollo_top_t *profile, 
+                                                      adi_fpga_apollo_capture_frame_t *frame, char *file_name_base, bool long_fname, FILE ** file_ptrs[], bool interleaved);
 static int32_t adi_ads10_apollo_frames_to_files_write(adi_fpga_apollo_device_t *fpga_device, adi_fpga_apollo_capture_frame_t *frame, FILE * file_ptrs[], bool interleaved);
 static int32_t adi_ads10_apollo_cleanup_frames_to_files(adi_fpga_apollo_capture_frame_t *frame, FILE * file_ptrs[], bool interleaved);
 static int32_t print_tot_samples_per_conv(adi_fpga_apollo_device_t *fpga_device);
@@ -56,7 +56,7 @@ int32_t adi_ads10_apollo_ex_startup(adi_apollo_device_t *device, adi_apollo_top_
 
     err = adi_apollo_startup_execute(device, dev_profile, ADI_APOLLO_STARTUP_SEQ_DEFAULT);
     ADI_APOLLO_ERROR_RETURN(err);
-    
+
     err = display_version_info(device);
     if (err != API_CMS_ERROR_OK) {
         printf("Error displaying version info. This may indicate device clock is incorrect.\n");
@@ -146,7 +146,7 @@ int32_t adi_ads10_apollo_ex_reg_test(adi_apollo_device_t *device)
 
     /* Indirect register SPI loop rd/wr test */
     stat = 0;
-    uint32_t indirect_addr[] = { INDIRECT_REG_TEST_ADDR + 0, INDIRECT_REG_TEST_ADDR + 1, 
+    uint32_t indirect_addr[] = { INDIRECT_REG_TEST_ADDR + 0, INDIRECT_REG_TEST_ADDR + 1,
                                  INDIRECT_REG_TEST_ADDR + 2, INDIRECT_REG_TEST_ADDR + 3 }; /* indirect register address */
     uint8_t  indirect_data[] = { 0x12,       0x34,       0x56,       0x78 };
     for (i = 0; i < sizeof(indirect_addr) / sizeof(indirect_addr[0]); i++) {
@@ -170,7 +170,7 @@ int32_t adi_ads10_apollo_ex_reg_test(adi_apollo_device_t *device)
 
     /* 32-bit ARM mem rd/wr test */
     stat = 0;
-    uint32_t arm_addr[] = { ARM_REG_TEST_BASE_ADDR + 0, ARM_REG_TEST_BASE_ADDR + 4, 
+    uint32_t arm_addr[] = { ARM_REG_TEST_BASE_ADDR + 0, ARM_REG_TEST_BASE_ADDR + 4,
                             ARM_REG_TEST_BASE_ADDR + 8, ARM_REG_TEST_BASE_ADDR + 12 }; /* ARM core1 register addresses */
     uint32_t arm_data[] = { 0x55aa55aa, 0xdeadbeef, 0xbeefdead, 0xaa55aa55 };
     for (i = 0; i < sizeof(arm_addr) / sizeof(arm_addr[0]); i++) {
@@ -273,6 +273,10 @@ int32_t adi_ads10_apollo_ex_fpga_jesd_configure(adi_fpga_apollo_device_t *fpga_d
     ADI_CMS_ERROR_RETURN(err);
 #endif
 
+    /* Set the FPGA Rx memory start address for data capture based on FPGA design */
+    err = adi_fpga_apollo_core_rx_mem_addr_set(fpga_device);
+    ADI_CMS_ERROR_RETURN(err);
+
     return API_CMS_ERROR_OK;
 }
 
@@ -304,6 +308,7 @@ static int32_t get_fpga_jtx_params_from_profile(adi_fpga_jesd_param_t fpga_jesd_
         fpga_jesd_param[link].jesd_mode_s_sel = jrx[sideIdx].rx_link_cfg[linkIdx].quick_mode_id;
         fpga_jesd_param[link].jesd_link_pd = !(jrx[sideIdx].rx_link_cfg[linkIdx].link_in_use);
         fpga_jesd_param[link].jesd_ns = jrx[sideIdx].rx_link_cfg[linkIdx].ns_minus1 + 1;
+        fpga_jesd_param[link].base_lane_id = jrx[sideIdx].rx_link_cfg[linkIdx].base_lane_id;
     }
     return err;
 }
@@ -336,13 +341,14 @@ static int32_t get_fpga_jrx_params_from_profile(adi_fpga_jesd_param_t fpga_jesd_
         fpga_jesd_param[link].jesd_mode_s_sel = jtx[sideIdx].tx_link_cfg[linkIdx].quick_mode_id;
         fpga_jesd_param[link].jesd_link_pd = !(jtx[sideIdx].tx_link_cfg[linkIdx].link_in_use);
         fpga_jesd_param[link].jesd_ns = jtx[sideIdx].tx_link_cfg[linkIdx].ns_minus1 + 1;
+        fpga_jesd_param[link].base_lane_id = jtx[sideIdx].tx_link_cfg[linkIdx].base_lane_id;
     }
     return err;
 }
 
 
 int32_t adi_ads10_apollo_ex_configure_hal(adi_apollo_device_t *apollo_device, adi_fpga_apollo_hal_config_t *ads10_platform, uint8_t enable_hsci)
-{  
+{
     adi_apollo_hal_t *hal = &apollo_device->hal_info;
     adi_apollo_hal_regio_spi_desc_t *spi0_desc = &hal->spi0_desc;
     adi_apollo_hal_regio_spi_desc_t *spi1_desc = &hal->spi1_desc;
@@ -380,7 +386,7 @@ int32_t adi_ads10_apollo_ex_configure_hal(adi_apollo_device_t *apollo_device, ad
         hsci_desc->read = &ads10_hsci_read;
         hsci_desc->write = &ads10_hsci_write;
         hsci_desc->poll_read = NULL;
-        
+
 #if defined(ADI_MIN_STACK_ALLOC)
         ADI_CMS_ERROR_RETURN(hsci_buf_alloc(apollo_device));
 #endif
@@ -394,9 +400,9 @@ int32_t adi_ads10_apollo_ex_configure_startup(adi_apollo_device_t *apollo_device
 {
     adi_apollo_startup_t *startup_info = &apollo_device->startup_info;
 
-    /* 
+    /*
      * Configure the startup info. A FW provider is used by adi_apollo_startup_execute() to obtain
-     * firmware binaries in a platform agnostic manner. 
+     * firmware binaries in a platform agnostic manner.
     */
     startup_info->fw_provider = ads10_fw_provider_create(apollo_device, FW_IMAGES_DIR);
     startup_info->open = ads10_fw_provider_open;   // Optional. Called before obtaining a FW binary. Set to NULL if unused.
@@ -427,7 +433,7 @@ int32_t adi_ads10_apollo_ex_fpga_pre_reset(adi_fpga_apollo_device_t *fpga_device
 
     adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_FIRST_TRIG_CNT_MASK, 1);
     adi_fpga_apollo_private_write32_bitfield(fpga_device, SEQ_CTRL_2, SEQ_SECOND_TRIG_CNT_MASK, 1);     // stops trig out after fpga load (trigger is blasted continuously after loading image)
-    
+
     adi_fpga_apollo_core_sysref_seq_ext_trig_enable_set(fpga_device, 0);    // Disable the sysref seq ext trig
 
     return err;
@@ -470,14 +476,24 @@ static int32_t display_version_info(adi_apollo_device_t *device)
         printf("Mailbox fw error\n");
         return err;
     }
-    printf("FW ver: %04d%02d%02d.%d.%d\n", fw_ver.year, fw_ver.month, fw_ver.day, fw_ver.minor, fw_ver.build);
-    adi_apollo_hal_log_write(device, ADI_CMS_LOG_API, "FW ver: %04d%02d%02d.%d.%d\n", fw_ver.year, fw_ver.month, fw_ver.day, fw_ver.minor, fw_ver.build);
+    if (isprint(fw_ver.quality_level[0])) {
 
+        char quality_str[4] = { 0 }; // Ensure null-termination
+        strncpy((char*)quality_str, (char*)fw_ver.quality_level, 3);
+
+        printf("FW ver: %d.%d.%d-%s.%d\n", fw_ver.major, fw_ver.minor, fw_ver.patch, quality_str, fw_ver.state_version);
+        adi_apollo_hal_log_write(device, ADI_CMS_LOG_API, "FW ver: %d.%d.%d-%s.%d\n", fw_ver.major, fw_ver.minor, fw_ver.patch, quality_str, fw_ver.state_version);
+    }
+    else {
+        printf("FW ver: %d.%d.%d\n", fw_ver.major, fw_ver.minor, fw_ver.patch);
+        adi_apollo_hal_log_write(device, ADI_CMS_LOG_API, "FW ver: %d.%d.%d\n", fw_ver.major, fw_ver.minor, fw_ver.patch);
+    }
 
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_device_t *fpga_device, uint32_t num_samples, char *file_name_base, bool interleaved)
+int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_device_t *fpga_device, 
+                                         uint32_t num_samples, char *file_name_base, bool long_fname, bool interleaved)
 {
     int32_t err;
     uint32_t current_transfer_count;
@@ -504,7 +520,7 @@ int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo
     err = print_tot_samples_per_conv(fpga_device);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_frames_to_files_setup(device, profile, &cap_frame_info, file_name_base, &fp, interleaved);
+    err = adi_ads10_apollo_frames_to_files_setup(device, profile, &cap_frame_info, file_name_base, long_fname, &fp, interleaved);
     ADI_CMS_ERROR_GOTO(err, end);
 
     printf("Starting transfer of %lld bytes...\n", fpga_device->state_info.capture_info.fifo_queue_bytes);
@@ -528,40 +544,45 @@ int32_t adi_ads10_apollo_ex_fpga_capture(adi_apollo_device_t *device, adi_apollo
 
 end:
     adi_ads10_apollo_cleanup_frames_to_files(&cap_frame_info, fp, interleaved);
-end1:    
+end1:
     adi_fpga_apollo_capture_transfer_cleanup(fpga_device);
 
     return err;
 }
 
-static int32_t adi_ads10_apollo_frames_to_files_setup(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_capture_frame_t *frame, char *file_name_base, FILE ** file_ptrs[], bool interleaved){
+static int32_t adi_ads10_apollo_frames_to_files_setup(adi_apollo_device_t *device, adi_apollo_top_t *profile, adi_fpga_apollo_capture_frame_t *frame, 
+                                                      char *file_name_base, bool long_fname, FILE ** file_ptrs[], bool interleaved){
     int32_t err = API_CMS_ERROR_OK;
     uint32_t file_count= 0;
     char fname[MAX_PATH_LEN];
     FILE ** fps;
+
     for (int i = 0; i<MAX_JESD_LINKS; i++) {
         if (interleaved && (frame->link_converter_count[i] % 2 != 1)) {
             file_count += frame->link_converter_count[i] / 2;
-	} else {
-            file_count += frame->link_converter_count[i];
-	}
+	    } else {
+                file_count += frame->link_converter_count[i];
+	    }
     }
 
     fps = (FILE**)malloc(sizeof(FILE*)*file_count);
-    if (fps == NULL) {
-        printf("Memory allocation error\n");
-        return API_CMS_ERROR_MEM_ALLOC;
-    }
+    ADI_CMS_MEM_ALLOC_CHECK(fps);
 
     file_count = 0;
 
-    adi_ads10_apollo_rx_channel_info_t channel;
-    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, &channel);
+    adi_ads10_apollo_channel_info_t channel;
+    adi_ads10_apollo_channel_selectors_t channel_selectors = { ADI_APOLLO_CDDC_A0, ADI_APOLLO_CNCO_A0, ADI_APOLLO_FNCO_A0, ADI_APOLLO_FDDC_A0, ADI_APOLLO_FSRC_A0};
+    adi_ads10_apollo_ex_inspect_rx_channel_get(device, profile, channel_selectors, &channel);
 
     for (int i = 0; i<MAX_JESD_LINKS;i++){
         if (interleaved && (frame->link_converter_count[i] % 2 != 1)) {
             for (int j = 0; j<frame->link_converter_count[i] / 2; j++) {
-                snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_IQ%d_NP%d_DR%lld_CF%lld.txt", OUTPUT_DIR, file_name_base, i, j, frame->link_bits_per_sample[i], channel.data_rate_hz, channel.nco_freq_hz);
+                if (long_fname) {
+                    snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_IQ%d_NP%d_DR%lld_CF%lld.txt", OUTPUT_DIR, file_name_base, i, j, frame->link_bits_per_sample[i], channel.data_rate_hz, channel.nco_freq_hz);
+                } else {
+                    snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_IQ%d.txt", OUTPUT_DIR, file_name_base, i, j);
+                }
+                
                 fps[file_count] = fopen(fname,"w+");
 
                 if (fps[file_count] == NULL) {
@@ -571,7 +592,12 @@ static int32_t adi_ads10_apollo_frames_to_files_setup(adi_apollo_device_t *devic
             }
         } else {
             for (int j = 0; j<frame->link_converter_count[i]; j++) {
-                snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_m%d_NP%d_DR%lld_CF%lld.txt", OUTPUT_DIR, file_name_base, i, j, frame->link_bits_per_sample[i], channel.data_rate_hz, channel.nco_freq_hz);
+                if (long_fname) {
+                    snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_m%d_NP%d_DR%lld_CF%lld.txt", OUTPUT_DIR, file_name_base, i, j, frame->link_bits_per_sample[i], channel.data_rate_hz, channel.nco_freq_hz);
+                } else {
+                    snprintf(fname, MAX_PATH_LEN, "%s/%s_L%d_m%d.txt", OUTPUT_DIR, file_name_base, i, j);
+                }
+                
                 fps[file_count] = fopen(fname,"w+");
 
                 if (fps[file_count] == NULL) {
@@ -608,7 +634,7 @@ static int32_t adi_ads10_apollo_frames_to_files_write(adi_fpga_apollo_device_t *
                 err = adi_fpga_apollo_capture_transf_buff_num_samples_get(fpga_device, 0x1 << link_idx, vc_idx, &num_samples_vc_i);
                 ADI_CMS_ERROR_RETURN(err);
                 err = adi_fpga_apollo_capture_transf_buff_num_samples_get(fpga_device, 0x1 << link_idx, vc_idx + 1, &num_samples_vc_q);
-                ADI_CMS_ERROR_RETURN(err); 
+                ADI_CMS_ERROR_RETURN(err);
                 if (num_samples_vc_i != num_samples_vc_q) {
                     printf("Error: I and Q buffer sizes do not match\n");
                     return API_CMS_ERROR_INVALID_PARAM;
@@ -616,15 +642,15 @@ static int32_t adi_ads10_apollo_frames_to_files_write(adi_fpga_apollo_device_t *
                 /* write captured samples to files */
                 if (capture_info->capture_frame.link_bits_per_sample[link_idx] == 8) {
                     while (idx < num_samples_vc_i) {
-                        fprintf(file_ptrs[fp_tracker], "%d\n", capture_info->cap_transf_buff[link_idx][vc_idx][idx]);
-                        fprintf(file_ptrs[fp_tracker], "%d\n", capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx]);
+                        fprintf(file_ptrs[fp_tracker], "%d\n", (int8_t)capture_info->cap_transf_buff[link_idx][vc_idx][idx]);
+                        fprintf(file_ptrs[fp_tracker], "%d\n", (int8_t)capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx]);
                         idx++;
-                    }       
+                    }
                 } else {
                     while (idx < num_samples_vc_i) {
-                        sample = capture_info->cap_transf_buff[link_idx][vc_idx][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx][idx*2];
+                        sample = (int16_t)(capture_info->cap_transf_buff[link_idx][vc_idx][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx][idx*2]);
                         fprintf(file_ptrs[fp_tracker], "%d\n", sample);
-                        sample = capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx*2]; 
+                        sample = (int16_t)(capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx + 1][idx*2]);
                         fprintf(file_ptrs[fp_tracker], "%d\n", sample);
                         idx++;
                     }
@@ -641,12 +667,13 @@ static int32_t adi_ads10_apollo_frames_to_files_write(adi_fpga_apollo_device_t *
                 /* write captured samples to files */
                 if (capture_info->capture_frame.link_bits_per_sample[link_idx] == 8) {
                     while (idx < num_samples_vc_i) {
-                        fprintf(file_ptrs[fp_tracker], "%d\n", capture_info->cap_transf_buff[link_idx][vc_idx][idx]);
+                        fprintf(file_ptrs[fp_tracker], "%d\n", (int8_t)capture_info->cap_transf_buff[link_idx][vc_idx][idx]);
                         idx++;
                     }
                 } else {
                     while (idx < num_samples_vc_i) {
-                        fprintf(file_ptrs[fp_tracker], "%d\n", capture_info->cap_transf_buff[link_idx][vc_idx][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx][idx*2]);
+                        sample = (int16_t)(capture_info->cap_transf_buff[link_idx][vc_idx][idx*2 + 1] << 8 | capture_info->cap_transf_buff[link_idx][vc_idx][idx*2]);
+                        fprintf(file_ptrs[fp_tracker], "%d\n", sample);
                         idx++;
                     }
                 }
@@ -723,7 +750,7 @@ int32_t adi_ads10_apollo_ex_fpga_capture_to_array_12b(adi_apollo_device_t* devic
         goto end;
     }
 
-    /* 
+    /*
      * Create I/Q files for each channel. Data is interleaved [I, Q, I, Q, ...]
      * Note: assumes 4 virtual converters for side (i.e. jesd m = 4)
      */
@@ -740,19 +767,19 @@ int32_t adi_ads10_apollo_ex_fpga_capture_to_array_12b(adi_apollo_device_t* devic
 
         if ((b_idx[side]+1) % 3 == 0) {
             cap_sample = ((buf[side][1] & 0x0f) << 8) | buf[side][0];
-            if (cap_sample & 0x800) { 
-                cap_sample |= 0xF000; 
+            if (cap_sample & 0x800) {
+                cap_sample |= 0xF000;
             }
             *(adc_iq_data[(side * 2) + 0] + smpl_cnt[side]/2) = cap_sample;
             smpl_cnt[side]++;
 
             cap_sample = (buf[side][2] << 4) | (buf[side][1] >> 4);
-            if (cap_sample & 0x800) { 
-                cap_sample |= 0xF000; 
+            if (cap_sample & 0x800) {
+                cap_sample |= 0xF000;
             }
             *(adc_iq_data[(side * 2) + 1] + smpl_cnt[side]/2) = cap_sample;
             smpl_cnt[side]++;
-            
+
             b_idx[side] = 0;
         } else {
             b_idx[side]++;
@@ -811,7 +838,7 @@ int32_t adi_ads10_apollo_ex_fpga_capture_to_array(adi_apollo_device_t* device, a
         goto end;
     }
 
-    /* 
+    /*
      * Create I/Q files for each channel. Data is interleaved [I, Q, I, Q, ...]
      * Note: assumes 4 virtual converters for side (i.e. jesd m = 4)
      */
@@ -914,7 +941,7 @@ int32_t adi_ads10_apollo_ex_cnco_freq_set(adi_apollo_device_t *device, adi_apoll
 int32_t adi_ads10_apollo_ex_fnco_set(adi_apollo_device_t *device, adi_apollo_terminal_e terminal, const uint16_t fncos, double rate, double fnco_freq)
 {
     int64_t ftw;
-    
+
     ftw = (fnco_freq/rate)*(1ll<<48);
     return adi_apollo_fnco_main_phase_inc_set(device, terminal, fncos, ftw);
 }
@@ -1068,8 +1095,8 @@ int32_t adi_ads10_ex_dp_info_get(adi_apollo_device_t *device,  adi_apollo_top_t 
         dp_info->fsrc_ratio = adi_ads10_apollo_ex_fsrc_ratio_get(&profile->rx_path[side].rx_fsrc[idx], &dp_info->fsrc_n, &dp_info->fsrc_m);
         dp_info->pfilt_en = profile->rx_path[side].rx_pfilt[idx].enable;
         dp_info->cfir_en = profile->rx_path[side].rx_cfir[idx].enable;
-        dp_info->cnco_freq = ((dp_info->adc_sample_rate) * dp_info->coarse_ftw) / (1ull << 32);
-        dp_info->fnco_freq = ((dp_info->adc_sample_rate / dp_info->cdrc) * dp_info->fine_ftw) / (1ull << 48);
+        dp_info->cnco_freq = (dp_info->coarse_ftw / (double)(1ull << 32)) * (dp_info->adc_sample_rate);
+        dp_info->fnco_freq = (dp_info->fine_ftw / (double)(1ull << 48)) * (dp_info->adc_sample_rate / dp_info->cdrc);
         dp_info->fdata = dp_info->adc_sample_rate / (dp_info->cdrc * dp_info->fdrc);       // JESD data rate
     } else {
         adi_apollo_cduc_interp_bf_to_val(device, profile->tx_path[side].tx_cduc[idx].drc_ratio, &dp_info->cdrc);
@@ -1081,8 +1108,8 @@ int32_t adi_ads10_ex_dp_info_get(adi_apollo_device_t *device,  adi_apollo_top_t 
         dp_info->fsrc_ratio = adi_ads10_apollo_ex_fsrc_ratio_get(&profile->tx_path[side].tx_fsrc[idx], &dp_info->fsrc_n, &dp_info->fsrc_m);
         dp_info->pfilt_en = profile->tx_path[side].tx_pfilt[idx].enable;
         dp_info->cfir_en = profile->tx_path[side].tx_cfir[idx].enable;
-        dp_info->cnco_freq = ((dp_info->dac_sample_rate) * dp_info->coarse_ftw) / (1ull << 32);
-        dp_info->fnco_freq = ((dp_info->dac_sample_rate / dp_info->cdrc) * dp_info->fine_ftw) / (1ull << 48);
+        dp_info->cnco_freq = (dp_info->coarse_ftw / (double)(1ull << 32)) * (dp_info->dac_sample_rate);
+        dp_info->fnco_freq = (dp_info->fine_ftw / (double)(1ull << 48)) * (dp_info->dac_sample_rate / dp_info->cdrc);
         dp_info->fdata = dp_info->dac_sample_rate / (dp_info->cdrc * dp_info->fdrc);       // JESD data rate
     }
 
@@ -1194,12 +1221,12 @@ int32_t adi_ads10_apollo_ex_jesd_rx_status(adi_apollo_device_t* device, uint16_t
     printf("Jrx Link Status: %s\n",
     (link == ADI_APOLLO_LINK_A0) ? "A0" : (link == ADI_APOLLO_LINK_A1) ? "A1" :
     (link == ADI_APOLLO_LINK_B0) ? "B0" : (link == ADI_APOLLO_LINK_B1) ? "B1" : "?");
-    
+
     err = adi_apollo_jrx_link_inspect(device, link, &jrx_status);
     if (err != API_CMS_ERROR_OK) {
         return err;
     }
-	
+
     if (jrx_status.ver == ADI_APOLLO_JESD_204C) {
         printf("Apollo JESD204C version selected\n");
         for (int i = 0; i < ADI_APOLLO_JESD_MAX_LANES_PER_SIDE; i++) {
@@ -1214,7 +1241,7 @@ int32_t adi_ads10_apollo_ex_jesd_rx_status(adi_apollo_device_t* device, uint16_t
                 printf("JRx lane status[%02d]: Link not ready (%d)\n", i, status & 0x7);
             }
         }
-	} 
+	}
     else {
         printf("Apollo JESD204B version selected\n");
         for (int i = 0; i < ADI_APOLLO_JESD_MAX_LANES_PER_SIDE; i++) {
@@ -1314,7 +1341,7 @@ static int32_t check_link_status_capture_mem(adi_apollo_device_t* device, adi_fp
             goto end;
         }
     }
-    
+
     /* Wait for capture to finish */
     do {
         loop_count++;
@@ -1413,7 +1440,7 @@ static __maybe_unused int32_t hsci_buf_alloc(adi_apollo_device_t *device)
 {
     uint8_t *buff;
     uint32_t buff_len;
-    
+
     /* Allocate optional HSCI transaction buffer */
     buff_len = ADI_APOLLO_HAL_REGIO_HSCI_STREAM_DEFAULT_SIZE;
     buff = (uint8_t *)malloc(buff_len * sizeof(uint8_t));
@@ -1421,5 +1448,3 @@ static __maybe_unused int32_t hsci_buf_alloc(adi_apollo_device_t *device)
 
     return  adi_apollo_hal_buffer_set(device, ADI_APOLLO_HAL_PROTOCOL_HSCI, buff, buff_len);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

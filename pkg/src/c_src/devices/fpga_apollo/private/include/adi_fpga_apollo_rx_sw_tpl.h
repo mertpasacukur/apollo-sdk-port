@@ -21,6 +21,8 @@ extern "C" {
 
 /**
  * \brief   Perform JESD204 Transport Layer processing on the captured ADC data.
+ * 
+ * \note    This function will overwrite raw_frame[] and convert the raw captured data into samples.
  *
  * \param[in]   state_info     JESD Parameters for all the links. \ref adi_fpga_apollo_state_t
  * \param[in]   raw_frame      Byte array containing raw captured data.

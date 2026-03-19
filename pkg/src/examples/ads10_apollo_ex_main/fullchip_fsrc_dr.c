@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx/Tx FSRC Dynamic Reconfig (DR) using manual (SPI) trigger.
  *
@@ -30,9 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -84,7 +81,7 @@ static void print_rx_cfg_table(adi_apollo_device_t *device, adi_ads10_apollo_fsr
 static void print_tx_cfg_table(adi_apollo_device_t *device, adi_ads10_apollo_fsrc_dr_cfg_t tx_fsrc_dr_cfgs[], uint32_t num_dyn_recs);
 static int32_t fpga_hw_fsrc_dr_seq_run(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, uint32_t jrx_all_irqs, uint32_t jrx_rmfifo_irqs);
 static int32_t fpga_sw_fsrc_dr_seq_run(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, uint32_t jrx_all_irqs, uint32_t jrx_rmfifo_irqs);
-static int32_t fpga_hw_fsrc_config(adi_fpga_apollo_device_t *fpga_device);
+static int32_t fpga_hw_fsrc_config(adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile);
 static bool is_valid_rate_change(adi_ads10_apollo_dp_info_t *rx_dp_info, adi_ads10_apollo_dp_info_t *tx_dp_info,
                                  adi_ads10_apollo_fsrc_dr_cfg_t *rx_fsrc_ratio_cfg, adi_ads10_apollo_fsrc_dr_cfg_t *tx_fsrc_ratio_cfg);
 
@@ -214,7 +211,7 @@ int32_t fullchip_fsrc_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *
 
     /* Program FPGA SYSREF sequencer */
     if (fpga_feature_flags.tx_hw_fsrc) {
-        err = fpga_hw_fsrc_config(fpga_device);
+        err = fpga_hw_fsrc_config(fpga_device, profile);
         ADI_CMS_ERROR_RETURN(err);
     }
 
@@ -260,8 +257,8 @@ int32_t fullchip_fsrc_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *
     err = adi_ads10_apollo_ex_cals_run(device, profile, ADI_ADS10_APOLLO_CAL_CC | ADI_ADS10_APOLLO_CAL_ADC);
     ADI_CMS_ERROR_RETURN(err);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
-    ADI_CMS_ERROR_RETURN(err);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
+    ADI_CMS_ERROR_RETURN(err);  
 
     // Dynamic Sync Serdes Links gradually in a sequence
     printf("Run Rx-TX SerDes Links Dyn Sync...\n");
@@ -349,8 +346,9 @@ int32_t fullchip_fsrc_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *
          * JRx IRQs are used to detect if Jrx links drop.
          */
         if (!fpga_feature_flags.tx_hw_fsrc) {
-            err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
+            err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
             ADI_CMS_ERROR_RETURN(err);
+
             if (fpga_device->state_info.design_id != ADI_FPGA_APOLLO_DESIGN_STD_EVAL) {
                 err = adi_fpga_apollo_core_ptn_play_start(fpga_device);
                 ADI_CMS_ERROR_RETURN(err);
@@ -365,7 +363,7 @@ int32_t fullchip_fsrc_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *
             err = fpga_hw_fsrc_dr_seq_run(device, fpga_device, jrx_all_irqs, jrx_rmfifo_irqs);
             ADI_CMS_ERROR_RETURN(err);
         }
-        
+
         /* Set nominal gain to resume output */
         err = adi_apollo_fduc_subdp_gain_set(device, ADI_APOLLO_FDUC_ALL, 0x800);
         ADI_CMS_ERROR_RETURN(err);
@@ -408,7 +406,7 @@ int32_t fullchip_fsrc_dr(adi_apollo_device_t *device, adi_fpga_apollo_device_t *
 
         /* Read FPGA capture memory and write out i/q files */
         sprintf(cap_fname_base, "%s_%s", "fullchip_fsrc_dr", rx_fsrc_ratio_cfg->name);
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, interleaved);
+        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, cap_fname_base, true, interleaved);
         ADI_CMS_ERROR_RETURN(err);
 
 #ifdef EXCTL_AUTOMATION
@@ -619,10 +617,16 @@ static int32_t fpga_hw_fsrc_dr_seq_run(adi_apollo_device_t *device, adi_fpga_apo
     return err;
 }
 
-static int32_t fpga_hw_fsrc_config(adi_fpga_apollo_device_t *fpga_device)
+static int32_t fpga_hw_fsrc_config(adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile)
 {
     int32_t err = API_CMS_ERROR_OK;
     uint32_t fpga_link_count;
+    uint64_t dev_clk_hz = (uint64_t) profile->clk_cfg.dev_clk_freq_kHz * 1e3;
+    uint8_t divg_modulus = (profile->clk_cfg.clocking_mode == 0) ? 8 : 4;   // divg is global digital divider
+    uint32_t sysref_prd_digclk_cycles = profile->mcs_cfg.internal_sysref_prd_digclk_cycles_center;
+    uint64_t sysref_freq_hz = dev_clk_hz / (divg_modulus * sysref_prd_digclk_cycles);
+    uint64_t fpga_ref_freq_hz = (fpga_device->state_info.clk_info.max_link_rate_khz * 1e3) / fpga_device->state_info.clk_info.ref_clk_div;
+    uint32_t glbclk_ratio = (uint32_t)(fpga_ref_freq_hz / sysref_freq_hz);
 
     /*
      * Some images support 2 links, others 4. This example assumes HW FSRC which has two links.
@@ -636,7 +640,8 @@ static int32_t fpga_hw_fsrc_config(adi_fpga_apollo_device_t *fpga_device)
     /*
      * Setup FPGA SYSREF clocking
      */
-    adi_fpga_apollo_core_sysref_setup(fpga_device);
+    printf("glbclk_ratio = %d\n", glbclk_ratio);
+    adi_fpga_apollo_core_internal_sysref_setup(fpga_device, glbclk_ratio);
 
     /*
     * FPGA SYSREF sequencer programming
@@ -671,5 +676,3 @@ static bool is_valid_rate_change(adi_ads10_apollo_dp_info_t *rx_dp_info, adi_ads
         return true;
     }
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

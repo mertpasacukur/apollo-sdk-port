@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common BMEM related functions
  *
@@ -33,6 +32,13 @@ int32_t adi_ads10_apollo_ex_bmem_awg_config(adi_apollo_device_t* device, uint16_
 
 int32_t adi_ads10_apollo_ex_bmem_awg_tone_write(adi_apollo_device_t* device, uint16_t bmem_sel, double tone_ratio, double backoff, bool debug)
 {
+    double tone_ratio_out = 0;
+
+    return adi_ads10_apollo_ex_bmem_awg_tone_write_v2(device, bmem_sel, tone_ratio, backoff, debug, &tone_ratio_out);
+}
+
+int32_t adi_ads10_apollo_ex_bmem_awg_tone_write_v2(adi_apollo_device_t* device, uint16_t bmem_sel, double tone_ratio, double backoff, bool debug, double *tone_ratio_out)
+{
     int32_t err = API_CMS_ERROR_OK;
     int32_t vec16_len = (device->dev_info.is_8t8r) ? 32 * 1024 : 64 * 1024;
     uint32_t scratch32_len = (device->dev_info.is_8t8r) ? vec16_len : vec16_len / 2;
@@ -43,7 +49,9 @@ int32_t adi_ads10_apollo_ex_bmem_awg_tone_write(adi_apollo_device_t* device, uin
        .backoff = backoff,
        .resolution = 12,
        .ratio = tone_ratio,
-       .phase = 0
+       .phase = 0,
+       .sample_total = vec16_len,
+       .sample_idx = 0
    };
 
     /* Set the active protocol to SPI for writing BMEM AWG (will restore ap) */
@@ -57,7 +65,7 @@ int32_t adi_ads10_apollo_ex_bmem_awg_tone_write(adi_apollo_device_t* device, uin
     ADI_CMS_MEM_ALLOC_CHECK(vec16);
 
     printf("Create/load %f tone into BMEM...\n", tone_ratio);
-    adi_vector_generate_sine(vec16, vec16_len, &config);
+    adi_vector_generate_sine_v2(vec16, vec16_len, &config, tone_ratio_out);
 
     if (debug) {
         adi_apollo_utilities_mkdir(device, true, BMEM_VEC_FILE_PATH);
@@ -159,5 +167,3 @@ end:
     ADI_CMS_MEM_ALLOC_FREE(bmem_cap32);
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -20,7 +20,7 @@
 
 
 /*============= D E F I N E S ==============*/
-#define TRANSFER_SIZE 131072
+#define TRANSFER_SIZE 1024*1024
 
 static int32_t capture_execute_raw(adi_fpga_apollo_device_t *fpga, uint64_t cap_size_bytes);
 static int32_t capture_get_raw(adi_fpga_apollo_device_t *fpga, uint8_t cap_buf[], uint32_t cap_size_bytes);
@@ -46,7 +46,11 @@ int32_t adi_fpga_apollo_capture_frame_populate(adi_fpga_apollo_device_t *fpga) {
 
     ADI_CMS_NULL_PTR_CHECK(fpga);
 
-    fpga->state_info.capture_info.capture_frame.is_valid = 1;
+    if (fpga->state_info.capture_info.capture_frame.is_valid == 1) {
+        /* clear if already populated */
+        memset(&fpga->state_info.capture_info, 0, sizeof(adi_fpga_apollo_capture_t));
+    }
+
     capture_frame = &fpga->state_info.capture_info.capture_frame;
 
     /* Get link_enabled, m, and np */
@@ -56,6 +60,7 @@ int32_t adi_fpga_apollo_capture_frame_populate(adi_fpga_apollo_device_t *fpga) {
         capture_frame->link_enabled[i] = fpga->state_info.jrx[i].jesd_link_pd ? 0 : 1;
         capture_frame->link_converter_count[i] = capture_frame->link_enabled[i] ? fpga->state_info.jrx[i].jesd_m : 0;
         capture_frame->link_bits_per_sample[i] = capture_frame->link_enabled[i] ? fpga->state_info.jrx[i].jesd_np : 0;
+        capture_frame->num_links_in_use += capture_frame->link_enabled[i];
     }
 
     /* Set fpga_link_bits*/
@@ -120,6 +125,8 @@ int32_t adi_fpga_apollo_capture_frame_populate(adi_fpga_apollo_device_t *fpga) {
             capture_frame->frame_samples_per_conv[i] = 0;
         }
     }
+
+    fpga->state_info.capture_info.capture_frame.is_valid = 1;
 
     return err;
 }

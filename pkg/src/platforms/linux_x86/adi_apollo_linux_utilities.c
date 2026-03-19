@@ -1,4 +1,3 @@
-#if defined(__linux__)
 /*!
  * \brief     APIs for CPU FW file LOAD
  *
@@ -242,7 +241,7 @@ int32_t adi_apollo_utilities_mkdir(adi_apollo_device_t *device, bool parents, ch
     return API_CMS_ERROR_OK;
 }
 
-int32_t adi_apollo_utilites_file_to_16b_samples_arr(adi_apollo_device_t *device, char *file_name, int16_t **sample_arr, uint32_t *arr_size, uint32_t max_samples)
+int32_t adi_apollo_utilities_file_to_16b_samples_arr(adi_apollo_device_t *device, char *file_name, int16_t **sample_arr, uint32_t *arr_size, uint32_t max_samples)
 {
     int32_t err = API_CMS_ERROR_OK;
     uint32_t sample_cnt = 0;
@@ -292,5 +291,35 @@ end:
     return err;
 }
 
+int32_t adi_apollo_utilities_file_sample_count(adi_apollo_device_t *device, char *file_name, uint32_t max_samples, uint32_t *num_samples)
+{
+    char line[256];
 
-#endif /* defined(__linux__) */
+    ADI_CMS_NULL_PTR_CHECK(device);
+    ADI_APOLLO_LOG_FUNC();
+    ADI_CMS_NULL_PTR_CHECK(file_name);
+    ADI_CMS_NULL_PTR_CHECK(num_samples);
+
+    /* Open file of samples */
+    FILE *fp = fopen(file_name, "r");
+    ADI_CMS_FILE_OPEN_CHECK(fp);
+
+    *num_samples = 0;
+    
+    /* get number of samples in file */
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        (*num_samples)++;
+
+        if (max_samples && (*num_samples == max_samples)) {
+            break;
+        }
+    }
+
+    if (0 != ferror(fp)) {
+        return API_CMS_ERROR_FILE_OPERATION;
+    }
+
+    ADI_CMS_FILE_CLOSE(fp);
+
+    return API_CMS_ERROR_OK;
+}

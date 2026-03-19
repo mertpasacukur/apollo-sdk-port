@@ -1,5 +1,5 @@
 /*!
- * \brief     ADF4382 CPCTRL Functionality
+ * \brief     ADF4382 Charge Pump Control Functionality
  *
  * \copyright copyright(c) 2022 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its

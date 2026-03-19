@@ -11,11 +11,9 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.profile_version = { 
 		.major = 9, 
 		.minor = 1, 
-		.patch = 0 }
-		, 
+		.patch = 3 }, 
 		.config_version = 0, 
-		.is_8t8r = true }
-	, 
+		.is_8t8r = true }, 
 		.clk_cfg = { 
 		.single_dual_clk_sel = false, 
 		.clk_path_sel = true, 
@@ -28,8 +26,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dev_clk_freq_kHz = 8000000, 
 		.arm_clock_sel = ADI_APOLLO_ARM_CLOCK_SEL_B, 
 		.arm_clk_div = 4, 
-		.serdes_clk_div = 8 }
-	, 
+		.serdes_clk_div = 8 }, 
 		.clk_pll = { 
 		.loop_bandwidth = 0, 
 		.phase_margin = 0, 
@@ -39,27 +36,23 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.ref_clk_div = 1, 
 		.i_bleed_en = 0, 
 		.feedback_int = 0, 
-		.feedback_frac = 0 }
-	, 
+		.feedback_frac = 0 }, 
 		.mcs_cfg = { 
 		.center_sysref = { 
 		.ref_to_int_period_ratio = 1, 
 		.sysref_present = false, 
 		.rx_term_en = false, 
-		.cm_above_900mv = false }
-		, 
+		.cm_above_900mv = false }, 
 		.aside_sysref = { 
 		.ref_to_int_period_ratio = 1, 
 		.sysref_present = false, 
 		.rx_term_en = false, 
-		.cm_above_900mv = false }
-		, 
+		.cm_above_900mv = false }, 
 		.bside_sysref = { 
 		.ref_to_int_period_ratio = 1, 
 		.sysref_present = false, 
 		.rx_term_en = false, 
-		.cm_above_900mv = false }
-		, 
+		.cm_above_900mv = false }, 
 		.use_gapped_sysref = false, 
 		.leave_sysref_rx_on = false, 
 		.num_sysref_avg_mcs_fw = 31, 
@@ -78,15 +71,12 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.max_fine_code = { 0, 0  }, 
 		.track_polarity_select = { false, false  }, 
 		.phase_adj = { 1, 0  }, 
-		.track_win = { 0, 0  } }
-		, 
+		.track_win = { 0, 0  } }, 
 		.mcs_trigger_cfg = { 
 		.trigger_pin_to_rx_datapath_a_mapping = 0, 
 		.trigger_pin_to_rx_datapath_b_mapping = 0, 
 		.trigger_pin_to_tx_datapath_a_mapping = 0, 
-		.trigger_pin_to_tx_datapath_b_mapping = 0 }
-		 }
-	, 
+		.trigger_pin_to_tx_datapath_b_mapping = 0 } }, 
 		.gpio_cfg = { 
 		.gpio_quick_config = 0, 
 		.gpio_mode_en = 0, 
@@ -95,8 +85,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.gpio_from_set = 0, 
 		.gpio_source_control = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.gpio_stage_sel_lsb = 0, 
-		.gpio_stage_sel_msb = 0 }
-	, 
+		.gpio_stage_sel_msb = 0 }, 
 		.tx_path = { { 
 		.tx_cduc = { { 
 		.nco = { { 
@@ -496,8 +485,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fduc_cduc_summer = { 1, 4, 2, 8  }, 
 		.mux1_sel = { (adi_apollo_tx_mux1_sel_e) 0, (adi_apollo_tx_mux1_sel_e) 0  }, 
 		.mux0_sel = { (adi_apollo_tx_mux0_sel_e) 0, (adi_apollo_tx_mux0_sel_e) 2, (adi_apollo_tx_mux0_sel_e) 1, (adi_apollo_tx_mux0_sel_e) 3  }, 
-		.low_samp_en = false }
-		, 
+		.low_samp_en = false }, 
 		.tx_dyn_recfg = { 
 		.prefsrc_lcm = 0, 
 		.postfsrc_lcm = 0, 
@@ -506,8 +494,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fnco_rst_en = false, 
 		.resync_en = false, 
 		.ts_rst_en = false, 
-		.tzero_coher_en = false }
-		, 
+		.tzero_coher_en = false }, 
 		.tx_pa_prot = { { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
@@ -517,8 +504,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -545,8 +531,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -558,16 +543,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -576,8 +559,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -604,8 +586,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -617,16 +598,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -635,8 +614,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -663,8 +641,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -676,16 +653,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -694,8 +669,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -722,8 +696,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -735,16 +708,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }  }, 
+		.sr_threshold = 0 } }  }, 
 		.inv_sinc_en = { true, true, true, true  } }, { 
 		.tx_cduc = { { 
 		.nco = { { 
@@ -1144,8 +1115,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fduc_cduc_summer = { 1, 4, 2, 8  }, 
 		.mux1_sel = { (adi_apollo_tx_mux1_sel_e) 0, (adi_apollo_tx_mux1_sel_e) 0  }, 
 		.mux0_sel = { (adi_apollo_tx_mux0_sel_e) 0, (adi_apollo_tx_mux0_sel_e) 2, (adi_apollo_tx_mux0_sel_e) 1, (adi_apollo_tx_mux0_sel_e) 3  }, 
-		.low_samp_en = false }
-		, 
+		.low_samp_en = false }, 
 		.tx_dyn_recfg = { 
 		.prefsrc_lcm = 0, 
 		.postfsrc_lcm = 0, 
@@ -1154,8 +1124,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fnco_rst_en = false, 
 		.resync_en = false, 
 		.ts_rst_en = false, 
-		.tzero_coher_en = false }
-		, 
+		.tzero_coher_en = false }, 
 		.tx_pa_prot = { { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
@@ -1165,8 +1134,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -1193,8 +1161,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -1206,16 +1173,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -1224,8 +1189,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -1252,8 +1216,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -1265,16 +1228,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -1283,8 +1244,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -1311,8 +1271,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -1324,16 +1283,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }, { 
+		.sr_threshold = 0 } }, { 
 		.pa_clkdiv_en = false, 
 		.paprot_pwr_cfg = { 
 		.pa_clk_en = false, 
@@ -1342,8 +1299,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pwr_threshold_long = 0, 
 		.pwr_threshold_short = 0, 
 		.avg_long_win = 0, 
-		.avg_short_win = 0 }
-			, 
+		.avg_short_win = 0 }, 
 		.paprot_sm_cfg = { 
 		.enable_paprotsm = false, 
 		.rampdwn_to_papin_en = false, 
@@ -1370,8 +1326,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.dp_zero_flush_sel_0 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.dp_zero_flush_sel_1 = ADI_APOLLO_PAPROT_ZF_SEL_F0_P0, 
 		.data_ready_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0, 
-		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }
-			, 
+		.jesd_err_sel_ramp = ADI_APOLLO_PAPROT_JESD_DF_SEL_L0 }, 
 		.paprot_ramp_cfg = { 
 		.gain_clk_en = false, 
 		.zero_detect_en = false, 
@@ -1383,16 +1338,14 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.trig_ramp_together = false, 
 		.gain_inc_step = 0, 
 		.gain_dec_step = 0, 
-		.gain_max_val = 0 }
-			, 
+		.gain_max_val = 0 }, 
 		.paprot_sr_cfg = { 
 		.sr_clk_en = false, 
 		.sr_err_self_clr_en = false, 
 		.sr_calculation_en = false, 
 		.slew_rate_err_irq_en = false, 
 		.sr_path_sel = 0, 
-		.sr_threshold = 0 }
-			 }  }, 
+		.sr_threshold = 0 } }  }, 
 		.inv_sinc_en = { true, true, true, true  } }  }, 
 		.rx_path = { { 
 		.rx_cddc = { { 
@@ -1841,8 +1794,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.rx_mux_splitter_xbar = { 
 		.mux0_out_adc_sel = { ADI_APOLLO_8T8R_CB_OUT_FROM_ADC0, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC1, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC2, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC3  }, 
 		.mux2_fddc_input_sel = { (adi_apollo_rx_mux2_sel_e) 2, (adi_apollo_rx_mux2_sel_e) 3, (adi_apollo_rx_mux2_sel_e) 6, (adi_apollo_rx_mux2_sel_e) 7  }, 
-		.low_samp_en = false }
-		, 
+		.low_samp_en = false }, 
 		.rx_dyn_recfg = { 
 		.prefsrc_lcm = 0, 
 		.postfsrc_lcm = 0, 
@@ -1851,8 +1803,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fnco_rst_en = false, 
 		.resync_en = false, 
 		.ts_rst_en = false, 
-		.tzero_coher_en = false }
-		, 
+		.tzero_coher_en = false }, 
 		.rx_dformat = { { 
 		.inv = false, 
 		.sel = ADI_APOLLO_RX_DFORMAT_SEL_2COMP, 
@@ -1864,12 +1815,10 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pn_force_rst = false, 
 		.flush = false, 
 		.usr_pat_sel = false, 
-		.res = ADI_APOLLO_RX_TMODE_RES_16B }
-			, 
+		.res = ADI_APOLLO_RX_TMODE_RES_16B }, 
 		.rm_fifo = { 
 		.invalid_en = false, 
-		.sample_repeat_en = true }
-			 }, { 
+		.sample_repeat_en = true } }, { 
 		.inv = false, 
 		.sel = ADI_APOLLO_RX_DFORMAT_SEL_2COMP, 
 		.ddc_dither_en = false, 
@@ -1880,12 +1829,10 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pn_force_rst = false, 
 		.flush = false, 
 		.usr_pat_sel = false, 
-		.res = ADI_APOLLO_RX_TMODE_RES_16B }
-			, 
+		.res = ADI_APOLLO_RX_TMODE_RES_16B }, 
 		.rm_fifo = { 
 		.invalid_en = false, 
-		.sample_repeat_en = true }
-			 }  }, 
+		.sample_repeat_en = true } }  }, 
 		.rx_smon = { { 
 		.period = 0, 
 		.gpio_en = false, 
@@ -2373,8 +2320,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.rx_mux_splitter_xbar = { 
 		.mux0_out_adc_sel = { ADI_APOLLO_8T8R_CB_OUT_FROM_ADC0, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC1, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC2, ADI_APOLLO_8T8R_CB_OUT_FROM_ADC3  }, 
 		.mux2_fddc_input_sel = { (adi_apollo_rx_mux2_sel_e) 2, (adi_apollo_rx_mux2_sel_e) 3, (adi_apollo_rx_mux2_sel_e) 6, (adi_apollo_rx_mux2_sel_e) 7  }, 
-		.low_samp_en = false }
-		, 
+		.low_samp_en = false }, 
 		.rx_dyn_recfg = { 
 		.prefsrc_lcm = 0, 
 		.postfsrc_lcm = 0, 
@@ -2383,8 +2329,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.fnco_rst_en = false, 
 		.resync_en = false, 
 		.ts_rst_en = false, 
-		.tzero_coher_en = false }
-		, 
+		.tzero_coher_en = false }, 
 		.rx_dformat = { { 
 		.inv = false, 
 		.sel = ADI_APOLLO_RX_DFORMAT_SEL_2COMP, 
@@ -2396,12 +2341,10 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pn_force_rst = false, 
 		.flush = false, 
 		.usr_pat_sel = false, 
-		.res = ADI_APOLLO_RX_TMODE_RES_16B }
-			, 
+		.res = ADI_APOLLO_RX_TMODE_RES_16B }, 
 		.rm_fifo = { 
 		.invalid_en = false, 
-		.sample_repeat_en = true }
-			 }, { 
+		.sample_repeat_en = true } }, { 
 		.inv = false, 
 		.sel = ADI_APOLLO_RX_DFORMAT_SEL_2COMP, 
 		.ddc_dither_en = false, 
@@ -2412,12 +2355,10 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.pn_force_rst = false, 
 		.flush = false, 
 		.usr_pat_sel = false, 
-		.res = ADI_APOLLO_RX_TMODE_RES_16B }
-			, 
+		.res = ADI_APOLLO_RX_TMODE_RES_16B }, 
 		.rm_fifo = { 
 		.invalid_en = false, 
-		.sample_repeat_en = true }
-			 }  }, 
+		.sample_repeat_en = true } }  }, 
 		.rx_smon = { { 
 		.period = 0, 
 		.gpio_en = false, 
@@ -2465,8 +2406,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.subclass = ADI_APOLLO_SUBCLASS_0, 
 		.dual_link = false, 
 		.lane_enables = 15, 
-		.lane_rate_kHz = 10000000 }
-		, 
+		.lane_rate_kHz = 10000000 }, 
 		.tx_link_cfg = { { 
 		.link_in_use = true, 
 		.e_minus1 = 0, 
@@ -2590,8 +2530,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.subclass = ADI_APOLLO_SUBCLASS_0, 
 		.dual_link = false, 
 		.lane_enables = 15, 
-		.lane_rate_kHz = 10000000 }
-		, 
+		.lane_rate_kHz = 10000000 }, 
 		.tx_link_cfg = { { 
 		.link_in_use = true, 
 		.e_minus1 = 0, 
@@ -2716,8 +2655,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.subclass = ADI_APOLLO_SUBCLASS_0, 
 		.dual_link = false, 
 		.lane_enables = 15, 
-		.lane_rate_kHz = 10000000 }
-		, 
+		.lane_rate_kHz = 10000000 }, 
 		.rx_link_cfg = { { 
 		.link_in_use = true, 
 		.e_minus1 = 0, 
@@ -2783,8 +2721,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2792,8 +2729,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2801,8 +2737,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2810,8 +2745,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2819,8 +2753,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2828,8 +2761,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2837,8 +2769,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2846,8 +2777,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2855,8 +2785,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2864,8 +2793,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2873,8 +2801,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2882,15 +2809,13 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }  } }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }  } }, { 
 		.common_link_cfg = { 
 		.ver = ADI_APOLLO_JESD_204B, 
 		.subclass = ADI_APOLLO_SUBCLASS_0, 
 		.dual_link = false, 
 		.lane_enables = 15, 
-		.lane_rate_kHz = 10000000 }
-		, 
+		.lane_rate_kHz = 10000000 }, 
 		.rx_link_cfg = { { 
 		.link_in_use = true, 
 		.e_minus1 = 0, 
@@ -2956,8 +2881,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2965,8 +2889,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2974,8 +2897,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2983,8 +2905,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -2992,8 +2913,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3001,8 +2921,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3010,8 +2929,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3019,8 +2937,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3028,8 +2945,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3037,8 +2953,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3046,8 +2961,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }, { 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }, { 
 		.high_boost_options = 0, 
 		.des_inv_lane_pol = false, 
 		.rx_des_qhf_rate = ADI_APOLLO_DESER_RATE_MODE_HALF_RATE, 
@@ -3055,8 +2969,7 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.config_options = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
 		.override_settings = { 
 		.names = { ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID, ADI_APOLLO_DESER_INVALID  }, 
-		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } }
-			 }  } }  }, 
+		.values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  } } }  } }  }, 
 		.dac_config = { { 
 		.dac_sampling_rate_Hz = 8000000000, 
 		.dynamic_dac_en = false, 
@@ -3116,11 +3029,11 @@ adi_apollo_top_t id98_uc05lb_0 = {
 		.i_bleed_en = 0, 
 		.serdes_pll_odiv = 8, 
 		.feedback_int = 40, 
-		.feedback_frac = 0 }
-	, 
+		.feedback_frac = 0 }, 
 		.adc_enable = 255, 
 		.dac_enable = 255, 
-		.reserved_cfg = { 244, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
-		.profile_checksum = 708306398 };
+		.reserved_cfg = { 0, 0, 3, 0, 244, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  }, 
+		.profile_checksum = 3711363940 };
+
 
 #endif /* __ADI_ID98_UC05LB_H__ */

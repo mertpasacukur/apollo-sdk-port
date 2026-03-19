@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo code examples
  *
@@ -36,6 +35,7 @@ int32_t rx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 int32_t rx_adc_cc(adi_apollo_device_t* device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t rx_adc_bmem(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t rx_adc_fd(adi_apollo_device_t* device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
+int32_t rx_adc_smon(adi_apollo_device_t* device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t rx_adc_mux2(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t rx_adc_pave(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t rx_adc_pfilt(adi_apollo_device_t* device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
@@ -59,7 +59,6 @@ int32_t gpio_toggle(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_
 int32_t fmcb_aux(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t bsync_tof(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
+int32_t power_readback(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst);
 
 #endif /* __APOLLO_EXAMPLES_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

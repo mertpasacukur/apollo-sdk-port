@@ -33,11 +33,12 @@ int32_t adi_ltm4681_core_version_get(adi_ltm4681_device_t *ltm4681, adi_ltm4681_
 int32_t adi_ltm4681_core_vout_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t vout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -45,6 +46,7 @@ int32_t adi_ltm4681_core_vout_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_cha
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -58,12 +60,13 @@ int32_t adi_ltm4681_core_vout_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_cha
 int32_t adi_ltm4681_core_vout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t read_vout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t vout_adc_ctrl = 0;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -71,6 +74,7 @@ int32_t adi_ltm4681_core_vout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -97,12 +101,13 @@ int32_t adi_ltm4681_core_vout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
 int32_t adi_ltm4681_core_iout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t read_iout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t iout_adc_ctrl = 0;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -110,6 +115,7 @@ int32_t adi_ltm4681_core_iout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -136,11 +142,12 @@ int32_t adi_ltm4681_core_iout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
 int32_t adi_ltm4681_core_pout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t read_pout[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -148,6 +155,7 @@ int32_t adi_ltm4681_core_pout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -161,11 +169,12 @@ int32_t adi_ltm4681_core_pout_measure(adi_ltm4681_device_t *ltm4681, adi_ltm4681
 int32_t adi_ltm4681_core_ton_delay_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t ton_delay[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -173,6 +182,7 @@ int32_t adi_ltm4681_core_ton_delay_set(adi_ltm4681_device_t *ltm4681, adi_ltm468
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -186,11 +196,12 @@ int32_t adi_ltm4681_core_ton_delay_set(adi_ltm4681_device_t *ltm4681, adi_ltm468
 int32_t adi_ltm4681_core_ton_rise_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t ton_rise[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -198,6 +209,7 @@ int32_t adi_ltm4681_core_ton_rise_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -211,11 +223,12 @@ int32_t adi_ltm4681_core_ton_rise_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681
 int32_t adi_ltm4681_core_toff_delay_set(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], uint16_t toff_delay[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
@@ -223,6 +236,7 @@ int32_t adi_ltm4681_core_toff_delay_set(adi_ltm4681_device_t *ltm4681, adi_ltm46
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -263,17 +277,19 @@ int32_t adi_ltm4681_core_enable_channels(adi_ltm4681_device_t *ltm4681, adi_ltm4
     int32_t err = API_CMS_ERROR_I2C_ERROR;
     uint8_t global_page = 0xFF;
     uint8_t turn_off = (use_sequence_off == true) ? SOFT_OFF : TURN_OFF_IMMEDIATELY;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i = 0;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
     ADI_CMS_NULL_PTR_CHECK(smbus_hal);
     ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     // Turn ON
     if (ch_enable == true) {
         // All channels programmed at once.
@@ -382,16 +398,20 @@ int32_t adi_ltm4681_core_power_down(adi_ltm4681_device_t *ltm4681, adi_ltm4681_c
 int32_t adi_ltm4681_core_fault_status_get(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id, uint8_t page[], adi_ltm4681_fault_status_t status[], uint32_t num_page_channels)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
     uint8_t i;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
     ADI_CMS_INVALID_PARAM_CHECK(num_page_channels > 2);
     ADI_CMS_NULL_PTR_CHECK(page);
     ADI_CMS_NULL_PTR_CHECK(status);
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     for (i = 0; i < num_page_channels; ++i) {
         err = adi_pmbus_page_set(smbus_hal, device_addr, page[i]);
         ADI_CMS_ERROR_RETURN(err);
@@ -425,12 +445,16 @@ int32_t adi_ltm4681_core_fault_status_get(adi_ltm4681_device_t *ltm4681, adi_ltm
 int32_t adi_ltm4681_core_fault_status_clear(adi_ltm4681_device_t *ltm4681, adi_ltm4681_chan_pair_id_e chan_id)
 {
     int32_t err = API_CMS_ERROR_I2C_ERROR;
-    uint32_t device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
-    adi_smbus_hal_t *smbus_hal = &ltm4681->smbus;
+    uint32_t device_addr;
+    adi_smbus_hal_t *smbus_hal;
 
     ADI_CMS_NULL_PTR_CHECK(ltm4681);
+    smbus_hal = &ltm4681->smbus;
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal);
+    ADI_CMS_NULL_PTR_CHECK(smbus_hal->user_data);
     ADI_CMS_INVALID_PARAM_CHECK((chan_id != ADI_LTM4681_CHAN_01) && (chan_id != ADI_LTM4681_CHAN_23));
 
+    device_addr = (chan_id == ADI_LTM4681_CHAN_01) ? ltm4681->chan_01_i2c_addr : ltm4681->chan_23_i2c_addr;
     err = adi_pmbus_page_set(smbus_hal, device_addr, 0);
     ADI_CMS_ERROR_RETURN(err);
 

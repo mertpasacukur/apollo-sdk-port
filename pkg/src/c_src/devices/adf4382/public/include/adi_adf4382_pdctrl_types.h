@@ -1,5 +1,5 @@
 /*!
- * \brief     ADF4382 Power Down Types
+ * \brief     ADF4382 Power Down Control Types
  *
  * \copyright copyright(c) 2022 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its

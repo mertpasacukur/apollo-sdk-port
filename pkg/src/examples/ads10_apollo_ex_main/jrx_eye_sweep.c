@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Apollo Serdes JRx Horizontal and Vertical Eye Sweep Example
  *
@@ -16,9 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_fpga_apollo_core.h"
@@ -27,6 +24,8 @@
 #include "adi_ads10_apollo_ex_cal.h"
 #include "adi_ads10_apollo_ex_inspect.h"
 
+#define CAL_STATE_FREEZE        (APOLLO_CALFRMWRK_STATE_DISABLED | APOLLO_CALFRMWRK_STATE_INACTIVE | APOLLO_CALFRMWRK_STATE_SUSPENDED)
+#define CAL_STATE_UNFREEZE      (APOLLO_CALFRMWRK_STATE_ENABLED | APOLLO_CALFRMWRK_STATE_RUNNING | APOLLO_CALFRMWRK_STATE_RESUMED)
 
 int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst)
 {
@@ -40,6 +39,10 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     adi_apollo_serdes_bgcal_state_t serdes_bgcal_state[2] = {{0}};
     uint8_t sweep_data_per_run = ADI_APOLLO_SERDES_JRX_VERT_EYE_TEST_RESP_BUF_SIZE;
     uint16_t sweep_cnt = 0;
+    uint32_t polling_delay_us = 100 * 1000;  // 100ms polling delay
+    uint32_t max_delay_us = 10 * polling_delay_us;  // 1s max delay
+    uint32_t elapsed_us = 0;
+    bool status_ok = false;
     char dir[MAX_PATH_LEN];     // Directory in which sweep data will be saved.
     char fname[MAX_PATH_LEN];   // File name for sweep data.
     FILE *fp = NULL;
@@ -82,9 +85,6 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     err = adi_fpga_apollo_core_jesd_tx_phy_prbs_start(fpga_device, false);
     ADI_CMS_ERROR_RETURN(err);
 
-    adi_apollo_hal_delay_us(device, 100 * 1000);
-    ADI_CMS_ERROR_RETURN(err);
-
     /* Run SerDes Init(FG) Cal */
     if (adi_ads10_apollo_ex_run_serdes_init_cal_get(profile)) {
         printf("Run SERDES JRx FG cal...\n");
@@ -103,7 +103,7 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
         err = adi_apollo_serdes_jrx_bgcal_state_get(device, serdes, serdes_bgcal_state, 2);
         ADI_CMS_ERROR_RETURN(err);
 
-        printf("Serdes BGCal State after cal run.\n");
+        printf("Serdes BGCal State after bgcal unfreeze.\n");
         for(i = 0; i < 2; i++) {
             printf("Serdes Pack: %02d \t", i);
             printf("Serdes state_valid: %02d \t", serdes_bgcal_state[i].state_valid);
@@ -120,6 +120,36 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
         printf("Freeze SERDES JRx BG cal...\n");
         err = adi_apollo_serdes_jrx_bgcal_freeze(device, serdes);
         ADI_CMS_ERROR_RETURN(err);
+
+        while (elapsed_us < max_delay_us) {
+            err = adi_apollo_serdes_jrx_bgcal_state_get(device, serdes, serdes_bgcal_state, 2);
+            ADI_CMS_ERROR_RETURN(err);
+
+            if (serdes == ADI_APOLLO_TXRX_SERDES_12PACK_A) {
+                status_ok = (serdes_bgcal_state[0].bgcal_state == CAL_STATE_FREEZE);
+            } else if (serdes == ADI_APOLLO_TXRX_SERDES_12PACK_B) {
+                status_ok = (serdes_bgcal_state[1].bgcal_state == CAL_STATE_FREEZE);
+            } else if (serdes == (ADI_APOLLO_TXRX_SERDES_12PACK_A | ADI_APOLLO_TXRX_SERDES_12PACK_B)) {
+                status_ok = ((serdes_bgcal_state[0].bgcal_state == CAL_STATE_FREEZE)
+                             && (serdes_bgcal_state[1].bgcal_state == CAL_STATE_FREEZE)) ;
+            } else {
+                status_ok = false;
+            }
+
+            if (status_ok) {
+                break;
+            }
+            adi_apollo_hal_delay_us(device, polling_delay_us);
+            elapsed_us += polling_delay_us;
+        }
+
+        printf("Serdes BGCal State after bgcal freeze.\n");
+        for(i = 0; i < 2; i++) {
+            printf("Serdes Pack: %02d \t", i);
+            printf("Serdes state_valid: %02d \t", serdes_bgcal_state[i].state_valid);
+            printf("Serdes bgcal_error: 0x%X \t", serdes_bgcal_state[i].bgcal_error);
+            printf("Serdes bgcal_state: 0x%X.\n", serdes_bgcal_state[i].bgcal_state);
+        }
     }
 
     printf("\nRunning JRx Horizontal EYE Sweep...\n");
@@ -167,5 +197,3 @@ int32_t jrx_eye_sweep(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

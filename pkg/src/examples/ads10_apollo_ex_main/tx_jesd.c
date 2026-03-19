@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo TX JESD FSRC data path test
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -48,7 +45,7 @@ int32_t tx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
     adi_ads10_ex_dp_info_to_str(&tx_dp_info, "Base Profile", str_buff, str_buff_len);
     printf("\n%s\n\n", str_buff);
 
-    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, ADI_APOLLO_SIDE_ALL, vec_len, tone_ratio, -1.0);
+    err = adi_ads10_apollo_ex_vec_cmplx_tone_write(fpga_device, profile, NULL, ADI_APOLLO_LINK_ALL, vec_len, tone_ratio, -1.0);
     ADI_CMS_ERROR_RETURN(err);
 
     /* Transmit data out from FPGA JTx */
@@ -68,5 +65,3 @@ int32_t tx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

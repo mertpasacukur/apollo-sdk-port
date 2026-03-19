@@ -1,22 +1,21 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx PFILT data path test using BMEM-AWG as input source
  *
  *  This example uses BMEM AWG mode to simulate ADC samples going into PFILT block.
  *  Side A is configured for a low pass filter while side B is configured for high pass.
- *  Tones are generated at 0.115, 0.3 and 0.399 Fs (pass/transition/stop bands). Data is 
- *  captured for all channels and written out to interleaved I/Q files. Use FFT analysis 
+ *  Tones are generated at 0.115, 0.3 and 0.399 Fs (pass/transition/stop bands). Data is
+ *  captured for all channels and written out to interleaved I/Q files. Use FFT analysis
  *  and compare fundamental magnitudes to verify filter response.
- *  
+ *
  * This example supports 4T4R and 8TR devices.
- *  
+ *
  * Example filter response for N/2 real filter config
  *  Fin	    Low Pass    Hi Pass
  *  ---     --------    -------
  *  0.115   0           <-55
  *  0.3     -8.5        -8.5
  *  0.39    <-55        0
- *  
+ *
  * \copyright copyright(c) 2018 analog devices, inc. all rights reserved.
  *            This software is proprietary to Analog Devices, Inc. and its
  *            licensor. By using this software you agree to the terms of the
@@ -25,9 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -38,28 +35,67 @@
 #include "adi_fpga_apollo_core.h"
 #include "adi_apollo_linux_utilities.h"
 #include "adi_ads10_apollo_ex_bmem.h"
+#include "adi_ads10_apollo_ex_ctl.h"
 
+// PFILT attenuation values (in dB) for each bank and frequency, based on the provided filter response table
+#define PFILT_BANK0_LP_ATTEN_0115FS   -5.92     // Bank 0, Low Pass, 0.115*Fs
+#define PFILT_BANK0_LP_ATTEN_0300FS   -14.46    // Bank 0, Low Pass, 0.300*Fs
+#define PFILT_BANK0_LP_ATTEN_0400FS   -64.28    // Bank 0, Low Pass, 0.400*Fs
+
+#define PFILT_BANK1_LP_ATTEN_0115FS   -5.79     // Bank 1, Low Pass, 0.115*Fs
+#define PFILT_BANK1_LP_ATTEN_0300FS   -71.87    // Bank 1, Low Pass, 0.300*Fs
+#define PFILT_BANK1_LP_ATTEN_0400FS   -69.04    // Bank 1, Low Pass, 0.400*Fs
+
+#define PFILT_BANK2_HP_ATTEN_0115FS   -68.81    // Bank 2, High Pass, 0.115*Fs
+#define PFILT_BANK2_HP_ATTEN_0300FS   -14.53    // Bank 2, High Pass, 0.300*Fs
+#define PFILT_BANK2_HP_ATTEN_0400FS   -5.742    // Bank 2, High Pass, 0.400*Fs
+
+#define PFILT_BANK3_HP_ATTEN_0115FS   -59.9     // Bank 3, High Pass, 0.115*Fs
+#define PFILT_BANK3_HP_ATTEN_0300FS   -5.68     // Bank 3, High Pass, 0.300*Fs
+#define PFILT_BANK3_HP_ATTEN_0400FS   -5.81     // Bank 3, High Pass, 0.400*Fs
+
+#define BACKOFF                       -0.70     // dB backoff for filter attenuation
+#define THRESHOLD_LEVEL               -60.50    // Threshold level for filter response verification
+#define TONE_NUM_SAMPLES              32*1024   // Number of samples for tone generation
+
+/**
+ * \brief     Calculate a coherent frequency for tone generation.
+ * \param     target      Desired target frequency (Hz or MHz).
+ * \param     fdata       Data (sampling) frequency (Hz or MHz).
+ * \param     n_samples   Number of samples to generate.
+ * \return    Closest coherent frequency that fits an odd number of cycles in n_samples.
+ */
 static double coherent_freq(double target, double fdata, uint32_t n_samples);
 
 int32_t rx_bmem_pfilt(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_device, adi_apollo_top_t *profile, int argc, char *argv[], int argc_ofst)
 {
     int32_t err = API_CMS_ERROR_OK;
     char file_name_base[256];
-    double tone_ratio[] = {0.115, 0.3, 0.399};  // Test input tones: pass, transition and stop bands. e.g. Freq = Fs*tone_ratio
     double final_tone_ratio = 0.16390625;       // Location after decimation and shifting
     double f_final_mhz;                         // Use CNCO and FNCO to shift input signal to this freq
     double fs_mhz;                              // ADC sampling rate
     double f_tone_mhz;                          // ADC input tone freq (real)
     double f_fnco_mhz;                          // Fine nco freq
     double f_cnco_mhz;                          // Coarse nco freq
+
     uint32_t fddc_dcm, cddc_dcm;                // Coarse and fine decimation
     bool coeffs_from_file = false;              // true to load coeffs from file. false to use coeffs from profile
     adi_ads10_apollo_dp_info_t rx_dp_info;
     const int str_buff_len = 1024;
     char str_buff[str_buff_len];
-    bool interleaved = 1;
-    uint32_t num_samples = DEFAULT_NUM_SAMPLES_H;             /* min num samples per virt conv */
-    
+    bool interleaved = true;
+    uint32_t num_samples = DEFAULT_NUM_SAMPLES_H;               /* min num samples per virt conv */
+    double prev_tone_freq = 0;                                  /* Previously used tone frequency for EXCTL purposes */
+    /*  tone_ratio      /       Channels        /       Filter attenuation      /       freq_tolerance      /   gain_level_tolerance */
+    adi_ads10_apollo_filter_test_t filter_tests[] = {
+        {0.115, {ADI_APOLLO_CAPTURE_IQ_PAIR_A0 | ADI_APOLLO_CAPTURE_IQ_PAIR_A1, PFILT_BANK0_LP_ATTEN_0115FS + BACKOFF, 1.0, 0.5}},
+        {0.115, {ADI_APOLLO_CAPTURE_IQ_PAIR_B0 | ADI_APOLLO_CAPTURE_IQ_PAIR_B1, PFILT_BANK2_HP_ATTEN_0115FS + BACKOFF, 2.0, 0.5}},
+        {0.3,   {ADI_APOLLO_CAPTURE_IQ_PAIR_A0 | ADI_APOLLO_CAPTURE_IQ_PAIR_A1, PFILT_BANK0_LP_ATTEN_0300FS + BACKOFF, 1.0, 0.5}},
+        {0.3,   {ADI_APOLLO_CAPTURE_IQ_PAIR_B0 | ADI_APOLLO_CAPTURE_IQ_PAIR_B1, PFILT_BANK2_HP_ATTEN_0300FS + BACKOFF, 1.0, 0.5}},
+        {0.399, {ADI_APOLLO_CAPTURE_IQ_PAIR_A0 | ADI_APOLLO_CAPTURE_IQ_PAIR_A1, PFILT_BANK0_LP_ATTEN_0400FS + BACKOFF, 2.0, 0.5}},
+        {0.399, {ADI_APOLLO_CAPTURE_IQ_PAIR_B0 | ADI_APOLLO_CAPTURE_IQ_PAIR_B1, PFILT_BANK2_HP_ATTEN_0400FS + BACKOFF, 1.0, 0.5}},
+    };
+
     /* Device block selects for 4t4r or 8t8r device */
     uint16_t cncos = (device->dev_info.is_8t8r) ? ADI_APOLLO_CNCO_ALL : ADI_APOLLO_CNCO_ALL_4T4R;
     uint16_t fncos = (device->dev_info.is_8t8r) ? ADI_APOLLO_FNCO_ALL : ADI_APOLLO_FNCO_ALL_4T4R;
@@ -67,7 +103,7 @@ int32_t rx_bmem_pfilt(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     uint16_t pfilts_a = (device->dev_info.is_8t8r) ? (ADI_APOLLO_PFILT_A0 | ADI_APOLLO_PFILT_A1) : ADI_APOLLO_PFILT_A0;
     uint16_t pfilts_b = (device->dev_info.is_8t8r) ? (ADI_APOLLO_PFILT_B0 | ADI_APOLLO_PFILT_B1) : ADI_APOLLO_PFILT_B0;
     uint16_t bmems = (ADI_APOLLO_BMEM_A0 | ADI_APOLLO_BMEM_A1 | ADI_APOLLO_BMEM_B0 | ADI_APOLLO_BMEM_B1);   // Same for both 4t4r and 8t8r
-    
+
     /* Load the filter gain and delay settings into the 4 banks */
     adi_apollo_pfilt_gain_dly_pgm_t filt_gain_dly_config = {
         ADI_APOLLO_PFILT_GAIN_ZERO_DB, ADI_APOLLO_PFILT_GAIN_ZERO_DB, ADI_APOLLO_PFILT_GAIN_ZERO_DB, ADI_APOLLO_PFILT_GAIN_ZERO_DB, // Gain for A0, A2, A1, A3
@@ -98,7 +134,8 @@ int32_t rx_bmem_pfilt(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     err = adi_ads10_apollo_ex_cals_run(device, profile, ADI_ADS10_APOLLO_CAL_CC);
     ADI_CMS_ERROR_RETURN(err);
 
-    adi_apollo_pfilt_mode_enable_set(device, ADI_APOLLO_RX, pfilts, ADI_APOLLO_PFILT_STREAM_ALL, ADI_APOLLO_PFILT_MODE_N_DIV_BY_2_REAL);
+    err = adi_apollo_pfilt_mode_enable_set(device, ADI_APOLLO_RX, pfilts, ADI_APOLLO_PFILT_STREAM_ALL, ADI_APOLLO_PFILT_MODE_N_DIV_BY_2_REAL);
+    ADI_CMS_ERROR_RETURN(err);
 
     coeffs_from_file = !profile->rx_path[0].rx_pfilt[0].enable;     // Assume profile contains PFILT coeffs if enable set
 
@@ -157,33 +194,61 @@ int32_t rx_bmem_pfilt(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
     * For each input tone in sweep, write to BMEM-AWG and capture. Each capture
     * can be used to measure the filter response.
     */
-    for (int i = 0; i < sizeof(tone_ratio) / sizeof(tone_ratio[0]); i++) {
-        f_tone_mhz = coherent_freq(tone_ratio[i] * fs_mhz, fs_mhz, 32 * 1024); // ADC input tone freq
+    for (int i = 0; i < sizeof(filter_tests) / sizeof(filter_tests[0]); i++) {
+        f_tone_mhz = coherent_freq(filter_tests[i].tone_ratio * fs_mhz, fs_mhz, TONE_NUM_SAMPLES); // ADC input tone freq
 
-        /*
-         * Configure the CNCO/FNCO such that the resulting tone ends up at f_final_mhz. This is to keep it within the
-         * band of the data rate.
-         */
-        f_cnco_mhz = f_tone_mhz - f_fnco_mhz - f_final_mhz;
+        if (!DOUBLES_EQUAL_TOL(f_tone_mhz, prev_tone_freq, 1e-6)) {
+            prev_tone_freq = f_tone_mhz;
 
-        printf("ToneRatio=%f, Ftone=%f, CNCO=%f, FNCO=%f\n", tone_ratio[i], f_tone_mhz, f_cnco_mhz, f_fnco_mhz);
-        err = adi_ads10_apollo_ex_cnco_set(device, ADI_APOLLO_RX, cncos, fs_mhz, f_cnco_mhz);
-        ADI_CMS_ERROR_RETURN(err);
-        err = adi_ads10_apollo_ex_fnco_set(device, ADI_APOLLO_RX, fncos, fs_mhz / cddc_dcm, f_fnco_mhz);
-        ADI_CMS_ERROR_RETURN(err);
+            /*
+            * Configure the CNCO / FNCO such that the resulting tone ends up at f_final_mhz.This is to keep it within the
+            * band of the data rate.
+            */
+            f_cnco_mhz = f_tone_mhz - f_fnco_mhz - f_final_mhz; // CNCO freq to shift tone to final location
+            printf("ToneRatio=%.6f, Ftone=%.6f, CNCO=%.6f, FNCO=%.6f\n", filter_tests[i].tone_ratio, f_tone_mhz, f_cnco_mhz, f_fnco_mhz);
 
-        /*
-         * Use BMEM-AWG to inject a real tone into the Rx data path.
-        */
-        printf("Create/load %fMHz tone into BMEM...\n", tone_ratio[i] * fs_mhz);
-        err = adi_ads10_apollo_ex_bmem_awg_tone_write(device, bmems, tone_ratio[i], -0.7, false);
-        ADI_CMS_ERROR_RETURN(err);
-     
-        /* Read FPGA capture memory and write out i/q files */
-        sprintf(file_name_base, "%s_%02d", "rx_bmem_pfilt", i);
-        printf("Writing captures to files: %s_*\n", file_name_base);
-        err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
-        ADI_CMS_ERROR_RETURN(err);
+            err = adi_ads10_apollo_ex_cnco_set(device, ADI_APOLLO_RX, cncos, fs_mhz, f_cnco_mhz);
+            ADI_CMS_ERROR_RETURN(err);
+            err = adi_ads10_apollo_ex_fnco_set(device, ADI_APOLLO_RX, fncos, fs_mhz / cddc_dcm, f_fnco_mhz);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Use BMEM-AWG to inject a real tone into the Rx data path. */
+            printf("Create/load %fMHz tone into BMEM...\n", filter_tests[i].tone_ratio * fs_mhz);
+            err = adi_ads10_apollo_ex_bmem_awg_tone_write(device, bmems, filter_tests[i].tone_ratio, BACKOFF, false);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Bypassed filter to check generated tone */
+            err = adi_apollo_pfilt_mode_enable_set(device, ADI_APOLLO_RX, pfilts, ADI_APOLLO_PFILT_STREAM_ALL, ADI_APOLLO_PFILT_MODE_DISABLED);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Read FPGA capture memory and write out i/q files */
+            snprintf(file_name_base, sizeof(file_name_base), "%s_bypass%.2fMHz", "rx_bmem_pfilt", f_tone_mhz);
+            printf("Writing captures to files: %s_*\n", file_name_base);
+            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
+            ADI_CMS_ERROR_RETURN(err);
+
+            EXCTL_RX_MEAS_FREQ(ADI_APOLLO_CAPTURE_IQ_PAIR_4T4R_ALL, file_name_base, f_tone_mhz, 1.0);
+            EXCTL_RX_MEAS_LEVEL(ADI_APOLLO_CAPTURE_IQ_PAIR_4T4R_ALL, file_name_base, BACKOFF, 2.0);
+
+            /* Set the PFILT mode to N/2 Real again */
+            err = adi_apollo_pfilt_mode_enable_set(device, ADI_APOLLO_RX, pfilts, ADI_APOLLO_PFILT_STREAM_ALL, ADI_APOLLO_PFILT_MODE_N_DIV_BY_2_REAL);
+            ADI_CMS_ERROR_RETURN(err);
+
+            /* Read FPGA capture memory and write out i/q files */
+            snprintf(file_name_base, sizeof(file_name_base), "%s_%.2fMHz", "rx_bmem_pfilt", f_tone_mhz);
+            printf("Writing captures to files: %s_*\n", file_name_base);
+            err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
+            ADI_CMS_ERROR_RETURN(err);
+        }
+
+        if(filter_tests[i].filter.atten_expect > THRESHOLD_LEVEL){
+            EXCTL_RX_MEAS_FREQ(filter_tests[i].filter.channels, file_name_base, f_tone_mhz, filter_tests[i].filter.freq_tolerance);
+            EXCTL_RX_MEAS_LEVEL(filter_tests[i].filter.channels, file_name_base, filter_tests[i].filter.atten_expect, filter_tests[i].filter.atten_tolerance);
+        } else {
+            EXCTL_RX_MEAS_NOSIG(filter_tests[i].filter.channels, file_name_base);
+            EXCTL_RX_MEAS_LEVEL(filter_tests[i].filter.channels, file_name_base, filter_tests[i].filter.atten_expect, filter_tests[i].filter.atten_tolerance);
+        }
+
     }
 
     return err;
@@ -197,5 +262,3 @@ static double coherent_freq(double target, double fdata, uint32_t n_samples)
     }
     return ((m_cycles * fdata) / n_samples);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

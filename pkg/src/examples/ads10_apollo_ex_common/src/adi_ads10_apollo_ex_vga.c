@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo FMCB EvalBoard Auxiliary Device config functions implementation
  *
@@ -33,7 +32,7 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_initialize(adi_fpga_apollo_device_t *fpga_
     ADI_CMS_NULL_PTR_CHECK(fpga_device);
 
     uint8_t i = 0;
-    const uint8_t vga_num = 4;                    // Num Tx / Rx VGA on FMCB
+    uint8_t max_vga_num = 4;                      // Num Tx / Rx VGA on FMCB
     const uint8_t attsel0_tx_gpio_idx = 25;       // FPGA GPIO index mapped to Tx ATTSEL0
     const uint8_t attsel1_tx_gpio_idx = 26;       // FPGA GPIO index mapped to Tx ATTSEL1
     const uint8_t attsel0_rx_gpio_idx = 27;       // FPGA GPIO index mapped to Rx ATTSEL0
@@ -43,13 +42,13 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_initialize(adi_fpga_apollo_device_t *fpga_
     adi_adl6332_device_t adl6332 = {{0}};
 
     adi_adl6331_chip_id_e tx_vga_ids[4] = { ADI_ADL6331_CHIP_ID_0,
-                                            ADI_ADL6331_CHIP_ID_1,
                                             ADI_ADL6331_CHIP_ID_2,
-                                            ADI_ADL6331_CHIP_ID_3 };
-    adi_adl6332_chip_id_e rx_vga_ids[4] = { ADI_ADL6332_CHIP_ID_4,
-                                            ADI_ADL6332_CHIP_ID_5,
-                                            ADI_ADL6332_CHIP_ID_6,
-                                            ADI_ADL6332_CHIP_ID_7 };
+                                            ADI_ADL6331_CHIP_ID_1,      /* Not populated on Rev C */
+                                            ADI_ADL6331_CHIP_ID_3 };    /* Not populated on Rev C */
+    adi_adl6332_chip_id_e rx_vga_ids[4] = { ADI_ADL6332_CHIP_ID_5,
+                                            ADI_ADL6332_CHIP_ID_7,
+                                            ADI_ADL6332_CHIP_ID_4,      /* Not populated on Rev C */
+                                            ADI_ADL6332_CHIP_ID_6 };    /* Not populated on Rev C */
 
     adi_adl6331_rfstate_select_e tx_vga_rfstate = ADI_ADL6331_RFSTATE_SELECT_A;     // ATTSEL0_TX and ATTSEL1_TX set to 0
     adi_adl6331_rfstate_t tx_vga_rf_gain_config = {
@@ -80,11 +79,11 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_initialize(adi_fpga_apollo_device_t *fpga_
     ADI_CMS_ERROR_RETURN(err);
 
     // Initializes HAL and startup ADL6331 abd ADL6332 VGAs.
-    err = adi_ads10_apollo_ex_tx_rx_vga_startup(&adl6331, &adl6332, tx_vga_ids, rx_vga_ids, vga_num);
+    err = adi_ads10_apollo_ex_tx_rx_vga_startup(&adl6331, &adl6332, tx_vga_ids, rx_vga_ids, &max_vga_num);
     ADI_CMS_ERROR_RETURN(err);
 
     // Set RF gain settings for Amp1, Amp2 and DSA Attenuator.
-    for (i = 0; i < vga_num; i++) {
+    for (i = 0; i < max_vga_num; i++) {
         err = adi_adl6331_sigpath_rfstate_set(&adl6331, tx_vga_ids[i], tx_vga_rfstate, &tx_vga_rf_gain_config);
         ADI_CMS_ERROR_RETURN(err);
 
@@ -104,9 +103,9 @@ int32_t adi_ads10_apollo_ex_adl6331_hal_config(adi_adl6331_device_t *adl6331, vo
     hal_spi_config_t *spi_cfg;
 
     adi_adl6331_chip_id_e chip_ids[4] = { ADI_ADL6331_CHIP_ID_0,
-                                          ADI_ADL6331_CHIP_ID_1,
                                           ADI_ADL6331_CHIP_ID_2,
-                                          ADI_ADL6331_CHIP_ID_3 };
+                                          ADI_ADL6331_CHIP_ID_1,    /* Not populated on Rev C */
+                                          ADI_ADL6331_CHIP_ID_3 };  /* Not populated on Rev C */
 
     ADI_CMS_NULL_PTR_CHECK(adl6331);
     ADI_CMS_NULL_PTR_CHECK(sdo_en_fcn);
@@ -115,7 +114,6 @@ int32_t adi_ads10_apollo_ex_adl6331_hal_config(adi_adl6331_device_t *adl6331, vo
     ADI_CMS_ERROR_RETURN(err);
 
     hal->delay_us = &ads10_wait_us;
-    hal->spi_read = &ads10_cms_spi_read;
     hal->spi_write = &ads10_cms_spi_write;
     spi_cfg = (hal_spi_config_t *)hal->user_data;
 
@@ -126,52 +124,48 @@ int32_t adi_ads10_apollo_ex_adl6331_hal_config(adi_adl6331_device_t *adl6331, vo
         ADI_CMS_ERROR_RETURN(err);
     }
 
-    // Check if SPI read is functional
-    err = adi_adl6331_core_spi_reg_test(adl6331, chip_ids[0]);
+    printf("Attempting to Configure ADL6331 SPI for FMCB Rev B.\n");
+    // Configure FMCB SPI read
+    hal->spi_read = &ads10_cms_fmcb_spi_read;
+    hal_spi_fmcb_config_t *fmcb_cfg = (hal_spi_fmcb_config_t *) calloc(1, sizeof(hal_spi_fmcb_config_t));
+    ADI_CMS_MEM_ALLOC_CHECK(fmcb_cfg);
 
-    // If SPI read fails, configure for FMCB SPI read
-    if (err == API_CMS_ERROR_SPI_XFER) {
-        printf("\n");
-        printf("*** WARNING: ADL6331 SPI Reg Test Failed!! ***\n");
-        printf("Configuring level shifters and Retrying...\n");
+    // ADI_ADL6331_CHIP_ID_0
+    fmcb_cfg->spi_byte_0[0] = 0x80;
+    fmcb_cfg->target[0] = SDO_OEN_1;
+    // ADI_ADL6331_CHIP_ID_1
+    fmcb_cfg->spi_byte_0[1] = 0x88;
+    fmcb_cfg->target[1] = SDO_OEN_1;
+    // ADI_ADL6331_CHIP_ID_2
+    fmcb_cfg->spi_byte_0[2] = 0x90;
+    fmcb_cfg->target[2] = SDO_OEN_2;
+    fmcb_cfg->spi_byte_0[3] = 0x98;
+    // ADI_ADL6331_CHIP_ID_3
+    fmcb_cfg->target[3] = SDO_OEN_2;
 
-        // Configure FMCB SPI read
-        hal->spi_read = &ads10_cms_fmcb_spi_read;
-        hal_spi_fmcb_config_t *fmcb_cfg = (hal_spi_fmcb_config_t *) calloc(1, sizeof(hal_spi_fmcb_config_t));
-        ADI_CMS_MEM_ALLOC_CHECK(fmcb_cfg);
+    fmcb_cfg->sdo_en_context = sdo_en_context;
+    fmcb_cfg->sdo_en_fcn = sdo_en_fcn;
 
-        // ADI_ADL6331_CHIP_ID_0
-        fmcb_cfg->spi_byte_0[0] = 0x80;
-        fmcb_cfg->target[0] = SDO_OEN_1;
-        // ADI_ADL6331_CHIP_ID_1
-        fmcb_cfg->spi_byte_0[1] = 0x88;
-        fmcb_cfg->target[1] = SDO_OEN_1;
-        // ADI_ADL6331_CHIP_ID_2
-        fmcb_cfg->spi_byte_0[2] = 0x90;
-        fmcb_cfg->target[2] = SDO_OEN_2;
-        fmcb_cfg->spi_byte_0[3] = 0x98;
-        // ADI_ADL6331_CHIP_ID_3
-        fmcb_cfg->target[3] = SDO_OEN_2;
+    spi_cfg->user_data = fmcb_cfg;
 
-        fmcb_cfg->sdo_en_context = sdo_en_context;
-        fmcb_cfg->sdo_en_fcn = sdo_en_fcn;
-
-        spi_cfg->user_data = fmcb_cfg;
-        spi_cfg->spi_3wire = 0; // Set to 4 wire mode
-
-        for (idx = 0; idx < 4; idx++) {
-            err = adi_adl6331_core_spi_reg_set(adl6331, chip_ids[idx], 0x00, 0x18);
-            ADI_CMS_ERROR_RETURN(err);
+    // Verify read/write
+    for (idx = 0; idx < 4; idx++) {
+        err = adi_adl6331_core_spi_reg_test(adl6331, chip_ids[idx]);
+        if (err != API_CMS_ERROR_OK) {
+            break;
         }
-
-        // Verify read/write
-        for (idx = 0; idx < 4; idx++) {
-            err = adi_adl6331_core_spi_reg_test(adl6331, chip_ids[idx]);
-            printf("ADL6331, Chip Id: 0x%02X, SPI Reg Test: %s.\n", chip_ids[idx], (err == 0) ? "PASSED" : "FAILED");
-            ADI_CMS_ERROR_RETURN(err);
-        }
-        printf("\n");
     }
+
+    if (err == API_CMS_ERROR_SPI_XFER) {
+        printf("Rev B failed, Configuring ADL6331 SPI for FMCB Rev C.\n");
+        hal->spi_read = &ads10_cms_spi_read;
+        spi_cfg = (hal_spi_config_t *)hal->user_data;
+        adl6331->rev = FMCB_REV_C; // Set to Rev C
+    } else {
+        printf("ADL6331 SPI Configured for FMCB Rev B.\n");
+        adl6331->rev = FMCB_REV_B; // Set to Rev B
+    }
+    printf("\n");
 
     return API_CMS_ERROR_OK;
 }
@@ -184,10 +178,10 @@ int32_t adi_ads10_apollo_ex_adl6332_hal_config(adi_adl6332_device_t *adl6332, vo
     adi_adl6332_hal_t *hal = &adl6332->hal_info;
     hal_spi_config_t *spi_cfg;
 
-    adi_adl6332_chip_id_e chip_ids[4] = { ADI_ADL6332_CHIP_ID_4,
-                                          ADI_ADL6332_CHIP_ID_5,
-                                          ADI_ADL6332_CHIP_ID_6,
-                                          ADI_ADL6332_CHIP_ID_7 };
+    adi_adl6332_chip_id_e chip_ids[4] = { ADI_ADL6332_CHIP_ID_5,
+                                          ADI_ADL6332_CHIP_ID_7,
+                                          ADI_ADL6332_CHIP_ID_4,    /* Not populated on Rev C */
+                                          ADI_ADL6332_CHIP_ID_6 };  /* Not populated on Rev C */
 
     ADI_CMS_NULL_PTR_CHECK(adl6332);
     ADI_CMS_NULL_PTR_CHECK(sdo_en_fcn);
@@ -196,10 +190,10 @@ int32_t adi_ads10_apollo_ex_adl6332_hal_config(adi_adl6332_device_t *adl6332, vo
     ADI_CMS_ERROR_RETURN(err);
 
     hal->delay_us = &ads10_wait_us;
-    hal->spi_read = &ads10_cms_spi_read;
     hal->spi_write = &ads10_cms_spi_write;
     spi_cfg = (hal_spi_config_t *)hal->user_data;
 
+    printf("Attempting to Configure ADL6332 SPI for FMCB Rev B.\n");
     // Set ADL6332 SPI mode
     spi_wire_mode = (spi_cfg->spi_3wire == 0) ? 0x18 : 0x00;
     for (idx = 0; idx < 4; idx++) {
@@ -207,51 +201,46 @@ int32_t adi_ads10_apollo_ex_adl6332_hal_config(adi_adl6332_device_t *adl6332, vo
         ADI_CMS_ERROR_RETURN(err);
     }
 
-    // Check if SPI read is functional
-    err = adi_adl6332_core_spi_reg_test(adl6332, chip_ids[0]);
+    // Configure FMCB SPI read
+    hal->spi_read = &ads10_cms_fmcb_spi_read;
+    hal_spi_fmcb_config_t *fmcb_cfg = (hal_spi_fmcb_config_t *) calloc(1, sizeof(hal_spi_fmcb_config_t));
+    ADI_CMS_MEM_ALLOC_CHECK(fmcb_cfg);
 
-    // If SPI read fails, configure for FMCB SPI read
+    // ADI_ADL6332_CHIP_ID_4
+    fmcb_cfg->spi_byte_0[0] = 0xA0;
+    fmcb_cfg->target[0] = SDO_OEN_3;
+    // ADI_ADL6332_CHIP_ID_5
+    fmcb_cfg->spi_byte_0[1] = 0xA8;
+    fmcb_cfg->target[1] = SDO_OEN_3;
+    // ADI_ADL6332_CHIP_ID_6
+    fmcb_cfg->spi_byte_0[2] = 0xB0;
+    fmcb_cfg->target[2] = SDO_OEN_4;
+    // ADI_ADL6332_CHIP_ID_7
+    fmcb_cfg->spi_byte_0[3] = 0xB8;
+    fmcb_cfg->target[3] = SDO_OEN_4;
+
+    fmcb_cfg->sdo_en_context = sdo_en_context;
+    fmcb_cfg->sdo_en_fcn = sdo_en_fcn;
+
+    spi_cfg->user_data = fmcb_cfg;
+
+    // Verify read/write
+    for (idx = 0; idx < 4; idx++) {
+        err = adi_adl6332_core_spi_reg_test(adl6332, chip_ids[idx]);
+        if (err != API_CMS_ERROR_OK) {
+            break;
+        }
+    }
+
     if (err == API_CMS_ERROR_SPI_XFER) {
-        printf("\n");
-        printf("*** WARNING: ADL6332 SPI Reg Test Failed!! ***\n");
-        printf("Configuring level shifters and Retrying...\n");
-
-        // Configure FMCB SPI read
-        hal->spi_read = &ads10_cms_fmcb_spi_read;
-        hal_spi_fmcb_config_t *fmcb_cfg = (hal_spi_fmcb_config_t *) calloc(1, sizeof(hal_spi_fmcb_config_t));
-        ADI_CMS_MEM_ALLOC_CHECK(fmcb_cfg);
-
-        // ADI_ADL6332_CHIP_ID_4
-        fmcb_cfg->spi_byte_0[0] = 0xA0;
-        fmcb_cfg->target[0] = SDO_OEN_3;
-        // ADI_ADL6332_CHIP_ID_5
-        fmcb_cfg->spi_byte_0[1] = 0xA8;
-        fmcb_cfg->target[1] = SDO_OEN_3;
-        // ADI_ADL6332_CHIP_ID_6
-        fmcb_cfg->spi_byte_0[2] = 0xB0;
-        fmcb_cfg->target[2] = SDO_OEN_4;
-        // ADI_ADL6332_CHIP_ID_7
-        fmcb_cfg->spi_byte_0[3] = 0xB8;
-        fmcb_cfg->target[3] = SDO_OEN_4;
-
-        fmcb_cfg->sdo_en_context = sdo_en_context;
-        fmcb_cfg->sdo_en_fcn = sdo_en_fcn;
-
-        spi_cfg->user_data = fmcb_cfg;
-        spi_cfg->spi_3wire = 0; // Set to 4 wire mode
-
-        for (idx = 0; idx < 4; idx++) {
-            err = adi_adl6332_core_spi_reg_set(adl6332, chip_ids[idx], 0x00, 0x18);
-            ADI_CMS_ERROR_RETURN(err);
-        }
-
-        // Verify read/write
-        for (idx = 0; idx < 4; idx++) {
-            err = adi_adl6332_core_spi_reg_test(adl6332, chip_ids[idx]);
-            printf("ADL6332, Chip Id: 0x%02X, SPI Reg Test: %s.\n", chip_ids[idx], (err == 0) ? "PASSED" : "FAILED");
-            ADI_CMS_ERROR_RETURN(err);
-        }
-        printf("\n");
+        printf("Rev B failed, Configuring ADL6332 SPI for FMCB Rev C.\n");
+        hal->spi_read = &ads10_cms_spi_read;
+        spi_cfg = (hal_spi_config_t *)hal->user_data;
+        spi_cfg->spi_cs = 2; // Use SPI CS2 for Rev C
+        adl6332->rev = FMCB_REV_C;
+    } else {
+        printf("ADL6332 SPI Configured for FMCB Rev B.\n");
+        adl6332->rev = FMCB_REV_B;
     }
 
     return API_CMS_ERROR_OK;
@@ -261,7 +250,7 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_startup(adi_adl6331_device_t *adl6331,
                                               adi_adl6332_device_t *adl6332,
                                               adi_adl6331_chip_id_e tx_vga_ids[],
                                               adi_adl6332_chip_id_e rx_vga_ids[],
-                                              uint8_t num_vgas)
+                                              uint8_t *num_vgas)
 {
     int32_t err;
 
@@ -330,8 +319,15 @@ int32_t adi_ads10_apollo_ex_tx_rx_vga_startup(adi_adl6331_device_t *adl6331,
     err = adi_ads10_apollo_ex_adl6332_hal_config(adl6332, NULL, &ads10_fpga_fmcb_aux_gpio_write);
     ADI_CMS_ERROR_RETURN(err);
 
+    if (adl6331->rev != adl6332->rev) {
+        printf("ADL6331 and ADL6332 devices reporting different FMCB revisions.\n");
+        ADI_CMS_ERROR_RETURN(API_CMS_ERROR_ERROR);
+    }
+
+    *num_vgas = adl6331->rev ? 2 : *num_vgas; // Rev C supports only 2 VGAs
+
     // Initialize devices for startup.
-    for (i = 0; i < num_vgas; i++) {
+    for (i = 0; i < *num_vgas; i++) {
         err = adi_ads10_apollo_ex_adl6331_startup(adl6331, tx_vga_ids[i], &tx_vga_startup);
         ADI_CMS_ERROR_RETURN(err);
 
@@ -391,5 +387,3 @@ int32_t adi_ads10_apollo_ex_adl6332_startup(adi_adl6332_device_t *adl6332,
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

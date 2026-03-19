@@ -88,6 +88,7 @@ typedef struct {
 	uint8_t jesd_mode_s_sel;                    /*!< JESD mode S value */
 	uint8_t jesd_link_pd;                       /*!< JESD link power down mask: 1 = link powered down */
     uint8_t jesd_ns;                            /*!< No of samples per conv clock (for FSRC) */
+	uint8_t base_lane_id;					    /*!< Starting Lane ID */
 }adi_fpga_jesd_param_t;
 
 /*!

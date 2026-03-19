@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common ADF4030 functions
  *
@@ -128,7 +127,14 @@ int32_t adi_ads10_apollo_ex_adf4030_startup(adi_adf4030_device_t *adf4030, uint6
     err = adi_adf4030_core_soft_reset(adf4030);
     ADI_CMS_ERROR_RETURN(err);
 
+    // Optional: Added a 100us settling time after soft reset
+    err = adi_adf4030_core_wait_us(adf4030, 100);
+    ADI_CMS_ERROR_RETURN(err);
+
     err = adi_adf4030_core_init(adf4030);
+    ADI_CMS_ERROR_RETURN(err);
+
+    err = adi_adf4030_core_spi_reg_test(adf4030);
     ADI_CMS_ERROR_RETURN(err);
 
     err = adi_adf4030_core_power_up(adf4030);
@@ -250,4 +256,35 @@ int32_t adi_ads10_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf403
     return API_CMS_ERROR_OK;
 }
 
-#endif /* !defined(VERSAL_PLATFORM) */
+
+int32_t adi_ads10_apollo_ex_adf4030_apollo_bsync_out_ch_get(adi_apollo_top_t *profile, uint16_t *apollo_bsync_out_ch_sel)
+{
+    ADI_CMS_NULL_PTR_CHECK(profile);
+    ADI_CMS_NULL_PTR_CHECK(apollo_bsync_out_ch_sel);
+
+    if (profile->clk_cfg.single_dual_clk_sel == true) {
+        if ((profile->mcs_cfg.aside_sysref.sysref_present == false) && (profile->mcs_cfg.bside_sysref.sysref_present == false)) {
+            printf("No external SYSREF provided to Apollo.\n");
+            *apollo_bsync_out_ch_sel = 0;
+        } else if ((profile->mcs_cfg.aside_sysref.sysref_present == false) && (profile->mcs_cfg.bside_sysref.sysref_present == true)) {
+            printf("Only Side B receives external SYSREF from BSYNC_7.\n");
+            *apollo_bsync_out_ch_sel = (1 << ADI_ADF4030_CHANNEL_ID_7);
+        } else if ((profile->mcs_cfg.aside_sysref.sysref_present == true) && (profile->mcs_cfg.bside_sysref.sysref_present == false)) {
+            printf("Only Side A receives external SYSREF from BSYNC_6.\n");
+            *apollo_bsync_out_ch_sel = (1 << ADI_ADF4030_CHANNEL_ID_6);
+        } else if ((profile->mcs_cfg.aside_sysref.sysref_present == true) && (profile->mcs_cfg.bside_sysref.sysref_present == true)) {
+            printf("Both Side A and B receives external SYSREF from BSYNC_6 and BSYNC_7 resp.\n");
+            *apollo_bsync_out_ch_sel = (1 << ADI_ADF4030_CHANNEL_ID_6) | (1 << ADI_ADF4030_CHANNEL_ID_7);
+        }
+    } else {
+        if (profile->mcs_cfg.center_sysref.sysref_present == true) {
+            printf("Central external SYSREF from BSYNC_5.\n");
+            *apollo_bsync_out_ch_sel = (1 << ADI_ADF4030_CHANNEL_ID_5);
+        } else {
+            *apollo_bsync_out_ch_sel = 0;
+            printf("Invalid Profile selected. No SYSREF needed.\n");
+            return API_CMS_ERROR_INVALID_PROFILE_SELECT;
+        }
+    }
+    return API_CMS_ERROR_OK;
+}

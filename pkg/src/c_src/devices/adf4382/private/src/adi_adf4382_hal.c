@@ -354,6 +354,7 @@ int32_t adi_adf4382_hal_reg_default_set(adi_adf4382_device_t *adf4382, uint8_t c
         case ADI_ADF4382_CHIP_VER_U5_A:
         case ADI_ADF4382_CHIP_VER_U5_B:
         case ADI_ADF4382_CHIP_VER_U5_C:
+        case ADI_ADF4382_CHIP_VER_U5_D:
             tbl_count = sizeof(ADF4382_U5_INIT_TBL) / sizeof(ADF4382_U5_INIT_TBL[0]);
             printf("U5 Table Count: %d.\n", tbl_count);
 

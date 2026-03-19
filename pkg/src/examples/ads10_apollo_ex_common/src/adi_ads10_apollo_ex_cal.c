@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples calibration function implementations
  *
@@ -10,16 +9,10 @@
 
 /*============= I N C L U D E S ============*/
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include "adi_ads10_apollo_ex_cal.h"
 #include "adi_apollo_linux_utilities.h"
 #include "adi_ads10_apollo_ex.h"
-
-/*============= D E F I N E S ==============*/
-#define ADI_APOLLO_4T4R_ADC_TIMEOUT                 60
-#define ADI_APOLLO_8T8R_ADC_TIMEOUT                 120
 
 /*==================== P U B L I C   A P I   C O D E ====================*/
 static uint32_t Crc32(const uint8_t buf[], uint32_t bufLen);
@@ -70,15 +63,8 @@ int32_t adi_ads10_apollo_ex_cals_run(adi_apollo_device_t* device, adi_apollo_top
         }
     }
 
-    if (cals & ADI_ADS10_APOLLO_CAL_ONESHOT) {
-        // printf("Run oneshot sync...\n");
-        // err = adi_apollo_clk_mcs_oneshot_sync(device);
-        // ADI_CMS_ERROR_RETURN(err);
-
-        // /* In some situations links do not come up without wait */
-        // adi_apollo_hal_delay_us(device, 3 * 1000000);
-
-        // Dynamic Sync Serdes Links gradually in a sequence
+    if (cals & ADI_ADS10_APOLLO_CAL_RXTX_SYNC) {
+        /* Dynamic Sync Serdes Links gradually in a sequence */
         printf("Run Rx-TX SerDes Links Dyn Sync...\n");
         err = adi_apollo_clk_mcs_dyn_sync_rxtxlinks_sequence_run(device);
         ADI_CMS_ERROR_RETURN(err);
@@ -319,5 +305,3 @@ static uint32_t Crc32(const uint8_t buf[], uint32_t bufLen)
 
   return a;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

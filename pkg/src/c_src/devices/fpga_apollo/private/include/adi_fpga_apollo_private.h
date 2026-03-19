@@ -79,17 +79,6 @@ int32_t adi_fpga_apollo_private_capture_start(adi_fpga_apollo_device_t *fpga,
 int32_t adi_fpga_apollo_private_jesd_rx_phy_prbs_pat_set(adi_fpga_apollo_device_t *fpga,
                                                       adi_apollo_fpga_prbs_e prbs);
 
-
-/**
- * \brief   Sets all FPGA JESD lanes for PRBS testing
- *
- * \param[in]   fpga            Context variable
- *
- * \return      API_CMS_ERROR_OK   API Completed Successfully
- */
-int32_t adi_fpga_apollo_private_jesd_rx_phy_prbs_lanes_set(adi_fpga_apollo_device_t *fpga);
-
-
 #ifdef __cplusplus
 }
 #endif

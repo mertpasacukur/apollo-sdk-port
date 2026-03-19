@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     Hal CDMA Source File
  *
@@ -19,15 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <stdint.h>
-#if defined(__linux__)
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#endif
 
 
 
@@ -98,5 +93,3 @@ unsigned int Hal_CdmaDeinit(void)
 }
 
 /*! @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */

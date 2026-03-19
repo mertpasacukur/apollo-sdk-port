@@ -25,6 +25,7 @@
 typedef struct {
     uint8_t is_valid;                                       /*!< 1 if struct has been populated */
     uint8_t link_enabled[MAX_JESD_LINKS];                   /*!< 1 if enabled */
+    uint8_t num_links_in_use;                               /*!< number of links in use */  
     uint32_t frame_samples_per_conv[MAX_JESD_LINKS];        /*!< number of samples per vc in a raw frame */
     uint32_t fpga_link_bits[MAX_JESD_LINKS];                /*!< 2048 dual link, 4096 if single link, 0 if link not used */
     uint8_t link_converter_count[MAX_JESD_LINKS];           /*!< number of converters (m) per link */

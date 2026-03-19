@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     CDMA API Header File
  *
@@ -52,5 +51,3 @@ int CdmaTransfer(uint32_t src_addr,
 
 /*! @} */
 
-
-#endif /* !defined(VERSAL_PLATFORM) */

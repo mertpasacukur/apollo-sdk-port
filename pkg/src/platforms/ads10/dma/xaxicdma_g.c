@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 
 /*******************************************************************
 *
@@ -59,5 +58,3 @@ XAxiCdma_Config XAxiCdma_ConfigTable[XPAR_XAXICDMA_NUM_INSTANCES] =
 };
 
 
-
-#endif /* !defined(VERSAL_PLATFORM) */

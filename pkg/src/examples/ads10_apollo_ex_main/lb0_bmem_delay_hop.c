@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Loopback0 BMEM delay test
  *
@@ -18,9 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include "adi_apollo.h"
 #include "adi_apollo_utils.h"
 #include "adi_ads10_apollo_ex.h"
@@ -116,5 +113,3 @@ static int32_t loopback0_setup(adi_apollo_device_t *device, uint16_t adc_select,
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

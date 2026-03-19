@@ -80,7 +80,7 @@ int32_t adi_adf4382_core_spi_reg_test(adi_adf4382_device_t *adf4382);
  *
  *
  * \param[in]  adf4382 [context variable]       Pointer to the device structure
- * \param[out] data                             Pointer to an 8-bit variable to store read back chip version id.
+ * \param[out] chip_version                     Pointer to an 8-bit variable to store read back chip version id.
  *
  * \return API_CMS_ERROR_OK                     API Completed Successfully
  * \return <0                                   Failed. \ref adi_cms_error_e for details.

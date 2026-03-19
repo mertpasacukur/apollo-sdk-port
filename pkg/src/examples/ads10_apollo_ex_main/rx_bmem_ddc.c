@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx DDC data path test using BMEM-AWG as input source
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -76,7 +73,7 @@ int32_t rx_bmem_ddc(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_
     adi_apollo_fddc_gain_enable_set(device, ADI_APOLLO_FDDC_ALL, 0);
     /* Read FPGA capture memory and write out i/q files */
     sprintf(file_name_base, "%s", "apollo_bmem_ddc_gain_c0_f0");
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
     EXCTL_RX_REF(bmem_sel, file_name_base);
@@ -85,7 +82,7 @@ int32_t rx_bmem_ddc(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_
     adi_apollo_cddc_gain_enable_set(device, ADI_APOLLO_CDDC_ALL, ADI_APOLLO_CDDC_GAIN_HB1, 0);
     adi_apollo_fddc_gain_enable_set(device, ADI_APOLLO_FDDC_ALL, 1);
     sprintf(file_name_base, "%s", "apollo_bmem_ddc_gain_c0_f6");
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
     EXCTL_RX_MEAS_LEVEL(bmem_sel, file_name_base, 6, 1);
@@ -94,7 +91,7 @@ int32_t rx_bmem_ddc(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_
     adi_apollo_cddc_gain_enable_set(device, ADI_APOLLO_CDDC_ALL, ADI_APOLLO_CDDC_GAIN_HB1, 1);
     adi_apollo_fddc_gain_enable_set(device, ADI_APOLLO_FDDC_ALL, 0);
     sprintf(file_name_base, "%s", "apollo_bmem_ddc_gain_c6_f0");
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
     EXCTL_RX_MEAS_LEVEL(bmem_sel, file_name_base, 6, 1);
@@ -104,12 +101,10 @@ int32_t rx_bmem_ddc(adi_apollo_device_t* device, adi_fpga_apollo_device_t* fpga_
     adi_apollo_cddc_gain_enable_set(device, ADI_APOLLO_CDDC_ALL, ADI_APOLLO_CDDC_GAIN_HB1, 1);
     adi_apollo_fddc_gain_enable_set(device, ADI_APOLLO_FDDC_ALL, 1);
     sprintf(file_name_base, "%s", "apollo_bmem_ddc_gain_c6_f6");
-    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, interleaved);
+    err = adi_ads10_apollo_ex_fpga_capture(device, profile, fpga_device, num_samples, file_name_base, true, interleaved);
     ADI_CMS_ERROR_RETURN(err);
 
     EXCTL_RX_MEAS_LEVEL(bmem_sel, file_name_base, 12, 1);
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

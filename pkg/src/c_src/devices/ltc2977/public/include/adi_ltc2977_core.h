@@ -174,18 +174,56 @@ int32_t adi_ltc2977_core_power_up(adi_ltc2977_device_t *ltc2977, uint8_t page[],
  */
 int32_t adi_ltc2977_core_power_down(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t toff_delay[], uint32_t num_page_channels, bool use_sequence_off, bool use_global_off);
 
+
+/**
+ * \brief       Read status commands that summarizes most critical faults or warnings
+ *
+ * \param[in]   ltc2977             Context variable - Pointer to the LTC2977 device data structure.
+ * \param[in]   page                Pages to get status word
+ * \param[out]  status              Pointer to variable that stores read back value \ref adi_ltc2977_fault_status_t
+ * \param[in]   num_page_channels   Number of pages
+ *
+ * \return      API_CMS_ERROR_OK    API Completed Successfully.
+ * \return      < 0                 Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_ltc2977_core_fault_status_get(adi_ltc2977_device_t *ltc2977, uint8_t page[], adi_ltc2977_fault_status_t status[], uint32_t num_page_channels);
+
+
+/**
+ * \brief       Clear fault status using global page command
+ *
+ * \param[in]   ltc2977             Context variable - Pointer to the LTC2977 device data structure.
+ *
+ * \return      API_CMS_ERROR_OK    API Completed Successfully.
+ * \return      < 0                 Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_ltc2977_core_fault_status_clear(adi_ltc2977_device_t *ltc2977);
+
 /**
  * \brief       Checks that the chip at device address is an LTC2977
  *
  * \param[in]   ltc2977               Context variable - Pointer to the LTC2977 device data structure.
  * \param[out]  device_id             Manufacturer special ID for the chip
  * \param[out]  is_ltc2977            1: is LTC2977 0: is not LTC2977
- * 
+ *
  * \return      API_CMS_ERROR_OK    API Completed Successfully.
  * \return      < 0                 Failed. \ref adi_cms_error_e for details.
  */
 int32_t adi_ltc2977_core_device_id_get(adi_ltc2977_device_t *ltc2977, uint16_t *device_id, uint8_t *is_ltc2977);
 
+
+/**
+ * \brief       Reads manufacture specific operating parameters for selected pages/channels.
+ *
+ * \param[in]   ltc2977               Context variable - Pointer to the LTC2977 device data structure.
+ * \param[in]   page                  Array to store page or channel value corresponding to DC/DC converter channels that can be managed.
+ * \param[out]  read_cfg              Array to store the mfr config value
+ * \param[in]   num_page_channels     Number of pages/channels from which output voltage needs to be measured.
+ *
+ * \return      API_CMS_ERROR_OK    API Completed Successfully.
+ * \return      < 0                 Failed. \ref adi_cms_error_e for details.
+ */
+int32_t adi_ltc2977_core_mfr_config_get(adi_ltc2977_device_t *ltc2977, uint8_t page[], uint16_t read_cfg[], uint32_t num_page_channels);
 
 #ifdef __cplusplus
 }

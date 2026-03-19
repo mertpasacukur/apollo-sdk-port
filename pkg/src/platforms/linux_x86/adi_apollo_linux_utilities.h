@@ -1,4 +1,3 @@
-#if defined(__linux__)
 /*!
  * \brief     Apollo CPU file load Utilities headers
  *
@@ -123,12 +122,20 @@ int32_t adi_apollo_utilities_byte_arr_to_file_append(adi_apollo_device_t *device
  * \param[in]  arr_size             Pointer to number of samples read from file
  * \param[in]  max_samples          Maximum number of samples to read from file (0 if entire file is desired)
  */
-int32_t adi_apollo_utilites_file_to_16b_samples_arr(adi_apollo_device_t *device, char *file_name, int16_t **sample_arr, uint32_t *arr_size, uint32_t max_samples);
+int32_t adi_apollo_utilities_file_to_16b_samples_arr(adi_apollo_device_t *device, char *file_name, int16_t **sample_arr, uint32_t *arr_size, uint32_t max_samples);
+
+/**
+ * \brief   Platform utility that counts the number of samples (one sample per line) in a file
+ * 
+ * \param[in]  device               Context variable - Pointer to the APOLLO device data structure
+ * \param[in]  file_name            String of binary file with its full path
+ * \param[in]  max_samples          Maximum number of samples to read from file (0 if read entire file)
+ * \param[out] num_samples          Pointer to number of samples read from file
+ */
+int32_t adi_apollo_utilities_file_sample_count(adi_apollo_device_t *device, char *file_name, uint32_t max_samples, uint32_t *num_samples);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __ADI_APOLLO_LINUX_UTILITIES_H__ */
-
-#endif /* defined(__linux__) */

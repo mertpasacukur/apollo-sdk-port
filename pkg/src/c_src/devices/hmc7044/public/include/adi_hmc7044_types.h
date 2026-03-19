@@ -20,6 +20,7 @@
 
 #define ADI_HCM7044_OSCIN_COUNT                     1
 #define ADI_HMC7044_CLKIN_COUNT                     4
+#define ADI_HMC7044_INT_VCO_COUNT                   2
 #define ADI_HMC7044_CLKOUT_COUNT                    14
 #define ADI_HMC7044_2GHZ_VCO_HZ_MIN                 2150000000ull
 #define ADI_HMC7044_2GHZ_VCO_HZ_MAX                 2880000000ull

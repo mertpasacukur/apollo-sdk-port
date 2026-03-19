@@ -50,7 +50,9 @@ typedef enum {
     ADI_ADF4382_CHIP_VER_U4 = 7,    /*! ADF4382 Chip Version is selected as U4. */
     ADI_ADF4382_CHIP_VER_U5_A = 11, /*! ADF4382 Chip Version is selected as U5. */
     ADI_ADF4382_CHIP_VER_U5_B = 12, /*! ADF4382 Chip Version is selected as U5. */
-    ADI_ADF4382_CHIP_VER_U5_C = 13  /*! ADF4382 Chip Version is selected as U5. */
+    ADI_ADF4382_CHIP_VER_U5_C = 13,  /*! ADF4382 Chip Version is selected as U5. */
+    ADI_ADF4382_CHIP_VER_U5_D = 18,  /*! ADF4382 Chip Version is selected as U5. */
+
 } adi_adf4382_chip_ver_sel_e;
 
 typedef enum {

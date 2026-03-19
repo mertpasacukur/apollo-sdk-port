@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo null operation, used to test dp config after profile load
  *
@@ -10,9 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 #include <math.h>
 #include "adi_apollo.h"
 #include "adi_ads10_apollo_ex.h"
@@ -95,5 +92,3 @@ int32_t dp_load(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 end:
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -50,7 +50,8 @@ typedef struct {
  * \brief Device Structure
  */
 typedef struct {
-    adi_adl6331_hal_t hal_info;
+    adi_adl6331_hal_t             hal_info;
+    uint8_t                       rev;                  /*!< Eval Board revision */
 } adi_adl6331_device_t;
 
 #endif

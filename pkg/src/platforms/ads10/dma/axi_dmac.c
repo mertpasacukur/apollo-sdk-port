@@ -1,4 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
 /*!
  * @brief     Analog Devices DMA API Source File
  *
@@ -16,7 +15,6 @@
 /*============= I N C L U D E S ============*/
 #include <stdio.h>
 #include <stdlib.h>
-#if defined(__linux__)
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/time.h>
@@ -26,7 +24,6 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/reboot.h>
-#endif
 #include "xil_io.h"
 #include "fpga_regs.h"
 #include "ps7_ads9cfg.h"
@@ -519,5 +516,3 @@ static void axi_dmac_dbg_reg(void)
 }
 
 /*! @} */
-
-#endif /* !defined(VERSAL_PLATFORM) */
