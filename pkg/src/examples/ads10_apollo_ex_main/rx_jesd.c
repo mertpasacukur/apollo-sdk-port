@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Rx JESD capture example. CLI flag -b to inject a bmem tone
  *
@@ -116,5 +114,3 @@ int32_t rx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 
 	return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

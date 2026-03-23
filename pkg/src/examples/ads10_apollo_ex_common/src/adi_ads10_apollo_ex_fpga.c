@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo examples common FPGA functions
  *
@@ -190,5 +188,3 @@ int32_t adi_ads10_apollo_ex_fpga_tx_phy_drive_config_all(adi_fpga_apollo_device_
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

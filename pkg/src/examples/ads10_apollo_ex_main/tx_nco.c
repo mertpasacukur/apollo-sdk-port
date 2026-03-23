@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Tx data path NCO test
  *
@@ -70,5 +68,3 @@ int32_t tx_nco(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devic
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo fullchip Rx/Tx FSRC data path test using ADC as input source
  *
@@ -101,5 +99,3 @@ int32_t fullchip(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_dev
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

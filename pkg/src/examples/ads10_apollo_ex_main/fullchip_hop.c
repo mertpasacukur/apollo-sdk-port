@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Fullchip Hopping example code
  *
@@ -2194,4 +2192,3 @@ static int32_t gpio_hop_custom_configure(adi_apollo_device_t* device, adi_apollo
 
     return err;
 }
-#endif /* !defined(VERSAL_PLATFORM) */

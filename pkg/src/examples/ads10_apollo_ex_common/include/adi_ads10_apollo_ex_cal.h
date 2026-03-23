@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo examples calibration functions
  *
@@ -85,4 +83,3 @@ int32_t adi_ads10_apollo_ex_adc_cal_data_reload_from_file(adi_apollo_device_t *d
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_CAL_H__ */
-#endif /* !defined(VERSAL_PLATFORM) */

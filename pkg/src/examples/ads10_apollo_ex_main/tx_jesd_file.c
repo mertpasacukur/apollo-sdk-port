@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo load vector from file example
  *
@@ -147,4 +145,3 @@ int32_t tx_jesd_file(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga
 
     return err;
  }
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     Common functions for Apollo CE board power modules
  *
@@ -331,5 +329,3 @@ static void ltc2980_c_telemetry(adi_ltc2980_device_t *ltc2980, uint8_t vout_mode
         printf("READ_IOUT: %.4f %s.\n", value * voltage_current_scalars[i], unit);
     }
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

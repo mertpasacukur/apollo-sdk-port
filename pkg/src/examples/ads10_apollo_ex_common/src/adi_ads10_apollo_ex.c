@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo examples common function implementation
  *
@@ -1450,5 +1448,3 @@ static __maybe_unused int32_t hsci_buf_alloc(adi_apollo_device_t *device)
 
     return  adi_apollo_hal_buffer_set(device, ADI_APOLLO_HAL_PROTOCOL_HSCI, buff, buff_len);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

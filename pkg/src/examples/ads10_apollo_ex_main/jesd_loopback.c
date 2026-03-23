@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Jesd Loopback
  *
@@ -87,5 +85,3 @@ int32_t jesd_loopback(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpg
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo examples common ADF4030 functions
  *
@@ -290,4 +288,3 @@ int32_t adi_ads10_apollo_ex_adf4030_apollo_bsync_out_ch_get(adi_apollo_top_t *pr
     }
     return API_CMS_ERROR_OK;
 }
-#endif /* !defined(VERSAL_PLATFORM) */

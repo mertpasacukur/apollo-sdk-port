@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Rx deep capture example
  *
@@ -174,5 +172,3 @@ end:
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

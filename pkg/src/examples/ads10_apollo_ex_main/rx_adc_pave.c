@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Rx PFILT ADC averaging
  * 
@@ -224,5 +222,3 @@ static int32_t rx_mux1_config(adi_apollo_device_t *device)
 
     return (err == API_CMS_ERROR_OK ? API_CMS_ERROR_OK : API_CMS_ERROR_ERROR);
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

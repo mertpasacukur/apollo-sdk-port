@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo examples BMEM functions
  *
@@ -80,4 +78,3 @@ int32_t adi_ads10_apollo_ex_bmem_capture(adi_apollo_device_t* device, uint8_t bm
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_BMEM_H__ */
-#endif /* !defined(VERSAL_PLATFORM) */

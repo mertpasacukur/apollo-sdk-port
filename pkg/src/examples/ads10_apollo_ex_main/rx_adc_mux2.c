@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Rx Mux2 Reconfig
  *
@@ -642,5 +640,3 @@ int32_t calc_net_result(phase_info_struct_t ph_delta_mtx[][MAX_CAP_SETS][MAX_VCS
 
     return err;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

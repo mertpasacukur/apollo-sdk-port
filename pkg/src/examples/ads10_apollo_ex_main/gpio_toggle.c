@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     Apollo CMOS GPIO toggle example running on ADS10 platform
  *
@@ -245,5 +243,3 @@ static int32_t num_gpios_to_test_get(adi_fpga_apollo_device_t* fpga_device, uint
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

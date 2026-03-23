@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     PMBus Numeric Data Format Conversion source file.
  *
@@ -171,4 +169,3 @@ static float l16_to_float(uint16_t input_val, uint8_t vout_mode)
 /*******************************************************************************************/
 
 /*! @} */
-#endif /* !defined(VERSAL_PLATFORM) */

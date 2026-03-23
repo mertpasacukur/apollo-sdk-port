@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     ADS10 Apollo Standalone App Extras Header File
  *            This file contains all the publicly exposed methods and data
@@ -176,4 +174,3 @@ int32_t adi_ads10_apollo_extras_arr1d_double_delta_get(double data[], uint32_t l
 int32_t adi_ads10_apollo_extras_arr1d_double_max_abs_get(double data[], uint32_t len, double *max_abs_val);
 
 #endif
-#endif /* !defined(VERSAL_PLATFORM) */

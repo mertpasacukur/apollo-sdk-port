@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo fullchip 8T8R loopback
  *
@@ -163,4 +161,3 @@ static int32_t tx_dp_reset(adi_apollo_device_t* device)
     err |= adi_apollo_txmisc_dp_reset(device, ADI_APOLLO_SIDE_ALL, 0);
     return err;
 }
-#endif /* !defined(VERSAL_PLATFORM) */

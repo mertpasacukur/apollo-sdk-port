@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     ADS10 Apollo Rx ADC SMON example
  *
@@ -822,4 +820,3 @@ char *gpio_to_string(adi_apollo_device_t *device, adi_apollo_blk_sel_t smon, uin
 
     return str;
 }
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /* 
  * \file
  * \brief     ADS10 Apollo Examples Console Control Macros
@@ -117,4 +115,3 @@ extern "C" {
 }
 #endif
 #endif /* __ADI_ADS10_APOLLO_EX_CTL_H__ */
-#endif /* !defined(VERSAL_PLATFORM) */

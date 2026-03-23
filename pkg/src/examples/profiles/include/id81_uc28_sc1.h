@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 #ifndef __ADI_ID81_UC28_SC1_H__
 #define __ADI_ID81_UC28_SC1_H__
 
@@ -3039,5 +3037,3 @@ adi_apollo_top_t id81_uc28_sc1_0 = {
 
 
 #endif /* __ADI_ID81_UC28_SC1_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

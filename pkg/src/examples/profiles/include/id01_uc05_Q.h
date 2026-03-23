@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 #ifndef __ADI_ID01_UC05_Q_H__
 #define __ADI_ID01_UC05_Q_H__
 
@@ -3039,5 +3037,3 @@ adi_apollo_top_t id01_uc05_Q_0 = {
 
 
 #endif /* __ADI_ID01_UC05_Q_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */
