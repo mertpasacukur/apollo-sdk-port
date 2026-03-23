@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     HAL: discover, setup and mmap the UIO devices from the DeviceTree
  *
@@ -334,3 +336,5 @@ end:
     return err;
 }
 
+
+#endif /* !defined(VERSAL_PLATFORM) */

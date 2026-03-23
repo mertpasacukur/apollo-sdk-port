@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     SW VERSION Header File
  *
@@ -35,3 +37,5 @@
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

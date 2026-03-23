@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Configure and run Multi Chip Sync Calibration on Apollo B0
  *
@@ -304,3 +306,5 @@ int32_t mcs_cal(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

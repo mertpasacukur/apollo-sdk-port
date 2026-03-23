@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -651,3 +653,5 @@ int XAxiCdma_BdRingStartTransfer(XAxiCdma *InstancePtr)
 }
 
 /** @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     HAL FPGA Header File
  *
@@ -51,3 +53,5 @@ unsigned int Hal_FpgaDeinit(void);
 #endif /* end of protection macro */
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

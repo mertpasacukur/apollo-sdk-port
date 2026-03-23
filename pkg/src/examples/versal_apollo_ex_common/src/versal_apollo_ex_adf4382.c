@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Versal Apollo examples common ADF4382 functions
  *
@@ -173,3 +175,5 @@ int32_t versal_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

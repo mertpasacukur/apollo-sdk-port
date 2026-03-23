@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     COMMON Header File
  *
@@ -42,3 +44,5 @@ void system_close(void);
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

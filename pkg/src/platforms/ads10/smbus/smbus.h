@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*
     smbus.h - SMBus level access helper functions
 
@@ -50,3 +52,5 @@ extern __s32 i2c_smbus_block_process_call(int file, __u8 command, __u8 length,
 					  __u8 *values);
 
 #endif /* LIB_I2C_SMBUS_H */
+
+#endif /* !defined(VERSAL_PLATFORM) */

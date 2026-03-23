@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Rx/Tx Sample Repeat Dynamic Reconfig (DR) using manual (SPI) trigger.
  *
@@ -502,3 +504,4 @@ static int32_t tx_cfg_table_setup(adi_apollo_device_t *device, adi_ads10_apollo_
 
     return err;
 }
+#endif /* !defined(VERSAL_PLATFORM) */

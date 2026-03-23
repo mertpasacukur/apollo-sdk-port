@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 
 #ifndef __ADS10_FPGA__
 
@@ -90,3 +92,5 @@ int32_t ads10_fpga_fmcb_aux_spi2_sdo_alt_enable_set(void* user_data, uint32_t du
 #endif
 
 #endif /* #define __ADS10_FPGA__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

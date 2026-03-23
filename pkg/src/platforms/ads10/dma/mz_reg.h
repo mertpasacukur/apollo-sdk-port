@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     MZ REG Header File
  *
@@ -209,3 +211,5 @@
 #endif	/* end ifndef _DEF_MZ_REG_H */
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Source file implementing FW image provider for ADS10
  *
@@ -170,3 +172,4 @@ end:
 
 
 /*! @} */
+#endif /* !defined(VERSAL_PLATFORM) */

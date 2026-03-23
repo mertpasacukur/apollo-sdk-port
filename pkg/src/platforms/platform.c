@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 
 /*!
  * @brief     Hardware Abstraction Layer.
@@ -139,3 +141,5 @@ end:
 
 
 
+
+#endif /* !defined(VERSAL_PLATFORM) */

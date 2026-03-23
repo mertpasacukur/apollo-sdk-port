@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Versal Apollo examples common HMC7044 functions
  *
@@ -32,3 +34,5 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
 int32_t versal_apollo_ex_hmc7044_reset_fsm_reseed(adi_hmc7044_device_t *hmc7044);
 
 #endif /* __VERSAL_APOLLO_EX_HMC7044_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

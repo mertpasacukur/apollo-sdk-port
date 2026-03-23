@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /******************************************************************************
 *
 * Copyright (C) 2015 - 2016 Xilinx, Inc.  All rights reserved.
@@ -254,3 +256,4 @@ extern void Xil_UndefinedExceptionHandler(void *CallBackRef);
 /**
 * @} End of "addtogroup arm_exception_apis".
 */
+#endif /* !defined(VERSAL_PLATFORM) */

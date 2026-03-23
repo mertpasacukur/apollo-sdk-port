@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo FMCB EvalBoard Auxiliary Device config functions implementation
  *
@@ -387,3 +389,4 @@ int32_t adi_ads10_apollo_ex_adl6332_startup(adi_adl6332_device_t *adl6332,
 
     return API_CMS_ERROR_OK;
 }
+#endif /* !defined(VERSAL_PLATFORM) */

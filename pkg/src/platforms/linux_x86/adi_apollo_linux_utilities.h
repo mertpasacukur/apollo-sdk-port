@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Apollo CPU file load Utilities headers
  *
@@ -139,3 +141,5 @@ int32_t adi_apollo_utilities_file_sample_count(adi_apollo_device_t *device, char
 #endif
 
 #endif /* __ADI_APOLLO_LINUX_UTILITIES_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

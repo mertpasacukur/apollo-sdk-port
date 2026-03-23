@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo examples Multi-Chip Sync and Calibration function implementations
  *
@@ -1570,3 +1572,5 @@ static int32_t _adf4030_fpga_delay_offset(adi_adf4030_device_t *adf4030,
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

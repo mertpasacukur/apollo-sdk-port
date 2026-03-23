@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     CE board power modules example. Voltage and current measurements.
  *
@@ -140,3 +142,5 @@ static int32_t pwr_modules_status_faults_clear(ce_brd_pwr_modules_t *pwr_mods, u
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

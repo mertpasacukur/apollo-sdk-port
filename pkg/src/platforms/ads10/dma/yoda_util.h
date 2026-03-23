@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     YODA UTIL Header File
  *
@@ -36,3 +38,5 @@
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

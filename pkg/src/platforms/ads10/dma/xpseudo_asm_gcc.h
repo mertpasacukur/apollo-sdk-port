@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /******************************************************************************
 *
 * Copyright (C) 2014 - 2016 Xilinx, Inc. All rights reserved.
@@ -247,3 +249,5 @@ extern "C" {
 #endif /* __cplusplus */
 
 #endif /* XPSEUDO_ASM_GCC_H */
+
+#endif /* !defined(VERSAL_PLATFORM) */

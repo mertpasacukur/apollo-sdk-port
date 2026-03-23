@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     Analog Devices DMA API Source File
  *
@@ -516,3 +518,5 @@ static void axi_dmac_dbg_reg(void)
 }
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

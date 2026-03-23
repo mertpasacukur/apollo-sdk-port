@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Loopback1 and 2 example
  *
@@ -502,3 +504,5 @@ int32_t perform_measurements(adi_apollo_device_t *device,
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

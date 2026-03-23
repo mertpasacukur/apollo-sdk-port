@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2017 Xilinx, Inc.  All rights reserved.
@@ -949,3 +951,5 @@ u32 XScuGic_GetCpuID(void)
 	return CpuId;
 }
 /** @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

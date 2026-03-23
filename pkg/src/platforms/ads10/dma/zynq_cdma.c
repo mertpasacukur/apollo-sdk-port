@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     ZYNQ DMA Source File
  *
@@ -133,3 +135,5 @@ void DisableIntrSystem(XScuGic *IntcInstancePtr, u32 IntrId)
 }
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

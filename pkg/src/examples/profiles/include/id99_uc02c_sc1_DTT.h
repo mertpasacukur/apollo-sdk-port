@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 #ifndef __ADI_ID99_UC02C_SC1_DTT_H__
 #define __ADI_ID99_UC02C_SC1_DTT_H__
 
@@ -3037,3 +3039,5 @@ adi_apollo_top_t id99_uc02c_sc1_DTT_0 = {
 
 
 #endif /* __ADI_ID99_UC02C_SC1_DTT_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

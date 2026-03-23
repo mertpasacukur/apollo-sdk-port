@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 
 /*******************************************************************
 *
@@ -55,3 +57,5 @@ XScuGic_Config XScuGic_ConfigTable[XPAR_XSCUGIC_NUM_INSTANCES] =
 };
 
 
+
+#endif /* !defined(VERSAL_PLATFORM) */

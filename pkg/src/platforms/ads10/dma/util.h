@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     UTIL Header File
  *
@@ -59,3 +61,5 @@ extern "C" {
 #endif
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

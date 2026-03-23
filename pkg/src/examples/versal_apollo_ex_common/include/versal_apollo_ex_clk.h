@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     Versal Apollo examples common clocking functions
  *
@@ -51,3 +53,5 @@ int32_t versal_apollo_ex_clk_power_cal(adi_apollo_device_t *device,
                                           uint64_t ref_freq_hz);
 
 #endif /* __VERSAL_APOLLO_EX_CLK_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

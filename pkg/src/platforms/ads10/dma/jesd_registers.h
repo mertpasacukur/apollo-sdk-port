@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 
 /*!
  * @brief     JESD registers definition file.
@@ -160,3 +162,5 @@
 /*============= E X P O R T S ==============*/
 
 #endif /*__JESD_REGISTERS__*/
+
+#endif /* !defined(VERSAL_PLATFORM) */

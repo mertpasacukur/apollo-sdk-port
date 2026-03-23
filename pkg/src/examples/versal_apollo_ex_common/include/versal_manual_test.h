@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     Versal Manual Register Test Interface
  *
@@ -75,3 +77,5 @@ int32_t versal_manual_test_write(const char *device_name, uint32_t address, uint
 int32_t versal_manual_test_dump(const char *device_name, uint32_t start_addr, uint32_t count);
 
 #endif /* VERSAL_MANUAL_TEST_H */
+
+#endif /* !defined(VERSAL_PLATFORM) */

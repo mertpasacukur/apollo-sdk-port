@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     APIs for CPU FW file LOAD
  *
@@ -323,3 +325,5 @@ int32_t adi_apollo_utilities_file_sample_count(adi_apollo_device_t *device, char
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

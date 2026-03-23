@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     Hal CDMA Source File
  *
@@ -93,3 +95,5 @@ unsigned int Hal_CdmaDeinit(void)
 }
 
 /*! @} */
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -33,6 +33,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#ifdef VERSAL_PLATFORM
+#include "versal_compat.h"
+#endif
 #endif
 #include "adi_cms_api_config.h"
 

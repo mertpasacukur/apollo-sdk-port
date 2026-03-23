@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo examples common inspect function implementations
  *
@@ -513,3 +515,5 @@ static const char * clk_mode_to_str(adi_ads10_apollo_clk_mode_e clk_mode)
         return "?";
     };
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Rx/Tx FSRC Dynamic Reconfig (DR) using manual (SPI) trigger.
  *
@@ -676,3 +678,4 @@ static bool is_valid_rate_change(adi_ads10_apollo_dp_info_t *rx_dp_info, adi_ads
         return true;
     }
 }
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo examples common vector functions
  *
@@ -201,3 +203,4 @@ int32_t adi_ads10_apollo_ex_vec_files_write(adi_fpga_apollo_device_t *fpga_devic
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_COMMON_EX_VEC_H__ */
+#endif /* !defined(VERSAL_PLATFORM) */

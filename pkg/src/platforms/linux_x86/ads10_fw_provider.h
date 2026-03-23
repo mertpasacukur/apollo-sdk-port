@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     FW image provider header for ADS10
  *
@@ -81,3 +83,4 @@ int32_t ads10_fw_provider_get(adi_apollo_fw_provider_t *fw_provider, adi_apollo_
  }
  #endif
  #endif /*__ADS10_FW_PROVIDER__*/
+#endif /* !defined(VERSAL_PLATFORM) */

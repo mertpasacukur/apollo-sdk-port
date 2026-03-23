@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     configureVUP - Application to load a platform FPGA image
  *
@@ -169,3 +171,4 @@ static void print_usage(char *pgm_name)
     printf("--help          print this usage text\n");
     printf("no args         load default fpga image\n\n");
 }
+#endif /* !defined(VERSAL_PLATFORM) */

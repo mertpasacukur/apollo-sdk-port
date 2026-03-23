@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief       Measure the time-of-flight (tof) of BSYNC signal (like SYSREF Clock)
                 from its source, ADF4030, to the Apollo and FPGA SYSREF pin.
@@ -332,3 +334,5 @@ int32_t bsync_tof(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

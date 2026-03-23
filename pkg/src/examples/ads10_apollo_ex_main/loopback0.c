@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Loopback0 test
  *            The example demonstrates Apollo's Loopback 0 feature where the DSP blocks are bypassed
@@ -226,3 +228,4 @@ static uint16_t adc_to_dac_map(uint16_t adc_sel, adc_loopback0_dac_map_t *side_a
     
     return dac_sel;
 }
+#endif /* !defined(VERSAL_PLATFORM) */

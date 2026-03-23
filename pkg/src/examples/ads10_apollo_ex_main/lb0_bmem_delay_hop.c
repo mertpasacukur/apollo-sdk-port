@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Loopback0 BMEM delay test
  *
@@ -113,3 +115,5 @@ static int32_t loopback0_setup(adi_apollo_device_t *device, uint16_t adc_select,
 
     return API_CMS_ERROR_OK;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

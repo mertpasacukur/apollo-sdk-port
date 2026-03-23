@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     Versal Apollo example common header.
  *
@@ -48,3 +50,5 @@ int32_t versal_apollo_ex_startup(adi_apollo_device_t *device, adi_apollo_top_t *
 #endif
 
 #endif /* __VERSAL_APOLLO_EX_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

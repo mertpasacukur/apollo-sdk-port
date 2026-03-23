@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * @brief     UIOs platform configuration header file.
  *
@@ -93,3 +95,5 @@ int32_t adi_uio_devices_print(void);
 }
 #endif
 #endif /*__HAL_UIO__*/
+
+#endif /* !defined(VERSAL_PLATFORM) */

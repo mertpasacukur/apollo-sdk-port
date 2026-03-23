@@ -1,3 +1,5 @@
+#if !defined(VERSAL_PLATFORM)
+
 /*!
  * \brief     ADS10 Apollo Fullchip PFILT example code
  *
@@ -556,3 +558,4 @@ static int32_t tx_dp_reset(adi_apollo_device_t *device, bool do_oneshot_sync)
     
     return err;
 }
+#endif /* !defined(VERSAL_PLATFORM) */
