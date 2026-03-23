@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     HMC7044 Custom PL IP — 3-Wire SPI Interface
  *
@@ -47,5 +45,3 @@ int32_t hmcRead(uint16_t address, uint8_t *data);
 #endif
 
 #endif /* VERSAL_HMC7044_PL_H */
-
-#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     Versal Apollo example program main.
  *
@@ -462,5 +460,3 @@ int main(void)
 
     return 0;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

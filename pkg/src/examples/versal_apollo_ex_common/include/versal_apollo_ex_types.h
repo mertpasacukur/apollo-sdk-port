@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     Versal Apollo examples common types
  *
@@ -29,5 +27,3 @@
 #define FW_IMAGES_DIR           "qspi_flash"
 
 #endif /* __VERSAL_APOLLO_COMMON_EX_TYPES_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

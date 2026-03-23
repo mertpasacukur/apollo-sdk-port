@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     Versal Apollo examples common function implementation.
  *
@@ -122,5 +120,3 @@ int32_t versal_apollo_ex_startup(adi_apollo_device_t *device, adi_apollo_top_t *
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

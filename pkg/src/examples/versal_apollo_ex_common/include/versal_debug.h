@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     Versal Debug Print System
  *
@@ -80,5 +78,3 @@ uint32_t dbg_get_level(void);
 #endif
 
 #endif /* VERSAL_DEBUG_H */
-
-#endif /* !defined(VERSAL_PLATFORM) */

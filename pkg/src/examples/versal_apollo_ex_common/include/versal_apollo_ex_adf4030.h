@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     Versal Apollo examples common ADF4030 functions
  *
@@ -45,5 +43,3 @@ int32_t versal_apollo_ex_adf4030_align_bsync_out(adi_adf4030_device_t *adf4030,
                                                     uint64_t bsync_out_freq_hz);
 
 #endif /* __VERSAL_APOLLO_EX_ADF4030_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */

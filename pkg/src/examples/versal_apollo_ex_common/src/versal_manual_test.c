@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * @brief     Versal Manual Register Test Implementation
  *
@@ -252,5 +250,3 @@ int32_t versal_manual_test_dump(const char *device_name, uint32_t start_addr, ui
 
     return API_CMS_ERROR_OK;
 }
-
-#endif /* !defined(VERSAL_PLATFORM) */

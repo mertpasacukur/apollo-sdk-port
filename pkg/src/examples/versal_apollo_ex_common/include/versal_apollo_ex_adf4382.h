@@ -1,5 +1,3 @@
-#if !defined(VERSAL_PLATFORM)
-
 /*!
  * \brief     Versal Apollo examples common ADF4382 functions
  *
@@ -51,5 +49,3 @@ int32_t versal_apollo_ex_adf4382_mcs_init_config(adi_adf4382_device_t *adf4382,
 int32_t versal_apollo_ex_adf4382_del_cnt_get(adi_adf4382_device_t *adf4382, uint8_t *bleed_pol, int8_t *coarse_current, int16_t *fine_current);
 
 #endif /* __VERSAL_APOLLO_EX_ADF4382_H__ */
-
-#endif /* !defined(VERSAL_PLATFORM) */
