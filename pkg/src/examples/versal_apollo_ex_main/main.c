@@ -5,7 +5,7 @@
  *            No CLI — profile and example are selected at compile time.
  *
  *            Default configuration:
- *              Profile:  id00_uc06
+ *              Profile:  id00_uc06a_Q250
  *
  *            To change, define before including this file:
  *              #define VERSAL_PROFILE_STRUCT  id00_uc08_f_0
@@ -47,16 +47,16 @@
 #include "versal_apollo_ex_adf4030.h"
 
 /* Device profile — compile-time selection */
-#include "id00_uc06.h"
+#include "id00_uc06a_Q250.h"
 
 /*============= C O M P I L E - T I M E   C O N F I G ======================*/
 
 #ifndef VERSAL_PROFILE_STRUCT
-#define VERSAL_PROFILE_STRUCT   id00_uc06_0
+#define VERSAL_PROFILE_STRUCT   id00_uc06a_Q250_0
 #endif
 
 #ifndef VERSAL_PROFILE_NAME
-#define VERSAL_PROFILE_NAME     "id00_uc06"
+#define VERSAL_PROFILE_NAME     "id00_uc06a_Q250"
 #endif
 
 /*============= T E S T   A D D R E S S E S ================================*/
