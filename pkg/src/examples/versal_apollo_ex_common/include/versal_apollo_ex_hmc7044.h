@@ -24,7 +24,8 @@ int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void 
 int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
-                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz);
+                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz,
+                                            adi_hmc7044_device_rational_freq_t *dev_ref_clk_hz);
 
 /**
  * \brief   Perform reset to all HMC7044 dividers and sync by running reseed.

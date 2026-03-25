@@ -25,6 +25,8 @@
     VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_CENTER \
     | VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_DUAL \
     | VERSAL_APOLLO_CLK_MODE_DEV_CLK_ADF4382 \
+    | VERSAL_APOLLO_CLK_MODE_DEV_CLK_EXTERNAL_PLL \
+    | VERSAL_APOLLO_CLK_MODE_DEV_CLK_HMC7044_PLL \
 )
 
 #define FPGA_CLK_MODE_MASK ( \
@@ -46,6 +48,7 @@ int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_d
     return versal_apollo_ex_configure_clks(fpga_device,
                                               ltc6955_clk_khz,
                                               profile->clk_cfg.dev_clk_freq_kHz,
+                                              profile->clk_cfg.ref_clk_freq_kHz,
                                               profile->mcs_cfg.internal_sysref_prd_digclk_cycles_center,
                                               profile->clk_cfg.clocking_mode,
                                               fpga_device->state_info.clk_info.max_link_rate_khz,
@@ -56,6 +59,7 @@ int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_d
 int32_t versal_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
                                            uint32_t ltc6955_clk_khz,
                                            uint32_t dev_clk_khz,
+                                           uint32_t ref_clk_khz,
                                            uint16_t digclk_cycles,
                                            adi_apollo_divg_mode_e divg_mode,
                                            uint32_t lane_rate_khz,
@@ -76,16 +80,24 @@ int32_t versal_apollo_ex_configure_clks(adi_fpga_apollo_device_t *fpga_device,
         .freq_hz = lane_rate_khz * 1e3,
         .div = fpga_clk_div
     };
+    adi_hmc7044_device_rational_freq_t dev_ref_clk_hz = {0};
 
     ADI_CMS_SINGLE_SELECT_CHECK(dev_clk_mode);
     ADI_CMS_SINGLE_SELECT_CHECK(fpga_clk_mode);
+
+    if (dev_clk_mode == VERSAL_APOLLO_CLK_MODE_DEV_CLK_HMC7044_PLL) {
+        ADI_CMS_CHECK((ref_clk_khz == 0) || (ref_clk_khz > ADI_APOLLO_PLL_REF_CLK_FREQ_KHZ_MAX), API_CMS_ERROR_INVALID_CLK_OR_REF_PARAM);
+        dev_ref_clk_hz.freq_hz = ref_clk_khz * 1000,
+        dev_ref_clk_hz.div = 1;
+    }
 
     switch (fpga_clk_mode) {
         case VERSAL_APOLLO_CLK_MODE_FPGA_CLK_FMC:
             err = versal_apollo_ex_hmc7044_startup(&hmc7044_device,
                                                       ((uint64_t) (ltc6955_clk_khz * 1e3)),
                                                       &sysref_hz,
-                                                      &fpga_ref_hz);
+                                                      &fpga_ref_hz,
+                                                      &dev_ref_clk_hz);
             ADI_CMS_ERROR_RETURN(err);
 
             clk_sysref = 1;

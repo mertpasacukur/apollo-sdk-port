@@ -101,7 +101,8 @@ int32_t versal_apollo_ex_hmc7044_hal_config(adi_hmc7044_device_t *hmc7044, void 
 int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
                                             uint64_t ref_freq_hz,
                                             adi_hmc7044_device_rational_freq_t *sysref_hz,
-                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz)
+                                            adi_hmc7044_device_rational_freq_t *fpga_ref_hz,
+                                            adi_hmc7044_device_rational_freq_t *dev_ref_clk_hz)
 {
     int32_t err = 0;
     uint64_t fpga_ref_freq_hz = fpga_ref_hz->freq_hz / fpga_ref_hz->div;
@@ -110,6 +111,7 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     ADI_CMS_NULL_PTR_CHECK(hmc7044);
     ADI_CMS_NULL_PTR_CHECK(sysref_hz);
     ADI_CMS_NULL_PTR_CHECK(fpga_ref_hz);
+    ADI_CMS_NULL_PTR_CHECK(dev_ref_clk_hz);
 
     if (fpga_ref_freq_hz < ADI_ADF4030_REF_FREQ_MAX) {
         adf4030_ref_hz.freq_hz = fpga_ref_hz->freq_hz;
@@ -151,7 +153,8 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
     };
     adi_hmc7044_device_clkout_config_t device_clkout = {
         .clkin                 = ADI_HMC7044_CLKIN0,
-        .clkout                = ADI_HMC7044_SCLKOUT1
+        .clkout                = (dev_ref_clk_hz->freq_hz != 0 ? ADI_HMC7044_CLKOUT0 : 0)
+                               | ADI_HMC7044_SCLKOUT1
                                | ADI_HMC7044_CLKOUT2
                                | ADI_HMC7044_SCLKOUT3
                                | ADI_HMC7044_SCLKOUT5
@@ -170,7 +173,7 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
             ADI_HMC7044_CLKIN3
         },
         .output_freq           = {
-            { 0 },
+            *dev_ref_clk_hz,    // CLKOUT0    Apollo PLL ref clock
             sclkout_1,      // SCLKOUT1   ADF4030_REF_IN
             *fpga_ref_hz,   // CLKOUT2    FPGA_REFCLK_5
             *sysref_hz,     // SCLKOUT3   ADF4030_BSYNC0_INPUT
