@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo common examples to string converters
  *
@@ -207,3 +208,5 @@ int32_t adi_ads10_ex_sr_dr_cfg_to_str(adi_ads10_apollo_sr_dr_cfg_t *sr_ratio_cfg
 
     return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples Multi-Chip Sync and Calibration functions
  *
@@ -261,3 +262,5 @@ int32_t adi_ads10_apollo_ex_mcs_link_phase_print(adi_apollo_device_t *device);
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_MCS_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo examples common vector related functions
  *
@@ -683,3 +684,5 @@ static uint32_t vec_len_align(uint32_t vec_len, uint32_t s_fpga)
     vec_len_aligned = ((vec_len + vec_len_aligned - 1) / vec_len_aligned) * vec_len_aligned; // Round up requested vec_len to nearest multiple
     return vec_len_aligned;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

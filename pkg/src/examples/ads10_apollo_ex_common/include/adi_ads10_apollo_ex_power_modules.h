@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     Common functions for Apollo CE board power modules
  *
@@ -123,3 +124,5 @@ int32_t adi_ex_pwr_modules_ltm4681_status_faults_check_print(adi_ltm4681_device_
 #endif
 
 #endif /* __ADI_ADS10_APOLLO_EX_PWR_MODULE_H__ */
+
+#endif /* !defined(VERSAL_PLATFORM) */
