@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo TX JESD FSRC data path test
  *
@@ -65,3 +66,5 @@ int32_t tx_jesd(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 
     return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

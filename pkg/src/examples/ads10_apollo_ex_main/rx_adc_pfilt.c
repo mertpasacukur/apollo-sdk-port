@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Rx PFILT data path test using ADCs as input source
  *
@@ -199,3 +200,5 @@ static double coherent_freq(double target, double fdata, uint32_t n_samples)
     }
     return ((m_cycles * fdata) / n_samples);
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

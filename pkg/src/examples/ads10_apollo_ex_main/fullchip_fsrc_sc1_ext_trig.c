@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 ﻿/*!
  * \brief     ADS10 Apollo Fullchip Dynamic Reconfig w/ SC1 and ext Trig (FSRC, CDDC/FDDC, CDUC/FDUC)
  *
@@ -987,3 +988,5 @@ static uint16_t jrx_phase_adj_const_get(adi_apollo_top_t *profile)
         return 33;
     }
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo null operation, used to test dp config after profile load
  *
@@ -92,3 +93,5 @@ int32_t dp_load(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_devi
 end:
     return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

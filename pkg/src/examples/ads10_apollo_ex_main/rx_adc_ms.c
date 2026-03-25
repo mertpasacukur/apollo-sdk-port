@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo ADC mode switching
  * 
@@ -102,3 +103,5 @@ int32_t rx_adc_ms(adi_apollo_device_t *device, adi_fpga_apollo_device_t *fpga_de
     return err;
 
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo Sparse CFIR example
  *
@@ -159,3 +160,5 @@ int32_t fullchip_sparse_cfir(adi_apollo_device_t *device, adi_fpga_apollo_device
 
     return err;
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */

@@ -1,3 +1,4 @@
+#if !defined(VERSAL_PLATFORM)
 /*!
  * \brief     ADS10 Apollo fullchip Rx/Tx subclass 1 with deterministic latency
  *
@@ -376,3 +377,5 @@ static uint16_t jrx_phase_adj_const_get(adi_apollo_top_t *profile)
         return 33;
     }
 }
+
+#endif /* !defined(VERSAL_PLATFORM) */
