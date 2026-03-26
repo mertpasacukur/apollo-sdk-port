@@ -360,6 +360,8 @@ int32_t adi_hmc7044_private_device_clk_config(adi_hmc7044_device_t *device, adi_
     }
 
     /*enable clkin*/
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    // TODO API: HMC7044_CLK_IP_BUFF_BASE_RE(0xA) kontrolu kaldirildi.
     if (err = adi_hmc7044_private_pll_enable_input_reference_set(device, 0, (ref_ch & HMC7044_CLK_IN_0)), err != API_CMS_ERROR_OK)
         return err;
     if (err = adi_hmc7044_private_pll_enable_input_reference_set(device, 1, (ref_ch & HMC7044_CLK_IN_1) >> 1), err != API_CMS_ERROR_OK)
@@ -368,6 +370,7 @@ int32_t adi_hmc7044_private_device_clk_config(adi_hmc7044_device_t *device, adi_
         return err;
     if (err = adi_hmc7044_private_pll_enable_input_reference_set(device, 3, (ref_ch & HMC7044_CLK_IN_3) >> 3), err != API_CMS_ERROR_OK)
         return err;
+#endif
     /*enable oscin*/
     if (err = adi_hmc7044_private_pll_enable_input_reference_set(device, 4, 1), err != API_CMS_ERROR_OK)
         return err;
@@ -393,6 +396,8 @@ int32_t adi_hmc7044_private_device_clk_config(adi_hmc7044_device_t *device, adi_
     flcm_clk_hz = config->ref_clk_freq_hz / M2;
     vcxo_prescaler = (config->fvcxo_clk_freq_hz / pfd1_clk_hz)/(ref_div / clkin_prescaler);
 
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    // todo API: clk in prescaler 0-1-2-3 kapatildi
     if (err = adi_hmc7044_private_pll_input_reference_prescaler_config_set(device, 0, clkin_prescaler), err != API_CMS_ERROR_OK)
         return err;
     if (err = adi_hmc7044_private_pll_input_reference_prescaler_config_set(device, 1, clkin_prescaler), err != API_CMS_ERROR_OK)
@@ -401,6 +406,7 @@ int32_t adi_hmc7044_private_device_clk_config(adi_hmc7044_device_t *device, adi_
         return err;
     if (err = adi_hmc7044_private_pll_input_reference_prescaler_config_set(device, 3, clkin_prescaler), err != API_CMS_ERROR_OK)
         return err;
+#endif
     if (err = adi_hmc7044_private_pll_input_reference_oscin_prescaler_config_set(device, vcxo_prescaler), err != API_CMS_ERROR_OK)
         return err;
 

@@ -184,6 +184,8 @@ int32_t adi_hmc7044_private_pll_pll1_config_set(adi_hmc7044_device_t *device, ui
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    // TODO API: PLL_1 Refereans divider ve feedback divider kapatildi
     err = adi_hmc7044_private_device_spi_register_set(device, HMC7044_PLL1_R_DIV_LSB_REG, ((uint8_t) (r_div & 0xFF)));
     if (err != API_CMS_ERROR_OK) {
         return err;
@@ -200,6 +202,7 @@ int32_t adi_hmc7044_private_pll_pll1_config_set(adi_hmc7044_device_t *device, ui
     if (err != API_CMS_ERROR_OK) {
         return err;
     }
+#endif
 
     return API_CMS_ERROR_OK;
 }
@@ -257,13 +260,19 @@ int32_t adi_hmc7044_private_pll_device_pll_lock_status_get(adi_hmc7044_device_t 
 
 	if (reg_val & 0x1)
 	    *status |= HMC7044_PLL2_LOCK_ST;
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+	// TODO API: HMC7044_PLL1_AND_PLL2 kontrolu kaldirildi
 	if (reg_val &  0x8)
 	    *status |= HMC7044_PLL1_AND_PLL2_LOCK_ST;
+#endif
 
 	if (err = adi_hmc7044_private_device_spi_register_get(device, 0x7C, &reg_val), err != API_CMS_ERROR_OK)
 		return err;
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+	// TODO API: HMC7044_PLL1_LOCK_ST kontrolu kaldirildi
         if (reg_val & 0x20)
 	    *status |= HMC7044_PLL1_LOCK_ST;
+#endif
 	return API_CMS_ERROR_OK;
 }
 
@@ -477,6 +486,8 @@ int32_t adi_hmc7044_private_pll_config(adi_hmc7044_device_t *device, adi_hmc7044
 	}
 
 	/*enable clkin*/
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+	// TODO API: HMC7044_CLK_IP_BUFF_BASE_RE(0xA) kontrolu kaldirildi.
 	if (err = adi_hmc7044_private_pll_input_reference_set(device, 0, IPBUFFER_INTERNAL_100_OHM_EN | IPBUFFER_AC_COUPLED_MODE_EN, (ref_ch & HMC7044_CLK_IN_0)), err != API_CMS_ERROR_OK)
 		return err;
 	if (err = adi_hmc7044_private_pll_input_reference_set(device, 1, IPBUFFER_INTERNAL_100_OHM_EN | IPBUFFER_AC_COUPLED_MODE_EN, (ref_ch & HMC7044_CLK_IN_1) >> 1), err != API_CMS_ERROR_OK)
@@ -485,6 +496,7 @@ int32_t adi_hmc7044_private_pll_config(adi_hmc7044_device_t *device, adi_hmc7044
 		return err;
 	if (err = adi_hmc7044_private_pll_input_reference_set(device, 3, IPBUFFER_INTERNAL_100_OHM_EN | IPBUFFER_AC_COUPLED_MODE_EN, (ref_ch & HMC7044_CLK_IN_3) >> 3), err != API_CMS_ERROR_OK)
 		return err;
+#endif
 	if (err = adi_hmc7044_private_pll_input_reference_priority_set(device, hmc_priority, 4), err != API_CMS_ERROR_OK)
 		return err;
 

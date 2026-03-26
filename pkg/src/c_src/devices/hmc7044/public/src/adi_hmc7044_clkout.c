@@ -162,6 +162,20 @@ static int32_t clkout_config_set(adi_hmc7044_device_t *hmc7044, uint32_t reg_off
     err = hmc7044_spi_reg_get(hmc7044, reg_addr, &reg_val);
     ADI_HMC7044_CHECK_ERR_OK(err);
 
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    if(reg_offset == 0x40) //clkout4
+    {
+        config->ch_div = 20;
+        printf("config->ch_div :%d \r\n", config->ch_div & 0xFF);
+    }
+
+    if(reg_offset == 0) //clkout0
+    {
+        config->ch_div = 10;
+        printf("config->ch_div :%d \r\n", config->ch_div & 0xFF);
+    }
+#endif
+
     err = hmc7044_spi_reg_set(hmc7044,
                               reg_addr,
                               (reg_val & 0x7E)
@@ -270,6 +284,18 @@ static int32_t driver_config_set(adi_hmc7044_device_t *hmc7044, uint32_t reg_off
             reg_val |= HMC7044_CLK_OP_DRIVER_MODE(0x3);
             break;
     }
+
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    // 4. kanalin ayari cml'e cekildi.
+    if(reg_offset == 40)
+    {
+        reg_val = reg_val & 0xE7;
+
+        reg_val = 0x03;
+
+        printf("HMC7044 Clock Out Driver 4. Channel Reg Val: 0x%02x \r\n", reg_val);
+    }
+#endif
 
     err = hmc7044_spi_reg_set(hmc7044, (HMC7044_CLK_OP_CTRL_8_REG + reg_offset), reg_val);
     ADI_HMC7044_CHECK_ERR_OK(err);

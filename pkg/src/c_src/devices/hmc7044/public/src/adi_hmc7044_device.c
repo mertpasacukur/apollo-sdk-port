@@ -238,6 +238,15 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
 
     fvco_clk_hz_dec = fvco_clk_hz.freq_hz / fvco_clk_hz.div;
 
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    //TODO API ADAS//////////
+    printf("calculated fvco_freq_hz : %llu, fvco_div = %lu, fvco_freq_dec = %llu \n", fvco_clk_hz.freq_hz, fvco_clk_hz.div, fvco_clk_hz_dec);
+    fvco_clk_hz.freq_hz = 2500000000;
+    fvco_clk_hz.div     = 1;
+    fvco_clk_hz_dec = fvco_clk_hz.freq_hz / fvco_clk_hz.div;
+    printf("forced fvco_freq_hz : %llu, fvco_div = %llu, fvco_freq_dec = %lu \n", fvco_clk_hz.freq_hz, fvco_clk_hz.div, fvco_clk_hz_dec);
+#endif
+
     err = adi_hmc7044_device_int_vco_sel_get(hmc7044, &vco_sel);
     ADI_HMC7044_CHECK_ERR_OK(err);
 
@@ -258,6 +267,11 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
     /*calculate fpfd2*/
     adi_hmc7044_private_math_rational_gcd(fvco_clk_hz.freq_hz, fvco_clk_hz.div, pll2ref_clk_hz, 1, &pfd2_clk_hz.freq_hz, &pfd2_clk_hz.div);
     pfd2_clk_hz_dec = pfd2_clk_hz.freq_hz / pfd2_clk_hz.div;
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    //TODO API ADAS/////////
+    printf("pfd2_freq_hz : %llu, pfd2_div = %llu, pfd2_freq_dec = %lu \n", pfd2_clk_hz.freq_hz, pfd2_clk_hz.div, pfd2_clk_hz_dec);
+    ////////////////////////
+#endif
     if (pfd2_clk_hz_dec < HMC7044_PD2_CLK_FREQ_HZ_MIN || pfd2_clk_hz_dec > HMC7044_PD2_CLK_FREQ_HZ_MAX) {
         return API_CMS_ERROR_ERROR;
     }
@@ -268,6 +282,12 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
     R2 = (pll2ref_clk_hz * pfd2_clk_hz.div) / pfd2_clk_hz.freq_hz;
     N2 = (fvco_clk_hz.freq_hz * pfd2_clk_hz.div) / (fvco_clk_hz.div * pfd2_clk_hz.freq_hz);
 
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    //TODO API ADAS/////////
+    printf("R2 = %llu , N2 = %llu \n", R2, N2);
+    ////////////////////////
+#endif
+
     err = adi_hmc7044_pll_enable_get(hmc7044, &enabled_plls);
     ADI_HMC7044_CHECK_ERR_OK(err);
 
@@ -277,6 +297,7 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
     err = hmc7044_sw_delay_us(hmc7044, 10000);
     ADI_HMC7044_CHECK_ERR_OK(err);
 
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
     if (enabled_plls & ADI_HMC7044_PLL_SEL_PLL1) {
         err = adi_hmc7044_pll_locked_get(hmc7044, &pll_lock_st);
         ADI_HMC7044_CHECK_ERR_OK(err);
@@ -285,6 +306,7 @@ int32_t adi_hmc7044_device_clkout_config_set(adi_hmc7044_device_t *hmc7044, adi_
             return API_CMS_ERROR_PLL_NOT_LOCKED;
         }
     }
+#endif
 
     err = adi_hmc7044_private_pll_pll2_config_set(hmc7044, config->vcxo_hz > HMC7044_PLL2REF_CLK_DB_FREQ_HZ_MAX, R2, N2);
     ADI_HMC7044_CHECK_ERR_OK(err);

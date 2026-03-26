@@ -42,7 +42,9 @@ int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_d
 
     int32_t err;
 
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
     err = adi_fpga_apollo_clk_line_rate_div_pgm(fpga_device);
+#endif
     ADI_CMS_ERROR_RETURN(err);
 
     return versal_apollo_ex_configure_clks(fpga_device,

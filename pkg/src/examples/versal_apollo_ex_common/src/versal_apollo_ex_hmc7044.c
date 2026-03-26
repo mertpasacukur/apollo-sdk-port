@@ -156,6 +156,9 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
         .clkout                = (dev_ref_clk_hz->freq_hz != 0 ? ADI_HMC7044_CLKOUT0 : 0)
                                | ADI_HMC7044_SCLKOUT1
                                | ADI_HMC7044_CLKOUT2
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+                               | ADI_HMC7044_CLKOUT4
+#endif
                                | ADI_HMC7044_SCLKOUT3
                                | ADI_HMC7044_SCLKOUT5
                                | ADI_HMC7044_CLKOUT8
@@ -177,7 +180,11 @@ int32_t versal_apollo_ex_hmc7044_startup(adi_hmc7044_device_t *hmc7044,
             sclkout_1,      // SCLKOUT1   ADF4030_REF_IN
             *fpga_ref_hz,   // CLKOUT2    FPGA_REFCLK_5
             *sysref_hz,     // SCLKOUT3   ADF4030_BSYNC0_INPUT
+#ifdef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+            { 125e6 },
+#else
             { 0 },
+#endif
             *fpga_ref_hz,   // SCLKOUT5   FPGA_REFCLK_4
             { 0 },
             { 0 },

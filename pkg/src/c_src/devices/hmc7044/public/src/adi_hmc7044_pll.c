@@ -66,11 +66,14 @@ static int32_t input_config_set(adi_hmc7044_device_t *device, uint8_t clk_in, ui
         return API_CMS_ERROR_INVALID_PARAM;
     }
 
+#ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
+    // TODO API: HMC7044_CLK_IP_BUFF_BASE_RE(0xA) kontrolu kaldirildi.
     reg_addr = ((clk_in * HMC7044_CLK_IP_BUFF_OFFSET) + HMC7044_CLK_IP_BUFF_BASE_REG);
     err = hmc7044_spi_reg_set(device, reg_addr, ((config << 1) | (!!enable)));
     if (err != API_CMS_ERROR_OK) {
         return err;
     }
+#endif
 
     return API_CMS_ERROR_OK;
 }
