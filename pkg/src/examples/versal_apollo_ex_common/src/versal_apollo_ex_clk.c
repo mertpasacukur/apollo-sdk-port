@@ -40,7 +40,7 @@ int32_t versal_apollo_ex_configure_profile_clks(adi_fpga_apollo_device_t *fpga_d
                                                    versal_apollo_clk_mode_e mode)
 {
 
-    int32_t err;
+    int32_t err = API_CMS_ERROR_OK;
 
 #ifndef APPLY_VERSAL_HARDWARE_BASED_CHANGE
     err = adi_fpga_apollo_clk_line_rate_div_pgm(fpga_device);

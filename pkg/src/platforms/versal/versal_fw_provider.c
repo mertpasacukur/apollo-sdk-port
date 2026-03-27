@@ -32,8 +32,16 @@
 #include "versal_fw_provider.h"
 #include "versal_config.h"
 
+#ifdef VERSAL_FW_USE_STATIC_ARRAYS
+#include "versal_fw_static_images.h"
+#endif
+
 /*============= D E F I N E S ==============*/
+#ifdef VERSAL_FW_USE_STATIC_ARRAYS
+#define DESC_STR            "versal-static"
+#else
 #define DESC_STR            "versal-qspi"
+#endif
 #define QSPI_READ_CMD       0x13    /* 4-byte address Read Data command */
 #define QSPI_CHUNK_SIZE     (64 * 1024)  /* Read 64KB at a time */
 
@@ -189,9 +197,8 @@ adi_apollo_fw_provider_t *versal_fw_provider_create(adi_apollo_device_t *device,
 {
     versal_fw_provider_obj_t *obj_data;
     adi_apollo_fw_provider_t *obj;
-    int32_t err;
 
-    (void)fw_image_dir; /* Not used on Versal — FW comes from QSPI */
+    (void)fw_image_dir; /* Not used on Versal — FW comes from QSPI or static arrays */
 
     if (device == NULL) return NULL;
 
@@ -214,13 +221,20 @@ adi_apollo_fw_provider_t *versal_fw_provider_create(adi_apollo_device_t *device,
     obj_data->buffer = NULL;
     obj_data->qspi_initialized = 0;
 
-    /* Initialize QSPI */
-    err = versal_qspi_init(&obj_data->qspi_inst);
-    if (err == API_CMS_ERROR_OK) {
-        obj_data->qspi_initialized = 1;
-    } else {
-        xil_printf("WARNING: QSPI init failed — FW loading will not work\r\n");
+#ifdef VERSAL_FW_USE_STATIC_ARRAYS
+    xil_printf("INFO: FW provider using STATIC ARRAYS (no flash)\r\n");
+#else
+    {
+        int32_t err;
+        /* Initialize QSPI */
+        err = versal_qspi_init(&obj_data->qspi_inst);
+        if (err == API_CMS_ERROR_OK) {
+            obj_data->qspi_initialized = 1;
+        } else {
+            xil_printf("WARNING: QSPI init failed — FW loading will not work\r\n");
+        }
     }
+#endif
 
     return obj;
 }
@@ -264,12 +278,42 @@ int32_t versal_fw_provider_close(adi_apollo_fw_provider_t *obj, adi_apollo_start
     return API_CMS_ERROR_OK;
 }
 
+/*
+ * Static FW image lookup table for VERSAL_FW_USE_STATIC_ARRAYS mode.
+ * Returns pointer to compiled-in data and size for fw_id 2-5.
+ */
+#ifdef VERSAL_FW_USE_STATIC_ARRAYS
+static int32_t versal_fw_static_get(adi_apollo_startup_fw_id_e fw_id,
+                                    const uint8_t **data_ptr, uint32_t *data_size)
+{
+    switch ((uint32_t)fw_id) {
+    case 2:
+        *data_ptr = fw_image_2_data;
+        *data_size = fw_image_2_size;
+        return API_CMS_ERROR_OK;
+    case 3:
+        *data_ptr = fw_image_3_data;
+        *data_size = fw_image_3_size;
+        return API_CMS_ERROR_OK;
+    case 4:
+        *data_ptr = fw_image_4_data;
+        *data_size = fw_image_4_size;
+        return API_CMS_ERROR_OK;
+    case 5:
+        *data_ptr = fw_image_5_data;
+        *data_size = fw_image_5_size;
+        return API_CMS_ERROR_OK;
+    default:
+        xil_printf("ERROR: Static FW image not available for fw_id %d\r\n", (int)fw_id);
+        return API_CMS_ERROR_INVALID_PARAM;
+    }
+}
+#endif
+
 int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
                                adi_apollo_startup_fw_id_e fw_id,
                                uint8_t **byte_arr, uint32_t *bytes_read)
 {
-    int32_t err;
-    uint32_t flash_addr;
     uint32_t fw_size;
     versal_fw_provider_obj_t *data;
 
@@ -282,58 +326,95 @@ int32_t versal_fw_provider_get(adi_apollo_fw_provider_t *obj,
 
     data = (versal_fw_provider_obj_t *)obj->tag;
 
-    if (!data->qspi_initialized) {
-        xil_printf("ERROR: QSPI not initialized — cannot load FW\r\n");
-        return API_CMS_ERROR_ERROR;
-    }
-
     if (data->buffer != NULL) {
         xil_printf("ERROR: FW buffer not freed from previous transaction\r\n");
         return API_CMS_ERROR_ERROR;
     }
 
-    flash_addr = fw_flash_offset(fw_id);
-    if (flash_addr == 0xFFFFFFFF) {
-        xil_printf("ERROR: Invalid FW ID %d\r\n", (int)fw_id);
-        return API_CMS_ERROR_INVALID_PARAM;
+#ifdef VERSAL_FW_USE_STATIC_ARRAYS
+    {
+        const uint8_t *static_data;
+        uint32_t static_size;
+        int32_t err;
+
+        err = versal_fw_static_get(fw_id, &static_data, &static_size);
+        if (err != API_CMS_ERROR_OK) return err;
+
+        xil_printf("FW provider [STATIC]: id=%d, size=%lu bytes\r\n",
+                   (int)fw_id, (unsigned long)static_size);
+
+        /* Allocate and copy from static array (API expects freeable buffer) */
+        data->buffer = (uint8_t *)malloc(static_size);
+        if (data->buffer == NULL) {
+            xil_printf("ERROR: FW buffer malloc failed (size=%lu)\r\n", (unsigned long)static_size);
+            return API_CMS_ERROR_MEM_ALLOC;
+        }
+
+        memcpy(data->buffer, static_data, static_size);
+
+        *byte_arr = data->buffer;
+        *bytes_read = static_size;
+
+        adi_apollo_hal_log_write(data->device, ADI_CMS_LOG_MSG,
+                                 "FW provider get [STATIC]: id=%d, size=%lu bytes",
+                                 (int)fw_id, (unsigned long)static_size);
+
+        return API_CMS_ERROR_OK;
     }
+#else
+    {
+        int32_t err;
+        uint32_t flash_addr;
 
-    /*
-     * TODO PASA: Currently using hardcoded sizes for RAW flash read.
-     * Later: add 4-byte size header system or filesystem.
-     * Files are written directly to flash offsets without any header.
-     */
-    fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
-              fw_flash_map[(uint32_t)fw_id].max_size : 0;
+        if (!data->qspi_initialized) {
+            xil_printf("ERROR: QSPI not initialized — cannot load FW\r\n");
+            return API_CMS_ERROR_ERROR;
+        }
 
-    if (fw_size == 0) {
-        xil_printf("ERROR: FW ID %d has no size mapping\r\n", (int)fw_id);
-        return API_CMS_ERROR_ERROR;
+        flash_addr = fw_flash_offset(fw_id);
+        if (flash_addr == 0xFFFFFFFF) {
+            xil_printf("ERROR: Invalid FW ID %d\r\n", (int)fw_id);
+            return API_CMS_ERROR_INVALID_PARAM;
+        }
+
+        /*
+         * TODO PASA: Currently using hardcoded sizes for RAW flash read.
+         * Later: add 4-byte size header system or filesystem.
+         * Files are written directly to flash offsets without any header.
+         */
+        fw_size = (uint32_t)fw_id < FW_FLASH_MAP_COUNT ?
+                  fw_flash_map[(uint32_t)fw_id].max_size : 0;
+
+        if (fw_size == 0) {
+            xil_printf("ERROR: FW ID %d has no size mapping\r\n", (int)fw_id);
+            return API_CMS_ERROR_ERROR;
+        }
+
+        xil_printf("FW provider [FLASH]: id=%d, flash=0x%08lX, size=%lu bytes\r\n",
+                   (int)fw_id, (unsigned long)flash_addr, (unsigned long)fw_size);
+
+        /* Allocate and read FW data directly (no header) */
+        data->buffer = (uint8_t *)malloc(fw_size);
+        if (data->buffer == NULL) {
+            xil_printf("ERROR: FW buffer malloc failed (size=%lu)\r\n", (unsigned long)fw_size);
+            return API_CMS_ERROR_MEM_ALLOC;
+        }
+
+        err = versal_qspi_read(&data->qspi_inst, flash_addr, data->buffer, fw_size);
+        if (err != API_CMS_ERROR_OK) {
+            free(data->buffer);
+            data->buffer = NULL;
+            return err;
+        }
+
+        *byte_arr = data->buffer;
+        *bytes_read = fw_size;
+
+        adi_apollo_hal_log_write(data->device, ADI_CMS_LOG_MSG,
+                                 "FW provider get [FLASH]: id=%d, size=%lu bytes",
+                                 (int)fw_id, (unsigned long)fw_size);
+
+        return API_CMS_ERROR_OK;
     }
-
-    xil_printf("FW provider: id=%d, flash=0x%08lX, size=%lu bytes\r\n",
-               (int)fw_id, (unsigned long)flash_addr, (unsigned long)fw_size);
-
-    /* Allocate and read FW data directly (no header) */
-    data->buffer = (uint8_t *)malloc(fw_size);
-    if (data->buffer == NULL) {
-        xil_printf("ERROR: FW buffer malloc failed (size=%lu)\r\n", (unsigned long)fw_size);
-        return API_CMS_ERROR_MEM_ALLOC;
-    }
-
-    err = versal_qspi_read(&data->qspi_inst, flash_addr, data->buffer, fw_size);
-    if (err != API_CMS_ERROR_OK) {
-        free(data->buffer);
-        data->buffer = NULL;
-        return err;
-    }
-
-    *byte_arr = data->buffer;
-    *bytes_read = fw_size;
-
-    adi_apollo_hal_log_write(data->device, ADI_CMS_LOG_MSG,
-                             "FW provider get: id=%d, size=%lu bytes",
-                             (int)fw_id, (unsigned long)fw_size);
-
-    return API_CMS_ERROR_OK;
+#endif
 }
